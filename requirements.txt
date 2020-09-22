@@ -10,7 +10,6 @@ MarkupSafe==1.1.1
 more-itertools==8.5.0
 packaging==20.4
 pg8000==1.16.5
-pkg-resources==0.0.0
 pluggy==0.13.1
 psycopg2-binary==2.8.6
 py==1.9.0
