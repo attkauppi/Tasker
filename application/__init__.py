@@ -1,14 +1,18 @@
 from flask import Flask
+from flask import redirect, render_template, request, session
+import os
 from flask_sqlalchemy import SQLAlchemy
 from config import Config
 
 # Globally accessible libraries
+# Lahde: https://hackersandslackers.com/flask-application-factory/
 db = SQLAlchemy()
 
 def create_app():
     """ Initializes the core application """
     app = Flask(__name__, instance_relative_config=False)
-    app.config.from_object('config.Config')
+    app.config.from_object(os.environ['APP_SETTINGS'])
+    # app.config.from_object('config.Config')
     # app.config.from_object('config.DevConfig')
     # app.config['DEBUG'] = True
     
@@ -19,18 +23,40 @@ def create_app():
     
     #TODO: Utilizing databases is actually still not implemented.
     # Initialize plugins
+    from . import db
+    from application.models import Messages
     db.init_app(app)
 
     with app.app_context():
         # Include routes
         from . import routes
 
+        # Creates database tables
+        db.create_all()
+
         # Register blueprints
         # See https://hackersandslackers.com/flask-application-factory/
+        
 
         @app.route("/", methods=["GET", "POST"])
         def index():
-            return "No toimisitkohan jo. Ja päivää päivää!"
+            result = db.session.execute("SELECT COUNT(*) FROM messages")
+            count = result.fetchone()[0]
+            result = db.session.execute("SELECT content FROM messages")
+            messages = result.fetchall()
+            return render_template("index.html", count=count, messages=messages)
+        
+        @app.route("/new")
+        def new():
+            return render_template("new.html")
+        
+        @app.route("/send", methods=["POST"])
+        def send():
+            content = request.form["content"]
+            sql = "INSERT INTO messages (content) VALUES (:content)"
+            db.session.execute(sql, {"content":content})
+            db.session.commit()
+            return redirect("/")
 
         return app
 
