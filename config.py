@@ -17,6 +17,9 @@ class Config(object):
     STATIC_FOLDER = 'static'
     TEMPLATES_FOLDER = 'templates'
 
+    # Static assets
+    TEMPLATES_FOLDER = 'templates'
+
 
 class ProductionConfig(Config):
     FLASK_ENV = 'production'

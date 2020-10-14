@@ -3,10 +3,12 @@ from flask import redirect, render_template, request, session
 import os
 from flask_sqlalchemy import SQLAlchemy
 from config import Config
+from flask_login import LoginManager
 
 # Globally accessible libraries
 # Lahde: https://hackersandslackers.com/flask-application-factory/
 db = SQLAlchemy()
+login_manager = LoginManager()
 
 def create_app():
     """ Initializes the core application """
@@ -26,6 +28,7 @@ def create_app():
     from . import db
     from application.models import Messages
     db.init_app(app)
+    login_manager.init_app(app)
 
     with app.app_context():
         # Include routes
@@ -36,6 +39,9 @@ def create_app():
 
         # Register blueprints
         # See https://hackersandslackers.com/flask-application-factory/
+
+        from . import auth
+        app.register_blueprint(auth.bp)
         
 
         @app.route("/", methods=["GET", "POST"])
@@ -44,7 +50,9 @@ def create_app():
             count = result.fetchone()[0]
             result = db.session.execute("SELECT content FROM messages")
             messages = result.fetchall()
-            return render_template("index.html", count=count, messages=messages)
+
+            user_agent = request.headers.get('User-Agent')
+            return render_template("index.html", count=count, messages=messages,user_agent=user_agent)
         
         @app.route("/new")
         def new():

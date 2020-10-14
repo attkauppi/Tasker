@@ -1,3 +1,7 @@
+{% if session.username %}
+<p>Olet kirjautunut nimellä {{ session.username }}</p>
+<a href="/auth/logout">Kirjaudu ulos</a>
+{% else %}
 Viestien määrä: {{ count }}
 <hr>
 {% for message in messages %}
@@ -5,3 +9,9 @@ Viestien määrä: {{ count }}
 <hr>
 {% endfor %}
 <a href="/new">Lähetä viesti</a>
+<a href="/auth/register">Rekisteröidy</a>
+<a href="/auth/login">Kirjaudu</a>
+<p>
+
+</p>
+{% endif %}

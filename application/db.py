@@ -1,11 +1,23 @@
 
 from flask_sqlalchemy import SQLAlchemy
+import psycopg2
+import click
+from flask import current_app, g
+from flask.cli import with_appcontext
 
 db = SQLAlchemy()
 
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+
+def get_db():
+    if 'db' not in g:
+        g.db = psycopg2.connect(
+            current_app.config['DATABASE_URL']
+        )
+    return g.db
+
 
 def init_db():
     db = get_db()
