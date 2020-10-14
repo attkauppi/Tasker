@@ -11,7 +11,6 @@ from . import login_manager
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-
 @login_manager.user_loader
 def load_user(user_id):
     """Check if user is logged-in on every page load."""
