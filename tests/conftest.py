@@ -19,6 +19,7 @@ def handler(postgresql):
 
     # cursor.execute("CREATE TABLE messages(id SERIAL PRIMARY KEY, content TEXT, user_id INTEGER REFERENCES users, sent_at TIMESTAMP)")
     cursor.execute("CREATE TABLE messages(id SERIAL PRIMARY KEY, content TEXT)")
+    cursor.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, username TEXT UNIQUE, password TEXT)")
     cursor.execute("INSERT INTO messages (content) VALUES ('hello'), ('ciao')")
     cursor.close()
     conn.commit()

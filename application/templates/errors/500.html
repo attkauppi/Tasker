@@ -1,0 +1,7 @@
+{% extends "base.html" }
+
+{% block app_content %}
+    <h1>{{'Unexpected error occurred'}}</h1>
+    <p>{{'The administrator will be notified as soon as that feature is implemtend. In the meanwhile, relax.'}}</p>
+    <p><a href="{{ url_for('main.index') }}">{{'Back'}}</a></p>
+{% endblock %}

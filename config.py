@@ -16,9 +16,8 @@ class Config(object):
     # SESSION_COOKIE_NAME = os.environ.get('SESSION_COOKIE_NAME')
     STATIC_FOLDER = 'static'
     TEMPLATES_FOLDER = 'templates'
-
     # Static assets
-    TEMPLATES_FOLDER = 'templates'
+    # TEMPLATES_FOLDER = 'templates'
 
 
 class ProductionConfig(Config):
