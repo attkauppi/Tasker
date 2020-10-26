@@ -1,6 +1,6 @@
 import psycopg2
 import testing.postgresql
-# from testing.postgresql import Postgresql
+from testing.postgresql import Postgresql
 import os,sys,inspect
 import pytest
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -19,8 +19,17 @@ def handler(postgresql):
 
     # cursor.execute("CREATE TABLE messages(id SERIAL PRIMARY KEY, content TEXT, user_id INTEGER REFERENCES users, sent_at TIMESTAMP)")
     cursor.execute("CREATE TABLE messages(id SERIAL PRIMARY KEY, content TEXT)")
-    cursor.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, username TEXT UNIQUE, password TEXT)")
+    cursor.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, username TEXT UNIQUE, password TEXT, email TEXT, created TIMESTAMP WITHOUT TIME ZONE, last_seen TIMESTAMP WITHOUT TIME ZONE)")
     cursor.execute("INSERT INTO messages (content) VALUES ('hello'), ('ciao')")
+    cursor.execute("""CREATE TABLE tasks (
+        id SERIAL PRIMARY KEY,
+        creator_id INTEGER NOT NULL,
+        title TEXT,
+        description TEXT,
+        created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        done BOOLEAN,
+        FOREIGN KEY (creator_id) REFERENCES users (id)
+    )""")
     cursor.close()
     conn.commit()
     conn.close()
@@ -32,6 +41,7 @@ class TestConfig(object):
     DEBUG = True
     TESTING = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_DATABASE_URI = Postgresql().url()
     ENV = 'test'
     TESTING = True
 

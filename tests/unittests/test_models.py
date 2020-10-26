@@ -7,7 +7,7 @@ parentdir = os.path.dirname(currentdir)
 parentdir = os.path.dirname(parentdir)
 sys.path.insert(0, parentdir)
 from application.models import User
-
+from mock import patch
 from application import create_app, db
 
 # create initial data on create as fixtures into the database
@@ -39,6 +39,18 @@ class UserModelCase(unittest.TestCase):
         u.set_password("kissa")
         self.assertFalse(u.check_password("koira"))
         self.assertTrue(u.check_password("kissa"))
+    
+    # @patch('models.user.verify_reset_password_token', lambda x:x)
+    # def test_token_generation_verification(self):
+    #     u = User(username="Testi")
+    #     u.set_password=("kissa")
+    #     u.email = "testi@localhost.com"
+    #     db.session.add(u)
+    #     self.app.post('/')
+    #     # db.session.add(u)
+    #     print(u.get_reset_password_token())
+    #     self.assertEqual(u.verity_reset_password_token(u.get_reset_password_token()), u.id)
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2) 

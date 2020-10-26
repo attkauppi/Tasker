@@ -12,14 +12,14 @@ def test_index(testapp):
 
 def test_register(testapp):
     """ Tests registering """
-    response = testapp.get("/register")
+    response = testapp.get("/auth/register")
     assert b"Username" in response.data
     assert b"Password" in response.data
     assert b"Repeat password" in response.data
     assert 200 == response.status_code
 
 def test_send_registration(testapp):
-    response = testapp.post("/register", data={"Username": "testityyppi", "Password":"salasana", "Repeat password":"salasana"})
+    response = testapp.post("/auth/register", data={"Username": "testityyppi", "Email": "test@localhost.com", "Password":"salasana", "Repeat password":"salasana"})
     print("response.status_code: ", response.status_code)
     assert 200 == response.status_code
 
@@ -28,6 +28,8 @@ def test_send_registration(testapp):
 def test_404(testapp):
     """ Tests 404 error """
     response = testapp.get("/olematon")
+    print("response.data: ", response.data )
+    print("response.status_code: ", response.status_code)
     assert b"Not found" in response.data
     assert 404 == response.status_code
 

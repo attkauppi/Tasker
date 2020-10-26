@@ -1,4 +1,7 @@
 from application import create_app
+import logging
+logging.basicConfig(filename='api.log',level=logging.DEBUG)
+
 
 app = create_app()
 

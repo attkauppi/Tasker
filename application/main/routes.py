@@ -7,6 +7,7 @@ from application import db, login_manager
 from application.models import User
 from application.main import bp
 
+print("Main luokka")
 # @login_manager.user_loader
 # def load_user(user_id):
 #     """Check if user is logged-in on every page load."""
@@ -34,6 +35,7 @@ from application.main import bp
 #    g.locale = str(get_locale())
 @bp.before_app_request
 def before_request():
+    print("Before request")
     if current_user.is_authenticated:
         # This uses utcnow for consistency. A user
         # may be located wherever, but utcnow won't
@@ -47,20 +49,23 @@ def before_request():
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
 def index():
+    print("Index metodi")
+    # import logging
+    # logging.basicConfig(level=logging.DEBUG)
     # TODO Kesken.
     # form = PostForm()
     # TODO Validate form if used
     # Redirect user to the page they were trying to access
-    #page = request.args.get('page', 1, type=int)
-    #print("page: ", page)
+    # page = request.args.get('page', 1, type=int)
+    # print("page: ", page)
     # Get messages
     result = db.session.execute("SELECT COUNT(*) FROM messages")
     count = result.fetchone()[0]
     result = db.session.execute("SELECT content FROM messages")
     messages = result.fetchall()
 
-    user_agent = request.headers.get('User-Agent')
-    return render_template("index.html", count=count, messages=messages,user_agent=user_agent)
+    # user_agent = request.headers.get('User-Agent')
+    return render_template("index.html", count=count, messages=messages)
 
 @bp.route("/new")
 def new():
@@ -74,4 +79,14 @@ def send():
     db.session.commit()
     return redirect("/")
 
+@bp.route('/user/<username>')
+@login_required
+def user(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    page = request.args.get('page', 1, type=int)
+    tasks = [
+        {'author': user, 'title': 'Test task1'}
+
+    ]
+    return render_template('user.html', user=user, tasks=tasks)
 
