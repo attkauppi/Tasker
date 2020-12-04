@@ -2,6 +2,8 @@
 from flask_login import UserMixin
 from flask import current_app
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
 from application import db, login_manager
 from sqlalchemy import (
     Integer, String, Date, DateTime, Float, Boolean, Text, Boolean)
@@ -20,7 +22,8 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.Text(), nullable=True)
     created = db.Column(DateTime, default=datetime.utcnow())
     last_seen = db.Column(DateTime, default=datetime.utcnow())
-    tasks = db.relationship('Task', backref='author', lazy=True)
+    #tasks = db.relationship('Task', backref='author', lazy=True)
+    tasks = relationship("Task", back_populates='user')
     # tasks = db.relationship('Task', back_populates='users')
     #tasks = db.relationship('Task', backref='user', lazy='dynamic')
 
@@ -87,11 +90,12 @@ class Task(db.Model):
     created = db.Column(DateTime, default=datetime.utcnow())
     done = db.Column(db.Boolean)
     creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    user = db.relationship('User')
+    #user = db.relationship('User')
+    user = relationship('User', back_populates='tasks')
     #user = db.relationship('User', innerjoin=True, back_populates='tasks')
 
     def __repr__(self):
-        return "<Task {}>".format(self.body)
+        return "<Task {}>".format(self.title)
 
 @login_manager.user_loader
 def load_user(id):

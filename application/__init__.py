@@ -49,8 +49,8 @@ def create_app():
         "MAIL_PORT": 465,
         "MAIL_USE_TLS": False,
         "MAIL_USE_SSL": True,
-        "MAIL_USERNAME": 'tasker.info.noreply@gmail.com',
-        "MAIL_PASSWORD": 'pvXR32X2'
+        "MAIL_USERNAME": '',
+        "MAIL_PASSWORD": ''
     }
     app.config.update(mail_settings)
     mail.init_app(app)

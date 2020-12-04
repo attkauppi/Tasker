@@ -4,7 +4,7 @@ from flask import render_template, flash, redirect, url_for, request, g, \
 from flask_login import current_user, login_required
 from application import db, login_manager
 #from application.main.forms import#EditProfileForm#, EmptyForm, PostForm
-from application.models import User
+from application.models import User, Task
 from application.main import bp
 
 print("Main luokka")
@@ -84,8 +84,10 @@ def send():
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     page = request.args.get('page', 1, type=int)
+    
     tasks = [
-        {'author': user, 'title': 'Test task1'}
+        {'author': user, 'title': 'Test task1'},
+        {'author': user, 'title': 'Test task2'}
 
     ]
     return render_template('user.html', user=user, tasks=tasks)
