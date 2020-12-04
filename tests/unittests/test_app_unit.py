@@ -30,7 +30,7 @@ class TestAppUnit(unittest.TestCase):
     def setUp(self):
         # Use the generated Postgresql class instead of testing.postgresql.Postgresql
         self.postgresql = Postgresql()
-        print("postgresql url: ", self.postgresql.url())
+        #print("postgresql url: ", self.postgresql.url())
         self._app = create_app()
         self._app.config['SQLALCHEMY_DATABASE_URI'] = self.postgresql.url()
         # self._app
@@ -48,22 +48,22 @@ class TestAppUnit(unittest.TestCase):
         #self.postgresql.stop()
         db.session.remove()
         db.drop_all(app=self._app)
-        print("db pool status")
-        print(db.engine.pool.status())
+        #print("db pool status")
+        #print(db.engine.pool.status())
         if self.ctx is not None:
             self.ctx.pop()
         self.postgresql.stop()
 
     def test_home_page(self):
         response = self.app.get("/")
-        print("response: ", response.status_code)
+        #print("response: ", response.status_code)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(b"viesti" in response.data)
         
     def test_register_page(self):
         """ Tests whether register page is reachable """
         response = self.app.get("/auth/register")
-        print("Register statuscode: ", response.status_code)
+        #print("Register statuscode: ", response.status_code)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(b"Username" in response.data)
         self.assertTrue(b"Email" in response.data)
@@ -84,7 +84,7 @@ class TestAppUnit(unittest.TestCase):
         whether certain default content can be found
         on it. """
         response = self.app.get("/auth/login")
-        print("login status.code: ", response.status_code)
+        # print("login status.code: ", response.status_code)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(b"login" in response.data)
         self.assertTrue(b"username" in response.data)
