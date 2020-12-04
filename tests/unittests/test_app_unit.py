@@ -10,7 +10,7 @@ sys.path.insert(0, parentdir)
 import testing.postgresql
 
 from application import create_app, db
-from application.models import User
+from application.models import User,Task
 
 # create initial data on create as fixtures into the database
 def handler(postgresql):
