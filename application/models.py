@@ -24,6 +24,7 @@ class User(UserMixin, db.Model):
     # tasks = db.relationship('Task', back_populates='users')
     #tasks = db.relationship('Task', backref='user', lazy='dynamic')
 
+    # Turha kommentti
     # def __init__(self, username, password):
     #     self.username = username
     #     self.password = password
