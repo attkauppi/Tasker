@@ -1,6 +1,6 @@
 from flask import request
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField
+from wtforms import StringField, SubmitField, TextAreaField, BooleanField
 from wtforms.validators import ValidationError, DataRequired, Length
 # from flask_babel import _, lazy_gettext as _l
 from application.models import User
@@ -36,3 +36,11 @@ from application.models import User
 #     """ These may be used for comments """
 #     post = TextAreaField('Say something', validators=[DataRequired()])
 #     submit = SubmitField('Submit')
+
+class TaskForm(FlaskForm):
+    """ Used to create tasks """
+    # TODO: Saatat joutua muuttamaan myöhemmin, mikäli ryhmien luomia tehtäviä varten.
+    task_title = TextAreaField('Task title', validators=[DataRequired()])
+    task_description = TextAreaField('Task description', validators=[DataRequired()])
+    done = BooleanField('Task done?', default=False)
+    submit = SubmitField('Create/Edit')
