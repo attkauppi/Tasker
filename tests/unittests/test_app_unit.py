@@ -1,3 +1,4 @@
+from unittest import TestCase
 import unittest
 import psycopg2
 import testing.postgresql
@@ -9,6 +10,7 @@ parentdir = os.path.dirname(parentdir)
 sys.path.insert(0, parentdir)
 import testing.postgresql
 
+#from flask_webtest import TestApp
 from application import create_app, db
 from application.models import User,Task
 
@@ -25,6 +27,11 @@ def handler(postgresql):
 # Use `handler()` on initialize database
 Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=True,
                                                   on_initialized=handler)
+
+class TestConfig(object):
+    DEBUG = True
+    TESTING = True
+    WTF_CSRF_ENABLED = False
 
 class TestAppUnit(unittest.TestCase):
     def setUp(self):
@@ -123,13 +130,71 @@ class TestAppUnit(unittest.TestCase):
     
     # def test_add_task(self):
     #     """ Tests adding a task """
-    #     self.register(
-    #         'testi',
-    #         'testi@localhost.com',
-    #         'testiS',
-    #         'testiS'
-    #     )
-    #     response =self.login('ttesti', 'ttestiS')
+    #     #self.register(
+    #     #    'testi',
+    #     #    'testi@localhost.com',
+    #     #    'testiS',
+    #     #    'testiS'
+    #     #)
+    #     #self.login('ttesti', 'ttestiS')
+    #     u = User()
+    #     u.username = "ttesti"
+    #     u.email = "ttesti@ttestaaja.com"
+    #     u.set_password("ttestiS")
+        
+    #     db.session.add(u)
+    #     db.session.commit()
+    #     response = self.login('ttesti', 'ttestiS')
+
+    #     # data=dict(
+    #     #         username=u.username,
+    #     #         password=u.password
+    #     #     )
+
+    #     # with self.client as client:
+    #     #     #client.preserve_context
+    #     #     res = client.post('/auth/login', data=data, follow_redirects=True)
+    #     #     res = client.get('/user/ttesti', follow_redirects=True)
+            
+    #     #     print("uuden kokeilun status_code: ", res.status_code)
+    #     #     print(res.data.decode())
+    #     u = "testi"
+    #     p = "testip"
+    #     p2 = "testip"
+    #     email = "testi@testi.fi"
+
+    #     r = self.register(u, email, p, p2)
+    #     self.assertTrue(r.status_code, 200)
+
+    #     r = self.login(u, p)
+    #     self.assertTrue(r.status_code, 200)
+
+    #     r = self.client.get('/user/testi', follow_redirects=True)
+
+    #     #response = self.login(u.username, u.password)
+    #     #print(response.get_data(as_text=True))
+    #     print(r.get_data(as_text=True))
+    #     self.assertTrue(b"Hei ttesti" in r.data)
+
+        #self.app.login_manager.init_app(app)
+        #self.client = webtest.TestApp(app)
+        #self.login('ttesti', 'ttestiS')
+        #self.app.post('/login')
+        # self.app.post(
+        #     '/auth/login',
+        #     data=dict(
+        #         username=u.username,
+        #         password=u.password
+        #     ),
+        #     follow_redirects=True
+        # )
+
+        #response = self.app.get('/user/testi')
+        
+        #response = self.app.get('/user/testi')
+        #self.assertEqual(500, 200)
+        #response = self.app.get('/user/testi')
+
         
 
 

@@ -3,7 +3,7 @@ from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
 from flask_login import current_user, login_required
 from application import db, login_manager
-from application.main.forms import TaskForm #EditProfileForm#, EmptyForm, PostForm
+from application.main.forms import TaskForm, EditProfileForm#, EmptyForm, PostForm
 from application.models import User, Task
 from application.main import bp
 
@@ -93,9 +93,6 @@ def user(username):
     if form.validate_on_submit() and username == current_user.username:
         title=form.task_title.data
         description=form.task_description.data
-        print("task title: ", title)
-        print("task descrpition: ", description)
-        print("Task done: ", str(form.done.data))
         task = Task(
             title=form.task_title.data,
             description=form.task_description.data,
@@ -111,18 +108,37 @@ def user(username):
 
     user_tasks = user.tasks
     
+    # Testidata, jolla saa testattua helposti, mikäli hajoaa jossain
+    # vaiheessa: 
     #tasks = [
     #    {'author': user, 'title': 'Test task1'},
     #    {'author': user, 'title': 'Test task2'}
     #
     #]
 
-    #tasks.extend(user_tasks)
-
     # TODO: Ei kannata toteuttaa kai näin, vaan esim. käytttämällä rooleja.
     # Tosin kannattaa miettiä, miten sivustot suunnittelee.
     if user.username != current_user.username:
         return render_template('user.html', user=user, tasks=user_tasks)
-    
     return render_template('user.html', user=user, tasks=user_tasks, form=form)
+
+@bp.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    """ Allows making changes to a user profile """
+    # TODO: There's no test for this method yet.
+    form = EditProfileForm(current_user.username)
+    # TODO: SQL-komennot tilalle lopuksi
+
+    # FIXME: Salli myös salasanan vaihtaminen
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.about_me = form.about_me.data
+        db.session.commit()
+        flash('Your profile was edited!')
+        return redirect(url_for('main.edit_profile'))
+    elif request.method == "GET":
+        form.username.data = current_user.username
+        form.about_me.data = current_user.about_me
+    return render_template('edit_profile.html', title=('Edit Profile'), form=form)
 

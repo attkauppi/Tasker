@@ -54,7 +54,10 @@ class DevConfig(Config):
     MAIL_DEFAULT_SENDER='tasker.info.noreply@gmail.com'
     # SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URI')
 
-# class TestConfig(object):
+class TestConfig(Config):
+    DEBUG = True
+    TESTING = True
+    WTF_CSRF_ENABLED = False
     
 #     import psycopg2
 #     import testing.postgresql

@@ -6,23 +6,23 @@ from wtforms.validators import ValidationError, DataRequired, Length
 from application.models import User
 
 
-# class EditProfileForm(FlaskForm):
-#     """ Form for handling user profile edits """
-#     username = StringField('Username', validators=[DataRequired()])
-#     about_me = TextAreaField('About me', validators=[Length(min=0, max=360)])
-#     submit = SubmitField('Submit')
+class EditProfileForm(FlaskForm):
+    """ Form for handling user profile edits """
+    username = StringField('Username', validators=[DataRequired()])
+    about_me = TextAreaField('About me', validators=[Length(min=0, max=360)])
+    submit = SubmitField('Submit')
 
-#     def __init__(self, original_username, *args, **kwargs):
-#         super(EditProfileForm, self).__init__(*args, **kwargs)
-#         self.original_username = original_username
+    def __init__(self, original_username, *args, **kwargs):
+        super(EditProfileForm, self).__init__(*args, **kwargs)
+        self.original_username = original_username
     
-#     def validate_username(self, username):
-#         """ Validates a user's username """
-#         if username.data != self.original_username:
-#             # SQL
-#             user = User.query.filter_by(username=self.username.data).first()
-#             if user is not None:
-#                 raise ValidationError(message='Please choose another username.')
+    def validate_username(self, username):
+        """ Validates a user's username """
+        if username.data != self.original_username:
+            # SQL
+            user = User.query.filter_by(username=self.username.data).first()
+            if user is not None:
+                raise ValidationError(message='Please choose another username.')
 
 # class EmptyForm(FlaskForm):
 #     """ A class that's going to be used for
