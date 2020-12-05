@@ -93,8 +93,6 @@ class TestAppUnit(unittest.TestCase):
     
     def test_log_in(self):
         """ Tests logging in """
-
-        
         u = User()
         u.username = "ttesti"
         u.set_password("ttestiS")
@@ -103,6 +101,37 @@ class TestAppUnit(unittest.TestCase):
         db.session.commit()
         response = self.login('ttesti', 'ttestiS')
         self.assertEqual(response.status_code, 200)
+    
+    def test_access_user_page_without_login(self):
+        """ 
+        Tests whether it's possible to access the /user/<username> path
+        without logging in -- it shouldn't be.
+        """
+        # To test, we need a user that could
+        # theoretically have a user page
+        response = self.register(
+            'testi',
+            'testi@localhost.com',
+            'testiS',
+            'testiS'
+        )
+        response = self.app.get("/user/testi")
+        print("resp status code: ", response.status_code)
+        self.assertFalse(b"Task title" in response.data)
+        # Should be 302, when attempted access without logon; redirects to login page.
+        self.assertTrue(response.status_code, 302)
+    
+    # def test_add_task(self):
+    #     """ Tests adding a task """
+    #     self.register(
+    #         'testi',
+    #         'testi@localhost.com',
+    #         'testiS',
+    #         'testiS'
+    #     )
+    #     response =self.login('ttesti', 'ttestiS')
+        
+
 
 
 
