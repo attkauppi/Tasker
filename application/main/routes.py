@@ -3,7 +3,7 @@ from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
 from flask_login import current_user, login_required
 from application import db, login_manager
-#from application.main.forms import#EditProfileForm#, EmptyForm, PostForm
+from application.main.forms import TaskForm #EditProfileForm#, EmptyForm, PostForm
 from application.models import User, Task
 from application.main import bp
 
@@ -79,16 +79,50 @@ def send():
     db.session.commit()
     return redirect("/")
 
-@bp.route('/user/<username>')
+@bp.route('/user/<username>', methods=["GET", "POST"])
 @login_required
 def user(username):
-    user = User.query.filter_by(username=username).first_or_404()
-    page = request.args.get('page', 1, type=int)
-    
-    tasks = [
-        {'author': user, 'title': 'Test task1'},
-        {'author': user, 'title': 'Test task2'}
 
-    ]
-    return render_template('user.html', user=user, tasks=tasks)
+    user = User.query.filter_by(username=username).first_or_404()
+    print("Parametrina saatu user: ", user)
+    print("Nykyinen kayttaja: ", current_user.username)
+    # ==> Eroavat toisistaan
+    
+    # TODO: Onko teoriassa mahdollista, että toinen käyttäjä voisi lisätä tehtäviä toiselle? Kokeile esim. Postmanilla.
+    form = TaskForm()
+    if form.validate_on_submit() and username == current_user.username:
+        title=form.task_title.data
+        description=form.task_description.data
+        print("task title: ", title)
+        print("task descrpition: ", description)
+        print("Task done: ", str(form.done.data))
+        task = Task(
+            title=form.task_title.data,
+            description=form.task_description.data,
+            done = form.done.data,
+            creator_id = current_user.id
+        )
+        db.session.add(task)
+        db.session.commit()
+        flash("Added task, hopefully.")
+        return redirect(url_for('main.user', username=current_user.username))
+
+    page = request.args.get('page', 1, type=int)
+
+    user_tasks = user.tasks
+    
+    #tasks = [
+    #    {'author': user, 'title': 'Test task1'},
+    #    {'author': user, 'title': 'Test task2'}
+    #
+    #]
+
+    #tasks.extend(user_tasks)
+
+    # TODO: Ei kannata toteuttaa kai näin, vaan esim. käytttämällä rooleja.
+    # Tosin kannattaa miettiä, miten sivustot suunnittelee.
+    if user.username != current_user.username:
+        return render_template('user.html', user=user, tasks=user_tasks)
+    
+    return render_template('user.html', user=user, tasks=user_tasks, form=form)
 
