@@ -172,13 +172,6 @@ def create_app():
 
         #     user_agent = request.headers.get('User-Agent')
         #     return render_template("index.html", count=count, messages=messages,user_agent=user_agent)
-
-
-
-    
-        # @app.route("/new")
-        # def new():
-        #     return render_template("new.html")
         
         # @app.route("/send", methods=["POST"])
         # def send():
