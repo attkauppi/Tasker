@@ -151,6 +151,7 @@ def edit_profile():
 def edit_profile_admin(id):
     """ Route that allows admin to edit user profiles """
     user = User.query.get_or_404(id)
+    print(user)
     form = EditProfileAdmin(user=user)
     # POST-pyynnön tapahduttua
     if form.validate_on_submit():
@@ -160,13 +161,13 @@ def edit_profile_admin(id):
         #user.confirmed = form.confirmed.data
         user.role = Role.query.get(form.role.data)
         # TODO: lisää jos otat nimet käyttöön
-        user.name = form.name.data
+        # user.name = form.name.data
         user.about_me = form.about_me.data
         db.session.add(user)
         db.session.commit()
         flash('The profile has been updated')
         #FIXME: Voi olla että tämä ei toimi
-        return redirect(url_for('/user/.user', username=user.username))
+        return redirect(url_for('.user', username=user.username))
     # Get-pyyntöä tehdessä, haetaan valmiiksi käyttäjän tiedot kenttiin
     form.email.data = user.email
     form.username.data = user.username
@@ -174,4 +175,5 @@ def edit_profile_admin(id):
     form.role.data = user.role_id
     # form.name.data = user.name
     form.about_me = user.about_me
-    return render_template('edit_profile', form=form, user=user)
+    print(user)
+    return render_template('edit_profile.html', title=('Edit Profile'), form=form, user=user)
