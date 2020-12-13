@@ -47,7 +47,7 @@ sys.path.insert(0, parentdir)
 import testing.postgresql
 
 from application import create_app, db
-from application.models import User, Task
+from application.models import User, Task, Permission, Role, AnonymousUser
 
 # create initial data on create as fixtures into the database
 def handler(postgresql):
@@ -85,6 +85,7 @@ class UserModelCase(unittest.TestCase):
 
         self.app = self._app.test_client()
         db.create_all()
+        Role.insert_roles()
         
         # Yksi ohje taalta
         # https://stackoverflow.com/questions/16117094/flask-unit-tests-with-sqlalchemy-and-postgresql-exhausts-db-connections
@@ -141,6 +142,26 @@ class UserModelCase(unittest.TestCase):
     #     # db.session.add(u)
     #     print(u.get_reset_password_token())
     #     self.assertEqual(u.verity_reset_password_token(u.get_reset_password_token()), u.id)
+    def test_user_role(self):
+        """ Tests that a basic user can only create tasks and create groups """
+        u = User(username='john', email='john@exampleexample.com', password='cat')
+        self.assertTrue(u.can(Permission.CREATE_TASKS))
+        self.assertTrue(u.can(Permission.CREATE_GROUPS))
+        self.assertFalse(u.can(Permission.CREATE_GROUP_TASKS))
+        self.assertFalse(u.can(Permission.MODERATE_GROUP))
+        self.assertFalse(u.can(Permission.ADMIN))
+    
+    def test_anynymous_user(self):
+        """ Anonymous user should not be allowed to do
+        any of these functions/tasks """
+        u = AnonymousUser()
+        self.assertFalse(u.can(Permission.CREATE_TASKS))
+        self.assertFalse(u.can(Permission.CREATE_GROUPS))
+        self.assertFalse(u.can(Permission.CREATE_GROUP_TASKS))
+        self.assertFalse(u.can(Permission.MODERATE_GROUP))
+        self.assertFalse(u.can(Permission.ADMIN))
+    
+
 
 
 if __name__ == '__main__':

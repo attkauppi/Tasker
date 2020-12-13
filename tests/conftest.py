@@ -18,8 +18,22 @@ def handler(postgresql):
     # cursor.execute("CREATE TABLE users(id SERIAL PRIMARY KEY, username TEXT UNIQUE, password TEXT)")
 
     # cursor.execute("CREATE TABLE messages(id SERIAL PRIMARY KEY, content TEXT, user_id INTEGER REFERENCES users, sent_at TIMESTAMP)")
+    cursor.execute("""CREATE TABLE roles (
+        id SERIAL PRIMARY KEY,
+        role_name TEXT UNIQUE,
+        default_role BOOLEAN,
+        permissions INTEGER
+    )""")
     cursor.execute("CREATE TABLE messages(id SERIAL PRIMARY KEY, content TEXT)")
-    cursor.execute("CREATE TABLE users (id SERIAL PRIMARY KEY, username TEXT UNIQUE, password TEXT, email TEXT, created TIMESTAMP WITHOUT TIME ZONE, last_seen TIMESTAMP WITHOUT TIME ZONE)")
+    cursor.execute("""CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        username TEXT UNIQUE, password TEXT,
+        email TEXT, about_me TEXT,
+        created TIMESTAMP WITHOUT TIME ZONE,
+        last_seen TIMESTAMP WITHOUT TIME ZONE,
+        role_id INTEGER,
+        FOREIGN KEY (role_id) REFERENCES roles (id)
+    )""")
     cursor.execute("INSERT INTO messages (content) VALUES ('hello'), ('ciao')")
     cursor.execute("""CREATE TABLE tasks (
         id SERIAL PRIMARY KEY,

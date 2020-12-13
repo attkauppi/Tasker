@@ -1,5 +1,5 @@
 # from . import db
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 from flask import current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import relationship
@@ -11,6 +11,7 @@ from datetime import date
 from datetime import datetime
 from time import time
 import jwt
+import os
 
 class User(UserMixin, db.Model):
     """ User accont db model """
@@ -22,13 +23,23 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.Text(), nullable=True)
     created = db.Column(DateTime, default=datetime.utcnow())
     last_seen = db.Column(DateTime, default=datetime.utcnow())
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     #tasks = db.relationship('Task', backref='author', lazy=True)
     tasks = relationship("Task", back_populates='user')
     # tasks = db.relationship('Task', back_populates='users')
     #tasks = db.relationship('Task', backref='user', lazy='dynamic')
 
     # Turha kommentti
-    # def __init__(self, username, password):
+    def __init__(self, **kwargs):
+        """ Sets user roles. Sets Admin if email matches """
+        super(User, self).__init__(**kwargs)
+        if self.role is None:
+            if self.email == os.getenv('ADMIN'):
+                # TODO: Tietokantaviritykset lopuksi
+                self.role = Role.query.filter_by(role_name='Administrator').first()
+            if self.role is None:
+                self.role = Role.query.filter_by(default_role=True).first()
+
     #     self.username = username
     #     self.password = password
 
@@ -71,7 +82,106 @@ class User(UserMixin, db.Model):
         except:
             return
         return User.query.get(id)
+    
+    # User role check
+    def can(self, perm):
+        """ Retruns true if the requested permission is present
+        in the role. """
+        return self.role is not None and self.role.has_permission(perm)
+    
+    def is_administrator(self):
+        return self.can(Permission.ADMIN)
 
+class AnonymousUser(AnonymousUserMixin):
+    def can(self, permissions):
+        return False
+    
+    def is_administrator(self):
+        return False
+
+login_manager.anonymous_user = AnonymousUser
+
+class Role(db.Model):
+    """ Implements roles for users """
+    #TODO: Lisää roolit schema.sql:n
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer, primary_key=True)
+    role_name = db.Column(db.String(64), unique=True)
+    default_role = db.Column(db.Boolean, default=False, index=True)
+    permissions = db.Column(Integer)
+    users = relationship('User', backref='role', lazy='dynamic')
+
+    def __init__(self, **kwargs):
+        super(Role, self).__init__(**kwargs)
+        if self.permissions is None:
+            self.permissions = 0
+    
+    def add_permission(self, perm):
+        if not self.has_permission(perm):
+            self.permissions += perm
+    
+    def remove_permissions(self, perm):
+        if self.has_permissions(perm):
+            self.permissions -= perm
+    
+    def reset_permissions(self):
+        self.permissions = 0
+    
+    def has_permission(self, perm):
+        return self.permissions & perm == perm
+    
+    def __repr__(self):
+        return '<Role %r>' % self.role_name
+    
+    @staticmethod
+    def insert_roles():
+        # TODO: On lisättävä email confirmation, jotta admin-tiliä ei voida kaapata.
+        """
+        Tries to find existing roles by name and update
+        those. A new role is created only for those roles
+        that aren't in the database already. This is done
+        so the role list can be updated in the future when
+        changes need to be made.
+
+        This gives admission priveleges to the user who has
+        the admin email address (defined in .env in the root
+        folder). Whoever has this address, is the admin user.
+        ==> Would work better, if confirmation emails would be
+        possible to send.
+        """
+        roles = {
+            'User': [Permission.CREATE_TASKS, Permission.CREATE_GROUPS],
+            'Group role': [Permission.CREATE_TASKS,
+                Permission.CREATE_GROUPS, 
+                Permission.CREATE_GROUP_TASKS],
+            'Moderator': [Permission.CREATE_TASKS,
+                Permission.CREATE_GROUPS,
+                Permission.CREATE_GROUP_TASKS,
+                Permission.MODERATE_GROUP],
+            'Administrator': [Permission.CREATE_TASKS,
+                Permission.CREATE_GROUPS,
+                Permission.CREATE_GROUP_TASKS,
+                Permission.MODERATE_GROUP,
+                Permission.ADMIN],
+        }
+        default_role = 'User'
+        for r in roles:
+            role = Role.query.filter_by(role_name=r).first()
+            if role is None:
+                role = Role(role_name=r)
+            role.reset_permissions()
+            for perm in roles[r]:
+                role.add_permission(perm)
+            role.default_role = (role.role_name == default_role)
+            db.session.add(role)
+        db.session.commit()
+
+class Permission:
+    CREATE_TASKS = 1
+    CREATE_GROUPS = 2
+    CREATE_GROUP_TASKS = 4
+    MODERATE_GROUP = 8
+    ADMIN = 16
 
 class Messages(db.Model):
     """ A Model of messages table """

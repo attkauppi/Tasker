@@ -13,6 +13,9 @@ from application.auth.email import send_password_reset_email
 from application.models import User
 from datetime import date
 from datetime import datetime
+from application.email import send_email
+#from flask_mail import Message
+#from application import mail
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -48,6 +51,7 @@ def register():
         user.created = datetime.utcnow()
         db.session.add(user)
         db.session.commit()
+        #send_email(user.email, 'testi')
         flash("Congrats, you're now a user")
         return redirect(url_for("auth.login"))
     return render_template('auth/register.html', form=form)
@@ -61,6 +65,7 @@ def reset_password_request():
     if request.method == "POST":
         if form.validate_on_submit:
             user = User.query.filter_by(email=form.email.data).first()
+            print(user.email)
             print("User", user)
             if user:
                 send_password_reset_email(user)

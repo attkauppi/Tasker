@@ -20,13 +20,13 @@ class Config(object):
     STATIC_FOLDER = 'static'
     TEMPLATES_FOLDER = 'templates'
     # MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_SERVER='smtp.gmail.com'
-    MAIL_PORT=465
-    MAIL_USE_TLS=False
-    MAIL_USE_SSL=True
-    MAIL_USERNAME='tasker.info.noreply@gmail.com'
-    MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
-    MAIL_DEFAULT_SENDER='tasker.info.noreply@gmail.com'
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 465
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = os.getenv('MAIL_USERNAME')
+    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.getenv('MAIL_USERNAME')
+    MAIL_DEBUG = True
     # Static assets
     # TEMPLATES_FOLDER = 'templates'
 
@@ -42,16 +42,18 @@ class DevConfig(Config):
     FLASK_ENV = 'development'
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URI')
+    DATABASE_URL = os.environ.get('DEV_DATABASE_URI')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     print("debug mode: ", os.environ.get('DEBUG'))
     TESTING = True
-    MAIL_SERVER='smtp.gmail.com'
-    MAIL_PORT=465
-    MAIL_USE_TLS=False
-    MAIL_USE_SSL=True
-    MAIL_USERNAME='tasker.info.noreply@gmail.com'
-    MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
-    MAIL_DEFAULT_SENDER='tasker.info.noreply@gmail.com'
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 465
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = os.getenv('MAIL_USERNAME')
+    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.getenv('MAIL_USERNAME')
+    MAIL_DEBUG = True
+    ADMINS=os.getenv('MAIL_USERNAME')
     # SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URI')
 
 class TestConfig(Config):

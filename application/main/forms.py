@@ -1,7 +1,7 @@
 from flask import request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField
-from wtforms.validators import ValidationError, DataRequired, Length
+from wtforms.validators import ValidationError, DataRequired, Length, Email
 # from flask_babel import _, lazy_gettext as _l
 from application.models import User
 
@@ -10,6 +10,7 @@ class EditProfileForm(FlaskForm):
     """ Form for handling user profile edits """
     username = StringField('Username', validators=[DataRequired()])
     about_me = TextAreaField('About me', validators=[Length(min=0, max=360)])
+    email = StringField("Email", [DataRequired('Please enter your email address.'), Email('This field requires a valid email address')])
     submit = SubmitField('Submit')
 
     def __init__(self, original_username, *args, **kwargs):
