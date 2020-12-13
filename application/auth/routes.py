@@ -45,10 +45,13 @@ def register():
         return redirect(url_for('main.index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data)
+        user = User(
+            username=form.username.data,
+            email=form.email.data,
+            created = datetime.utcnow())
         user.set_password(form.password.data)
-        user.email = form.email.data
-        user.created = datetime.utcnow()
+        #user.email = form.email.data
+        #user.created = datetime.utcnow()
         db.session.add(user)
         db.session.commit()
         #send_email(user.email, 'testi')

@@ -1,7 +1,23 @@
 {% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
-{% block content %}
+{% block app_content %}
+<div class="page-header">
+    <h1>{{ user.username }}</h1>
+    {% if current_user.is_administrator() %}
+    <p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+    {% endif %}
+    {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+    <p>
+        {% if user == current_user %}
+        <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">Edit Profile</a>
+        {% endif %}
+        <p>Tähän sen pitäsii ilmestyä</p>
+        {% if current_user.is_administrator() %}
+        <a class="btn btn-danger" href="{{ url_for('.edit_profile_admin', id=user.id) }}">Edit Profile [Admin]</a>
+        {% endif %}
+    </p>
+
     <h1>User: {{ user.username }}</h1>
     <hr>
     {% for task in tasks %}

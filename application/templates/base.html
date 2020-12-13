@@ -1,5 +1,9 @@
 {% extends 'bootstrap/base.html' %}
 
+{% block title %}
+    {% if title %}{{ title }} Tasker{% else %}{{ 'Welcome to tasker' }}{% endif %}
+{% endblock %}
+
 {% block navbar %}
     <nav class="navbar navbar-default">
         <div class="container">

@@ -30,18 +30,28 @@ class User(UserMixin, db.Model):
     #tasks = db.relationship('Task', backref='user', lazy='dynamic')
 
     # Turha kommentti
-    def __init__(self, **kwargs):
+
+
+    def __init__(self, **kwargs): # Initializes user roles
         """ Sets user roles. Sets Admin if email matches """
         super(User, self).__init__(**kwargs)
+        #self.email = email
+        # self.username = username
+        # self.password = password
+        print(self.role)
         if self.role is None:
-            if self.email == os.getenv('ADMIN'):
+            print("self email: ", self.email)
+            print("os.getenv(admin): ", os.getenv('ADMIN'))
+            #if self.email == os.getenv('ADMIN'):
+            # This will not work, if in the registration form
+            # the user is not instantiated with at least the
+            # email, i.e., u = User(email=form.email.data)
+            if self.email == os.getenv('ADMIN'): # Checks whether the email address of the user matches that of the admin's
                 # TODO: Tietokantaviritykset lopuksi
+                print("Ei päässyt iffiin")
                 self.role = Role.query.filter_by(role_name='Administrator').first()
             if self.role is None:
                 self.role = Role.query.filter_by(default_role=True).first()
-
-    #     self.username = username
-    #     self.password = password
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
