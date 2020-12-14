@@ -2,7 +2,7 @@
 from flask_login import UserMixin, AnonymousUserMixin
 from flask import current_app
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from application import db, login_manager
 from sqlalchemy import (
@@ -29,6 +29,7 @@ class User(UserMixin, db.Model):
     avatar_hash = db.Column(db.String(32))
     #tasks = db.relationship('Task', backref='author', lazy=True)
     tasks = relationship("Task", back_populates='user')
+    teams = relationship("Team", secondary="team_members")
     # tasks = db.relationship('Task', back_populates='users')
     #tasks = db.relationship('Task', backref='user', lazy='dynamic')
 
@@ -248,27 +249,34 @@ class Task(db.Model):
     def __repr__(self):
         return "<Task {}>".format(self.title)
 
-# class Team(db.Model):
-#     """ A team data model """
-#     __tablename__ = "teams"
-#     id = db.Column(db.Integer, primary_key=True)
-#     title = db.Column(db.Text())
-#     description = db.Column(db.Text())
-#     created = db.Column(DateTime, default=datetime.utcnow())
-#     modified = db.Column(DateTime, default=datetime.utcnow())
+class Team(db.Model):
+    """ A team data model """
+    __tablename__ = "teams"
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.Text())
+    description = db.Column(db.Text())
+    created = db.Column(DateTime, default=datetime.utcnow())
+    modified = db.Column(DateTime, default=datetime.utcnow())
+    users = relationship("User", secondary='team_members')
 
-#     def __repr__(self):
-#         return "<Team {}>".format(self.title)
+    def __repr__(self):
+        return "<Team {}>".format(self.title)
 #     #creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-# class TeamMember(db.Model):
-#     """ A class for storing information about team members"""
-#     __tablename__ = "team_members"
-#     id = db.Column(db.Integer, primary_key=True)
-#     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
-#     team_member_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-#     # TODO: Implement
-#     #team_role_id = db.Column(db.Integer)
+class TeamMember(db.Model):
+    """ A class for storing information about team members"""
+    __tablename__ = "team_members"
+    id = db.Column(db.Integer, primary_key=True)
+    team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
+    team_member_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    
+    # team_permissions = db.Column(db.Integer)
+    user = relationship(User, backref=backref("team_members", cascade="all, delete-orphan"))
+    team = relationship(Team, backref=backref("team_members", cascade="all, delete-orphan"))
+    def __repr__(self):
+        return "<TeamMember: id:{}; team_id:{}; team_member_id:{}>".format(self.id, self.team_id, self.team_member_id)
+    # TODO: Implement
+    #team_role_id = db.Column(db.Integer)
 
 @login_manager.user_loader
 def load_user(id):

@@ -75,3 +75,8 @@ class TaskForm(FlaskForm):
     done = BooleanField('Task done?', default=False)
     submit = SubmitField('Create/Edit')
 
+class TeamCreateForm(FlaskForm):
+    """ Used to create teams """
+    title = TextAreaField('Team name', validators=[DataRequired()])
+    description = TextAreaField('Team description', validators=[DataRequired()])
+    submit = SubmitField('Create/Edit')

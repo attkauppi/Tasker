@@ -38,6 +38,10 @@
                             Teams <b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu">
+                            {% for team in current_user.teams %}
+                            <li><a href="{{ url_for('main.team', id=team.id) }}">{{ team.title }}</a></li> 
+                            {% endfor %}
+                            <li><a href="{{ url_for('main.create_team') }}">Create team</a></li>
                             <li><a href="{{ url_for('main.edit_profile') }}">Edit profile</a></li>
                             <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
                         </ul>
@@ -45,6 +49,8 @@
                     {% endif %}
 
                 </ul>
+                
+
                 <ul class="nav navbar-nav navbar-right",style="text-align: center">
                     {% if current_user.is_anonymous %}
                     
@@ -87,10 +93,11 @@
             {% endfor %}
         {% endif %}
         {% endwith %}
-
+       
         {# application content needs to be provided in the app_content block #}
         {% block app_content %}{% endblock %}
     </div>
+    
 {% endblock %}
 
 {% block scripts %}

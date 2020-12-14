@@ -3,8 +3,8 @@ from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
 from flask_login import current_user, login_required
 from application import db, login_manager
-from application.main.forms import TaskForm, EditProfileForm, EditProfileAdmin#, EmptyForm, PostForm
-from application.models import User, Task, Role
+from application.main.forms import TaskForm, EditProfileForm, EditProfileAdmin, TeamCreateForm#, EmptyForm, PostForm
+from application.models import User, Task, Role, Team, TeamMember
 from application.main import bp
 from utils.decorators import admin_required
 
@@ -177,3 +177,42 @@ def edit_profile_admin(id):
     form.about_me = user.about_me
     print(user)
     return render_template('edit_profile.html', title=('Edit Profile'), form=form, user=user)
+
+@bp.route('/teams/create_team', methods=["GET", "POST"])
+@login_required
+def create_team():
+    """ Allows creating a new team """
+    form = TeamCreateForm()
+    
+    if form.validate_on_submit():
+        team = Team(
+            title = form.title.data,
+            description = form.description.data
+        )
+        db.session.add(team)
+        db.session.commit()
+
+        # Get the current team's id now that it has
+        # been assigned
+        t = Team.query.filter_by(title=team.title).first()
+
+        # Create team_member association table record
+        team_member = TeamMember(
+            team_id = t.id,
+            team_member_id = current_user.id
+        )
+
+        db.session.add(team_member)
+        db.session.commit()
+
+        flash("Your team was created!")
+        return redirect(url_for('main.team', id=t.id))#title=(team.title), team_id=t.id))
+    
+    return render_template('edit_team.html', title=("Create your team"), form=form)
+
+@bp.route('/team/<int:id>', methods=["GET", "POST"])
+@login_required
+def team(id):
+    #team = Team.query.filter_by(id=team_id).first_or_404()
+    team = Team.query.get_or_404(id)
+    return render_template('team.html', team=team)
