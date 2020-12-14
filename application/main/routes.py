@@ -135,7 +135,7 @@ def edit_profile():
     if form.validate_on_submit():
         current_user.username = form.username.data
         current_user.about_me = form.about_me.data
-        current_user.email = form.email.data
+        current_user.email = form.email.data.lower()
         db.session.commit()
         flash('Your profile was edited!')
         return redirect(url_for('main.edit_profile'))
@@ -155,7 +155,7 @@ def edit_profile_admin(id):
     form = EditProfileAdmin(user=user)
     # POST-pyynnön tapahduttua
     if form.validate_on_submit():
-        user.email = form.email.data
+        user.email = form.email.data.lower()
         user.username = form.username.data
         # TODO: Lisää, kun sähköpostivarmistus toimii
         #user.confirmed = form.confirmed.data

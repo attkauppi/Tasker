@@ -15,6 +15,7 @@ CREATE TABLE users (
     created TIMESTAMP WITHOUT TIME ZONE,
     last_seen TIMESTAMP WITHOUT TIME ZONE,
     role_id INTEGER,
+    avatar_hash TEXT,
     FOREIGN KEY (role_id) REFERENCES roles (id));
 CREATE TABLE messages (
     id SERIAL PRIMARY KEY,

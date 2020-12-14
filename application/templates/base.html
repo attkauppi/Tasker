@@ -4,8 +4,13 @@
     {% if title %}{{ title }} Tasker{% else %}{{ 'Welcome to tasker' }}{% endif %}
 {% endblock %}
 
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+{% endblock %}
+
 {% block navbar %}
-    <nav class="navbar navbar-default">
+    <nav class="navbar navbar-default" role="navigation">
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -25,7 +30,22 @@
                     <li><a href="{{ url_for('main.new') }}">Uusi viesti</a></li>
                     <li><a href="{{ url_for('main.edit_profile') }}">Edit profile</a></li>
                 </ul>
-                <ul class="nav navbar-nav navbar-right">
+                <!-- Teams -->
+                <ul class="nav navbar-nav navbar-center">
+                    {% if current_user.is_authenticated %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown_toggle" data-toggle="dropdown">
+                            Teams <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{ url_for('main.edit_profile') }}">Edit profile</a></li>
+                            <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+
+                </ul>
+                <ul class="nav navbar-nav navbar-right",style="text-align: center">
                     {% if current_user.is_anonymous %}
                     
                     <li><a href="{{ url_for('auth.login') }}">{{'login'}}</a></li>
@@ -36,10 +56,14 @@
                     <li><a href="{{ url_for('auth.logout') }}">{{'Logout'}}</a></li>
                     {% endif %}
                 </ul>
+                <!-- Right edge -- account etc -->
                 <ul class="nav navbar-nav navbar-right">
                     {% if current_user.is_authenticated %}
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Account <b class="caret"></b></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <img src="{{ current_user.gravatar(size=18) }}">
+                            Account <b class="caret"></b>
+                        </a>
                         <ul class="dropdown-menu">
                             <li><a href="{{ url_for('main.edit_profile') }}">Edit profile</a></li>
                             <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>

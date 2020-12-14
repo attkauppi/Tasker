@@ -12,6 +12,8 @@ from datetime import datetime
 from time import time
 import jwt
 import os
+import hashlib
+from urllib import request
 
 class User(UserMixin, db.Model):
     """ User accont db model """
@@ -24,6 +26,7 @@ class User(UserMixin, db.Model):
     created = db.Column(DateTime, default=datetime.utcnow())
     last_seen = db.Column(DateTime, default=datetime.utcnow())
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    avatar_hash = db.Column(db.String(32))
     #tasks = db.relationship('Task', backref='author', lazy=True)
     tasks = relationship("Task", back_populates='user')
     # tasks = db.relationship('Task', back_populates='users')
@@ -52,6 +55,9 @@ class User(UserMixin, db.Model):
                 self.role = Role.query.filter_by(role_name='Administrator').first()
             if self.role is None:
                 self.role = Role.query.filter_by(default_role=True).first()
+        # Gravatar
+        if self.email is not None and self.avatar_hash is None:
+            self.avatar_hash = self.gravatar_hash()
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -101,6 +107,31 @@ class User(UserMixin, db.Model):
     
     def is_administrator(self):
         return self.can(Permission.ADMIN)
+
+    def gravatar_hash(self):
+        """ Gravatar method will use the stored hash, if available
+        If not, this method will recalculate the gravatar hash """
+        return hashlib.md5(self.email.lower().encode('utf-8')).hexdigest()
+
+    def gravatar(self, size=100, default='identicon', rating='g'):
+        """ Fetches an avatar given a person's user account using
+        the gravatar.com service, which turns a person's email address
+        into a profile picture, if they've registered to gravatar.com """
+        #if request.is_secure:
+        url = 'https://secure.gravatar.com/avatar'
+        #else:
+        #    url = 'http://gravatar.com/avatar'
+        # An email address is turned into an md5 hash on gravatar
+        # so the url is https://secure.gravatar.com/avatar/[email address hashed with md5]
+        # hash = hashlib.md5(self.email.lower().encode('utf-8')).hexdigest()
+        hash = self.avatar_hash or self.gravatar_hash()
+        return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
+            url=url,
+            hash=hash,
+            size=size,
+            default=default,
+            rating=rating
+        )
 
 class AnonymousUser(AnonymousUserMixin):
     def can(self, permissions):
@@ -216,6 +247,28 @@ class Task(db.Model):
 
     def __repr__(self):
         return "<Task {}>".format(self.title)
+
+# class Team(db.Model):
+#     """ A team data model """
+#     __tablename__ = "teams"
+#     id = db.Column(db.Integer, primary_key=True)
+#     title = db.Column(db.Text())
+#     description = db.Column(db.Text())
+#     created = db.Column(DateTime, default=datetime.utcnow())
+#     modified = db.Column(DateTime, default=datetime.utcnow())
+
+#     def __repr__(self):
+#         return "<Team {}>".format(self.title)
+#     #creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+# class TeamMember(db.Model):
+#     """ A class for storing information about team members"""
+#     __tablename__ = "team_members"
+#     id = db.Column(db.Integer, primary_key=True)
+#     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
+#     team_member_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+#     # TODO: Implement
+#     #team_role_id = db.Column(db.Integer)
 
 @login_manager.user_loader
 def load_user(id):

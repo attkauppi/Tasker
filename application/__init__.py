@@ -102,19 +102,21 @@ def create_app():
     
     #
     with app.app_context():
+        #db.create_all()
+        #from .db import init_db, init_db_command
+        #init_db()
+        #init_db_command()
+        from application.models import Role
+        Role.insert_roles()
+        #_db.init_db()
+        #db.create_all()
     #     @app.route("/send")
     #     def index():
     #         msg = Message('Hello', sender = 'tasker.info.noreply@gmail.com', recipients = ['kauppi.ari@gmail.com'])
     #         msg.body = "Hello Flask message sent from Flask-Mail"
     #         mail.send(msg)
     #         return "Sent"
-        #db.create_all()
-        from .db import init_db
-        init_db()
-        from application.models import Role
-        Role.insert_roles()
-        #_db.init_db()
-        #db.create_all()
+        
     #     mail_settings = {
     #         "MAIL_SERVER": 'smtp.gmail.com',
     #         "MAIL_PORT": 465,

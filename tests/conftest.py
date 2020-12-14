@@ -32,6 +32,7 @@ def handler(postgresql):
         created TIMESTAMP WITHOUT TIME ZONE,
         last_seen TIMESTAMP WITHOUT TIME ZONE,
         role_id INTEGER,
+        avatar_hash TEXT,
         FOREIGN KEY (role_id) REFERENCES roles (id)
     )""")
     cursor.execute("INSERT INTO messages (content) VALUES ('hello'), ('ciao')")
@@ -58,6 +59,7 @@ class TestConfig(object):
     SQLALCHEMY_DATABASE_URI = Postgresql().url()
     ENV = 'test'
     TESTING = True
+    ADMIN=os.getenv('ADMIN')
 
 @pytest.yield_fixture(scope='session')
 def app():

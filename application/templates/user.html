@@ -2,32 +2,39 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
-<div class="page-header">
-    <h1>{{ user.username }}</h1>
-    {% if current_user.is_administrator() %}
-    <p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
-    {% endif %}
-    {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
-    <p>
-        {% if user == current_user %}
-        <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">Edit Profile</a>
+<table class="table table-hover">
+    <tr>
+        <td width="256px"><img src="{{ user.gravatar(256) }}"></td>
+        <td>
+            <h1>{{ user.username }}</h1>
+            {% if current_user.is_administrator() %}
+            <p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+            {% endif %}
+            {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+            <p>
+                {% if user == current_user %}
+                <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">Edit Profile</a>
+                {% endif %}
+                {% if current_user.is_administrator() %}
+                <a class="btn btn-danger" href="{{ url_for('main.edit_profile_admin', id=user.id) }}">Edit Profile [Admin]</a>
+                {% endif %}
+            </p>
+        </td>
+    </tr>
+</table>
+    <div>
+        <h1>User: {{ user.username }}</h1>
+        <hr>
+        {% for task in tasks %}
+        <p>
+        {{ task.user.username }} tasks: <b>{{ task.title }}</b>
+        </p>
+        {% endfor %}
+        <br>
+        {% if form %}
+        {{ wtf.quick_form(form) }}
+        <br>
         {% endif %}
-        <p>Tähän sen pitäsii ilmestyä</p>
-        {% if current_user.is_administrator() %}
-        <a class="btn btn-danger" href="{{ url_for('main.edit_profile_admin', id=user.id) }}">Edit Profile [Admin]</a>
-        {% endif %}
-    </p>
+        </div>
 
-    <h1>User: {{ user.username }}</h1>
-    <hr>
-    {% for task in tasks %}
-    <p>
-    {{ task.user.username }} tasks: <b>{{ task.title }}</b>
-    </p>
-    {% endfor %}
-    <br>
-    {% if form %}
-    {{ wtf.quick_form(form) }}
-    <br>
-    {% endif %}
 {% endblock %}

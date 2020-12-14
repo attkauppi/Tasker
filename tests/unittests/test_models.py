@@ -160,6 +160,38 @@ class UserModelCase(unittest.TestCase):
         self.assertFalse(u.can(Permission.CREATE_GROUP_TASKS))
         self.assertFalse(u.can(Permission.MODERATE_GROUP))
         self.assertFalse(u.can(Permission.ADMIN))
+
+    def test_administrator_role(self):
+        """ Administrator should be allowed to do all tasks """
+        r = Role.query.filter_by(role_name='Administrator').first()
+        u = User(email='tasker.info.noreply@gmail.com', password='kissa', role=r)
+        self.assertTrue(u.can(Permission.ADMIN))
+        self.assertTrue(u.can(Permission.CREATE_GROUPS))
+        self.assertTrue(u.can(Permission.CREATE_GROUP_TASKS))
+        self.assertTrue(u.can(Permission.CREATE_TASKS))
+        self.assertTrue(u.can(Permission.MODERATE_GROUP))
+    
+    def test_group_moderator_role(self):
+        """" A group moderator is allowed to moderate groups, but not
+        administer the site """
+        r = Role.query.filter_by(role_name='Moderator').first()
+        u = User(email='esimerkki@esimerkki.com', password='kissa', role=r)
+        self.assertFalse(u.can(Permission.ADMIN))
+        self.assertTrue(u.can(Permission.CREATE_GROUPS))
+        self.assertTrue(u.can(Permission.CREATE_GROUP_TASKS))
+        self.assertTrue(u.can(Permission.CREATE_TASKS))
+        self.assertTrue(u.can(Permission.MODERATE_GROUP))
+    
+    def test_group_member_role(self):
+        """ A group member is allowed to create tasks etc. in groups,'
+        but not moderate them nor administer the site """
+        r = Role.query.filter_by(role_name='Group role').first()
+        u = User(email='esimerkki@esimerkki.com', password='kissa', role=r)
+        self.assertTrue(u.can(Permission.CREATE_TASKS))
+        self.assertTrue(u.can(Permission.CREATE_GROUPS))
+        self.assertTrue(u.can(Permission.CREATE_GROUP_TASKS))
+        self.assertFalse(u.can(Permission.MODERATE_GROUP))
+        self.assertFalse(u.can(Permission.ADMIN))
     
 
 

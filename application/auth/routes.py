@@ -47,7 +47,7 @@ def register():
     if form.validate_on_submit():
         user = User(
             username=form.username.data,
-            email=form.email.data,
+            email=form.email.data.lower(),
             created = datetime.utcnow())
         user.set_password(form.password.data)
         #user.email = form.email.data
