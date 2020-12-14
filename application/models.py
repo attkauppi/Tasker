@@ -273,10 +273,86 @@ class TeamMember(db.Model):
     # team_permissions = db.Column(db.Integer)
     user = relationship(User, backref=backref("team_members", cascade="all, delete-orphan"))
     team = relationship(Team, backref=backref("team_members", cascade="all, delete-orphan"))
+    
     def __repr__(self):
         return "<TeamMember: id:{}; team_id:{}; team_member_id:{}>".format(self.id, self.team_id, self.team_member_id)
     # TODO: Implement
     #team_role_id = db.Column(db.Integer)
+
+# class TeamRole(db.Model):
+#     """ Implements team roles for team members """
+#     #TODO: Lisää roolit schema.sql:n
+#     __tablename__ = 'team_roles'
+#     id = db.Column(db.Integer, primary_key=True)
+#     role_name = db.Column(db.String(64), unique=True)
+#     default_role = db.Column(db.Boolean, default=False, index=True)
+#     permissions = db.Column(Integer)
+#     users = relationship('User', backref='role', lazy='dynamic')
+
+#     def __init__(self, **kwargs):
+#         super(Role, self).__init__(**kwargs)
+#         if self.permissions is None:
+#             self.permissions = 0
+    
+#     def add_permission(self, perm):
+#         if not self.has_permission(perm):
+#             self.permissions += perm
+    
+#     def remove_permissions(self, perm):
+#         if self.has_permissions(perm):
+#             self.permissions -= perm
+    
+#     def reset_permissions(self):
+#         self.permissions = 0
+    
+#     def has_permission(self, perm):
+#         return self.permissions & perm == perm
+    
+#     def __repr__(self):
+#         return '<Role %r>' % self.role_name
+    
+#     @staticmethod
+#     def insert_roles():
+#         # TODO: On lisättävä email confirmation, jotta admin-tiliä ei voida kaapata.
+#         """
+#         Tries to find existing roles by name and update
+#         those. A new role is created only for those roles
+#         that aren't in the database already. This is done
+#         so the role list can be updated in the future when
+#         changes need to be made.
+
+#         This gives admission priveleges to the user who has
+#         the admin email address (defined in .env in the root
+#         folder). Whoever has this address, is the admin user.
+#         ==> Would work better, if confirmation emails would be
+#         possible to send.
+#         """
+#         roles = {
+#             'User': [Permission.CREATE_TASKS, Permission.CREATE_GROUPS],
+#             'Group role': [Permission.CREATE_TASKS,
+#                 Permission.CREATE_GROUPS, 
+#                 Permission.CREATE_GROUP_TASKS],
+#             'Moderator': [Permission.CREATE_TASKS,
+#                 Permission.CREATE_GROUPS,
+#                 Permission.CREATE_GROUP_TASKS,
+#                 Permission.MODERATE_GROUP],
+#             'Administrator': [Permission.CREATE_TASKS,
+#                 Permission.CREATE_GROUPS,
+#                 Permission.CREATE_GROUP_TASKS,
+#                 Permission.MODERATE_GROUP,
+#                 Permission.ADMIN],
+#         }
+#         default_role = 'User'
+#         for r in roles:
+#             role = Role.query.filter_by(role_name=r).first()
+#             if role is None:
+#                 role = Role(role_name=r)
+#             role.reset_permissions()
+#             for perm in roles[r]:
+#                 role.add_permission(perm)
+#             role.default_role = (role.role_name == default_role)
+#             db.session.add(role)
+#         db.session.commit()
 
 @login_manager.user_loader
 def load_user(id):
