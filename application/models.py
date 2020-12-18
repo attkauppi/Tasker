@@ -23,6 +23,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(200), nullable=True)
     about_me = db.Column(db.Text(), nullable=True)
+    confirmed = db.Column(db.Boolean, default=False)
     created = db.Column(DateTime, default=datetime.utcnow())
     last_seen = db.Column(DateTime, default=datetime.utcnow())
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
@@ -80,6 +81,38 @@ class User(UserMixin, db.Model):
 
         return check_password_hash(self.password, password)
     
+    def generate_confirmation_token(self, expires_in=3600):
+        """ Generates confirmation tokens. Used, for example,
+        when a new user registers and needs to confirm their
+        email address to start using their account. """
+        return jwt.encode(
+            {'confirm': self.id, 'exp': time() + expires_in},
+            current_app.config['SECRET_KEY'],
+            algorithm='HS256').decode('utf-8')
+    
+    # @staticmethod
+    def confirm(self, token):
+        """ Confirms the token given as argument. 
+        
+        This is used at least with the email confirmation function,
+        when a user first registers on the site. """
+        try:
+            id = jwt.decode(token, current_app.config['SECRET_KEY'],
+                            algorithms=['HS256']
+            )['confirm']
+        except:
+            return False
+        
+        if id != self.id:
+            print("Pääsi iffin läpi, mutta id ei vastannut")
+            return False
+        # Token vastasi id:tä
+        self.confirmed = True
+        db.session.add(self)
+        # Committed to the db.session 
+        # in the auth confirm route
+        return True
+    
     def get_reset_password_token(self, expires_in=3600):
         """ Sends a user a password reset token in email """
         print("self: ", self)
@@ -96,6 +129,8 @@ class User(UserMixin, db.Model):
             id = jwt.decode(token, current_app.config['SECRET_KEY'],
                             algorithms=['HS256']
             )['reset_password']
+            print("verity_reset_password_token")
+            print(id)
         except:
             return
         return User.query.get(id)

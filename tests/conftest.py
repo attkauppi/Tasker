@@ -27,8 +27,11 @@ def handler(postgresql):
     cursor.execute("CREATE TABLE messages(id SERIAL PRIMARY KEY, content TEXT)")
     cursor.execute("""CREATE TABLE users (
         id SERIAL PRIMARY KEY,
-        username TEXT UNIQUE, password TEXT,
-        email TEXT, about_me TEXT,
+        username TEXT UNIQUE,
+        password TEXT,
+        email TEXT,
+        about_me TEXT,
+        confirmed BOOLEAN,
         created TIMESTAMP WITHOUT TIME ZONE,
         last_seen TIMESTAMP WITHOUT TIME ZONE,
         role_id INTEGER,

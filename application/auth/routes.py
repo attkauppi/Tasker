@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, request, session, g
 from werkzeug.urls import url_parse
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user, current_user, login_required
 from application import db, login_manager
 from application.auth import bp
 from application.auth.forms import (
@@ -9,7 +9,7 @@ from application.auth.forms import (
     ResetPasswordRequestForm,
     ResetPasswordForm
 )
-from application.auth.email import send_password_reset_email
+from application.auth.email import send_password_reset_email, send_confirmation_email
 from application.models import User
 from datetime import date
 from datetime import datetime
@@ -17,6 +17,31 @@ from application.email import send_email
 #from flask_mail import Message
 #from application import mail
 
+@bp.before_app_request
+def before_request():
+    """ before_app_request handler will intercept a
+    request when 3 conditions are true
+
+    1. A user is logged in (current_user.is_authenticated is True)
+    2. The account for the user is unconfirmed
+    3. The request URL is outside of the authentication blueprint
+    and is not for a static file. Access to the authentication
+    routes needs to be granted, as those are the routes that
+    will enable the user to confirm the account or perform other
+    account management functions.
+
+    When these 3 conditions are met, a redirect is issued to a new
+    /auth/unconfirmed route that shows a page with information about
+    account confirmation. 
+    """
+    if current_user.is_authenticated and not current_user.confirmed and request.blueprint != 'auth' and request.endpoint != 'static':
+        return redirect(url_for('auth.unconfirmed'))
+
+@bp.route('/unconfirmed')
+def unconfirmed():
+    if current_user.is_anonymous or current_user.confirmed:
+        return redirect(url_for('main.index'))
+    return render_template('auth/unconfirmed.html')
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -54,6 +79,10 @@ def register():
         #user.created = datetime.utcnow()
         db.session.add(user)
         db.session.commit()
+        # Token for email confirmation email
+        #token = user.generate_confirmation_token()
+        send_confirmation_email(user)
+        #send_email(user.email, 'Confirm your account', '/auth/email/confirm', user=user, token=token)
         #send_email(user.email, 'testi')
         flash("Congrats, you're now a user")
         return redirect(url_for("auth.login"))
@@ -90,3 +119,34 @@ def reset_password(token):
         flash('Your password has been reset')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password.html', form=form)
+
+@bp.route('/confirm/<token>', methods=["GET", "POST"])
+@login_required
+def confirm(token):
+    """Used to confirm token sent to user after
+    registering to site.
+
+    Args:
+        token ([type]): [description]
+    """
+    if current_user.confirmed:
+        return redirect(url_for('main.index'))
+    if current_user.confirm(token):
+        # Current user's confirm field
+        # is set to True in database. User was added
+        # to be saved in the models confirm-method of
+        # the user database model.
+        db.session.commit()
+        flash('You have confirmed your account! Welcome to Tasker!')
+    else:
+        flash("The confirmation link is invalid or has expired.")
+    return redirect(url_for('main.index'))
+
+@bp.route('/confirm')
+@login_required
+def resend_confirmation():
+    """ Used to resend confirmation to user, if the
+    confirmation sent earlier has expired or is invalid """
+    send_confirmation_email(current_user)
+    flash('A new confirmation email has been sent to your email address.')
+    return redirect(url_for('main.index'))

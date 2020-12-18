@@ -10,8 +10,11 @@ CREATE TABLE roles (
 );
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    username TEXT UNIQUE, password TEXT,
+    username TEXT UNIQUE,
+    password TEXT,
     email TEXT,
+    about_me TEXT,
+    confirmed BOOLEAN,
     created TIMESTAMP WITHOUT TIME ZONE,
     last_seen TIMESTAMP WITHOUT TIME ZONE,
     role_id INTEGER,

@@ -8,7 +8,7 @@ import sys
 
 def send_password_reset_email(user):
     token = user.get_reset_password_token()
-    send_email(('[Microblog] Reset Your Password'),
+    send_email(('[Tasker] Reset Your Password'),
                #sender=current_app.config['ADMINS'][0],
                sender=current_app.config['MAIL_USERNAME'],
                recipients=[user.email],
@@ -17,6 +17,16 @@ def send_password_reset_email(user):
                html_body=render_template('email/reset_password.html',
                                          user=user, token=token))
 
+def send_confirmation_email(user):
+    token = user.generate_confirmation_token()
+    send_email(('[Tasker] Reset Your Password'),
+               #sender=current_app.config['ADMINS'][0],
+               sender=current_app.config['MAIL_USERNAME'],
+               recipients=[user.email],
+               text_body=render_template('auth/confirm.txt',
+                                         user=user, token=token),
+               html_body=render_template('auth/confirm.html',
+                                         user=user, token=token))                                        
 
 # def send_password_reset_email(user):
 #     # print("send password reset email")
