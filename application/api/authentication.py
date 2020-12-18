@@ -27,7 +27,6 @@ def send_token():
     "MAIL_USE_TLS": False,
     "MAIL_USE_SSL": True,
     "MAIL_USERNAME": 'tasker.info.noreply@gmail.com',
-    "MAIL_PASSWORD": 'ahraj5Ie',
     "MAIL_DEBUG": True
     }
     app = current_app._get_current_object()
