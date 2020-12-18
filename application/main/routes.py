@@ -3,7 +3,7 @@ from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
 from flask_login import current_user, login_required
 from application import db, login_manager
-from application.main.forms import TaskForm, EditProfileForm, EditProfileAdmin, TeamCreateForm#, EmptyForm, PostForm
+from application.main.forms import TaskForm, EditProfileForm, EditProfileAdmin, TeamCreateForm, TeamEditForm#, EmptyForm, PostForm
 from application.models import User, Task, Role, Team, TeamMember
 from application.main import bp
 from utils.decorators import admin_required
@@ -210,9 +210,33 @@ def create_team():
     
     return render_template('edit_team.html', title=("Create your team"), form=form)
 
+@bp.route('/teams/<int:id>/edit_team', methods=["GET", "POST"])
+def edit_team(id):
+    """ edit team form """
+    team = Team.query.get_or_404(id)
+    form = TeamEditForm()
+
+    if form.validate_on_submit():
+        team.title = form.title.data
+        team.description = form.description.data
+        team.modified = datetime.utcnow()
+
+        db.session.add(team)
+        db.session.commit()
+
+        flash('Your team was updated!')
+        return redirect(url_for('main.team', id=team.id))
+
+    form.title.data = team.title
+    form.description.data = team.description
+    
+    return render_template('edit_team.html', title=("Edit your team"), form=form)
+
 @bp.route('/team/<int:id>', methods=["GET", "POST"])
 @login_required
 def team(id):
     #team = Team.query.filter_by(id=team_id).first_or_404()
     team = Team.query.get_or_404(id)
+
+    
     return render_template('team.html', team=team)

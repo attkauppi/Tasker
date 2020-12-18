@@ -80,3 +80,10 @@ class TeamCreateForm(FlaskForm):
     title = TextAreaField('Team name', validators=[DataRequired()])
     description = TextAreaField('Team description', validators=[DataRequired()])
     submit = SubmitField('Create/Edit')
+
+class TeamEditForm(FlaskForm):
+    """ Used to edit teams """
+    title = TextAreaField('Team name', validators=[DataRequired()])
+    description = TextAreaField('Team description', validators=[DataRequired()])
+    submit = SubmitField('Create/Edit')
+
