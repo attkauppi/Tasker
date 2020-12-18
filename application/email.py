@@ -14,18 +14,70 @@ import logging
 import smtplib, ssl
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import requests
+import flask
+from flask import jsonify
+import json
 
 
 def send_email(subject, sender, recipients, text_body, html_body):
     msg = Message(subject, sender=sender, recipients=recipients)
     msg.body = text_body
     msg.html = html_body
-    thr = Thread(target=send_async_email, args=[current_app._get_current_object(), msg])
-    thr.start()
-    return thr
-    # Thread(target=send_async_email,
-    #        args=(current_app._get_current_object(), msg)).start()
+    print("flask.request.host: ", flask.request.host)
+    print("flask.request.host_url: ", flask.request.host_url)
+    # thr = Thread(target=send_async_email, args=[
+    #     current_app._get_current_object(),
+    #     msg,
+    #     flask.request.host_url,
+    #     sender,
+    #     recipients,
+    #     text_body,
+    #     html_body
 
-def send_async_email(app, msg):
+    # ])
+    # thr.start()
+    # return thr
+    Thread(target=send_async_email,
+           args=(current_app._get_current_object(), msg,
+        flask.request.host_url,
+        sender,
+        recipients,
+        text_body,
+        html_body)).start()
+
+def send_async_email(app, msg, flask_url, sender, recipients, text_body, html_body):
+    
+    #x = requests.post(url, msg)
     with app.app_context():
-        mail.send(msg)
+        app.config['MAIL_DEBUG'] = True
+        #url = '0.0.0.0:5000/api/v1/auth/send_token'
+        msg.sender = os.getenv('MAIL_DEFAULT_SENDER')
+        print("msg:")
+        print(msg)
+        #mail.send(msg)
+        print("sender", sender)
+        print("recipients: ", recipients)
+        print("text_body: ", text_body)
+        print("html_body: ", html_body)
+        url = flask_url + 'api/v1/auth/send_token'
+        d = {}
+        d['sender'] = os.getenv('MAIL_DEFAULT_SENDER')
+        d['recipients'] = []
+        for i in recipients:
+            d['recipients'].append(i)
+        recipients
+        d['text_body'] = text_body
+        d['html_body'] = html_body
+        #d['message'] = "message"
+        #d['message'] = msg
+        #print("flask.request.host: ", flask.request.host)
+        #print("flask.request.host_url: ", flask.request.host_url)
+        #data = jsonify(d)
+        #d = dict("message"="viesti")
+        print("pyyntö")
+        print(jsonify(d))
+        requests.post(url, json.dumps(d))
+        print(msg)
+        print("msg type: ", type(msg))
+        #mail.send(msg)
