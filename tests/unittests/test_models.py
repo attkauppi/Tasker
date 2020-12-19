@@ -40,6 +40,7 @@ import psycopg2
 import testing.postgresql
 from flask import current_app
 import os,sys,inspect
+import time
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 parentdir = os.path.dirname(parentdir)
@@ -192,6 +193,51 @@ class UserModelCase(unittest.TestCase):
         self.assertTrue(u.can(Permission.CREATE_GROUP_TASKS))
         self.assertFalse(u.can(Permission.MODERATE_GROUP))
         self.assertFalse(u.can(Permission.ADMIN))
+    
+    # Token tests
+    def test_valid_confirmation_token(self):
+        """ Tests whether confirmation sent to newly
+        registered user is valid 
+        
+        This test should pass, because it tests the token
+        against the user itself (actually it checks that the
+        id is the the same one as the user's id.) """
+        u = User(username='u', password='correct')
+        db.session.add(u)
+        db.session.commit()
+        token = u.generate_confirmation_token()
+        self.assertTrue(u.confirm(token))
+
+    def test_invalid_confirmation_token(self):
+        """ Tests that confirmation tokens fail, when
+        the wrong user is given another user's token """
+        u1 = User(username='u1', password='c')
+        u2 = User(username='u2', password='d')
+        db.session.add(u1, u2)
+        db.session.commit()
+
+        u1_token = u1.generate_confirmation_token()
+        u2_token = u2.generate_confirmation_token()
+        self.assertFalse(u2.confirm(u1_token))
+        self.assertFalse(u1.confirm(u2_token))
+        self.assertFalse(u1.confirm(None))
+    
+    def test_expired_confirmation_token(self):
+        """ Tests that confirmation tokens fail,
+        when out of date. """
+        u1 = User(username='u1', password='u1')
+        db.session.add(u1)
+        db.session.commit()
+
+        # Creates a confirmation token with expiration
+        # time of 1 second.
+        token = u1.generate_confirmation_token(1)
+
+        # Wait for 2 seconds to ensure token will be
+        # expired
+        time.sleep(2)
+        self.assertFalse(u1.confirm(token))
+        
     
 
 
