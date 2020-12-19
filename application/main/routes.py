@@ -211,6 +211,7 @@ def create_team():
     return render_template('edit_team.html', title=("Create your team"), form=form)
 
 @bp.route('/teams/<int:id>/edit_team', methods=["GET", "POST"])
+@login_required
 def edit_team(id):
     """ edit team form """
     team = Team.query.get_or_404(id)
@@ -232,11 +233,26 @@ def edit_team(id):
     
     return render_template('edit_team.html', title=("Edit your team"), form=form)
 
+@bp.route('/teams/<int:id>/invite', methods=["GET", "POST"])
+@login_required
+def invite_to_team(id):
+    team = Team.query.get_or_404(id)
+    users = User.query.all()
+
+    return render_template('find_user.html', id=id, users=users)
+
+
 @bp.route('/team/<int:id>', methods=["GET", "POST"])
 @login_required
 def team(id):
     #team = Team.query.filter_by(id=team_id).first_or_404()
     team = Team.query.get_or_404(id)
+
+    team_members = team.users
+    print("Team members")
+    for i in team_members:
+        
+        print(i)
 
     
     return render_template('team.html', team=team)
