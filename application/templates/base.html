@@ -103,5 +103,87 @@
 {% block scripts %}
     {{ super() }}
     {{ moment.include_moment() }}
+    <script>
+        $(function () {
+            var timer = null;
+            var xhr = null;
+            $('.user_popup').hover(
+                function(event) {
+                    // mouse IN event handler
+                    var elem = $(event.currentTarget);
+                    var string = elem.first().text().trim();
+                    console.log("string: " + string);
+                    var piste = string.indexOf(".");
+                    var pisteplusyksi = piste+1;
+                    var pituus = string.length;
+                    var loppu = string.slice(pisteplusyksi, pituus);
+                    var user = string.slice(0, piste);
+                    console.log("user: " + user);
+                    console.log("loppu " + loppu);
+                    console.log("pituus: ", pituus);
+                    console.log("Piste: " + piste)
+                    //console.log("user " + user)
+                    console.log(elem);
+                    console.log("elem.first()");
+                    console.log(elem.first());
+                    console.log("elem.first().text()");
+                    console.log(elem.first().text());
+                    console.log("elem.first().text().trim()");
+                    console.log(elem.first().text().trim());
+                    console.log("elem.first().text().trim() + /popup");
+                    console.log(elem.first().text().trim() + '/popup');
+                    console.log('ed + user');
+                    console.log('/user/' + elem.first().text().trim() + '/popup');
+                    //console.log("target " + elem.target);
+                    console.log("prev")
+                    //console.log(elem.prevObject(elem));
+
+                    timer = setTimeout(function() {
+                        timer = null;
+                        xhr = $.ajax(
+                            //'/user/' + elem.first().text().trim() + '/popup/' + loppu).done(
+                            '/user/' + user + '/popup/' + loppu).done(
+                                function(data) {
+                                    xhr = null;
+                                    // Create and display popup here
+                                    elem.popover({
+                                        trigger: 'manual',
+                                        html: true,
+                                        animation: false,
+                                        container: elem,
+                                        content: data
+                                    }).popover('show');
+                                    flask_moment_render_all();
+                                }
+                            );
+                        //console.log('xhr');
+                        //console.log(xhr);
+                        //console.log('xhr innerText');
+                        //console.log(xhr.innerText);
+                        //console.log('xhr outerText');
+                        //console.log(xhr.outerText);
+                        //console.log('xhr text');
+                        //console.log(xhr.text());
+                    }, 2000);
+                },
+                function(event) {
+                    // mouse OUT event handler
+                    var elem = $(event.currentTarget);
+                    if (timer) {
+                        clearTimeout(timer);
+                        timer = null;
+                    }
+                    else if (xhr) {
+                        xhr.abort();
+                        xhr = null;
+                    }
+                    else {
+                        // destroy popup here
+                        elem.popover('destroy');
+                    }
+                }
+            );
+        });
+    </script>
 
 {% endblock %}

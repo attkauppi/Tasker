@@ -296,6 +296,20 @@ class Team(db.Model):
 
     def __repr__(self):
         return "<Team {}>".format(self.title)
+
+    def invite_user(self, username):
+        u = User.query.filter_by(username=username).first()
+        print("Team users: ")
+        print(self.users)
+
+        if u in self.users:
+            print("Kuuluu jo tiimiin")
+            pass
+        else:
+            tm = TeamMember(team_id=self.id, team_member_id=u.id)
+            db.session.add(tm)
+            db.session.commit()
+
 #     #creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
 class TeamMember(db.Model):

@@ -3,9 +3,15 @@
 
 {% block app_content %}
 {% for user in users %}
-        <p>
-        {{ user.username }} email: <b>{{ user.email }}</b>
-        </p>
+<p>
+
+    <span class="user_popup">
+        <a href="{{ url_for('main.user_popup', username=user.username, team_id=team_id) }}">
+            {{ user.username }}.{{ team_id }}
+        </a>
+    </span>
+
+</p>
 {% endfor %}
 
 {% endblock %}

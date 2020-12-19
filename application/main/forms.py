@@ -87,3 +87,7 @@ class TeamEditForm(FlaskForm):
     description = TextAreaField('Team description', validators=[DataRequired()])
     submit = SubmitField('Create/Edit')
 
+class TeamInviteForm(FlaskForm):
+    """ Form used to invite new members to Team """
+    submit = SubmitField('Invite')
+
