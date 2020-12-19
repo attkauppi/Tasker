@@ -89,5 +89,6 @@ class TeamEditForm(FlaskForm):
 
 class TeamInviteForm(FlaskForm):
     """ Form used to invite new members to Team """
+    # TODO: Lisättävä kai selectfield, johon määritetään roolit/permissionit? Vrt. EditProfileAdmin-lomakkeeseen.
     submit = SubmitField('Invite')
 
