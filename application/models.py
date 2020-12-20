@@ -308,13 +308,20 @@ class Team(db.Model):
         print("Team users: ")
         print(self.users)
 
-        if u in self.users:
-            print("Kuuluu jo tiimiin")
-            pass
-        else:
-            tm = TeamMember(team_id=self.id, team_member_id=u.id)
-            db.session.add(tm)
-            db.session.commit()
+        #if u in self.users:
+        #    print("Kuuluu jo tiimiin")
+        #    pass
+        #else:
+            #tr = TeamRole()
+        tr = TeamRole()
+        tm = TeamMember(
+            team_id=self.id,
+            team_member_id=u.id
+        )
+        print(tm)
+
+        #db.session.add(tm)
+        return tm
 
 #     #creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
@@ -330,34 +337,48 @@ class TeamMember(db.Model):
     # team_permissions = db.Column(db.Integer)
     user = relationship(User, backref=backref("team_members", cascade="all, delete-orphan"))
     team = relationship(Team, backref=backref("team_members", cascade="all, delete-orphan"))
-    team_role = relationship('TeamRole', back_populates='team_members')
+    #team_role = relationship('TeamRole', back_populates='team_members')
+    team_member_user = relationship('User', back_populates='team_members')
 
     def __init__(self, **kwargs): # Initializes user roles
         """ Sets team member roles. Sets Admin if email matches """
         super(TeamMember, self).__init__(**kwargs)
+        
+        #print("self.team_role")
+        #print(self.team_role)
+        #print(self.team)
         #self.email = email
+        # print("self.team_role")
+
+        # print(self.team_role)
+        # print("team memberin self.user")
+        # print(self.team_member_id)
+        # print(self.get_user())
         # self.username = username
         # self.password = password
         #TODO: Tässä voi olla virhe, vaihdoit self.rolen
         # self.team_roleksi
         print("self.team_role: ", self.team_role_id)
         if self.team_role_id is None:
-            print("self email: ", self.email)
+            #print("self email: ", self.email)
             print("os.getenv(admin): ", os.getenv('ADMIN'))
             #if self.email == os.getenv('ADMIN'):
             # This will not work, if in the registration form
             # the user is not instantiated with at least the
             # email, i.e., u = User(email=form.email.data)
-            if self.email == os.getenv('ADMIN'): # Checks whether the email address of the user matches that of the admin's
+            if self.get_user().email == os.getenv('ADMIN'): # Checks whether the email address of the user matches that of the admin's
                 # TODO: Tietokantaviritykset lopuksi
-                print("Ei päässyt iffiin")
+                print("Pääsi iffiin, tästä tulee admini")
                 self.team_role_id = TeamRole.query.filter_by(team_role_name='Administrator').first().id
             if self.team_role_id is None:
-                self.team_role_id = TeamRole.query.filter_by(default_role=True).first()
+                self.team_role_id = TeamRole.query.filter_by(default_role=True).first().id
         # Gravatar
         #if self.email is not None and self.avatar_hash is None:
         #    self.avatar_hash = self.gravatar_hash()
-
+    
+    def get_user(self):
+        return User.query.filter_by(id=self.team_member_id).first()
+    
     def can(self, perm):
         """ Checks whether user is allowed to carry out a particular
         function in a team """
@@ -394,7 +415,9 @@ class TeamRole(db.Model):
     #FIXME: backref voi aiheuttaa ongelmia! Et tiennyt, olisiko pitänyt olla team_role vai teamrole
     #team_role = relationship(TeamMember, backref='TeamRole', lazy='dynamic')
     #team_role = relationship(TeamMember, backref=backref("TeamRole"), lazy='dynamic')
-    team_members = relationship("TeamMember", back_populates='team_role')
+    
+    team_members = relationship('TeamMember', backref='team_role', lazy='dynamic')
+    #team_members = relationship("TeamMember", back_populates='team_role')
     #team_member_roles = relationship(TeamMember, backref='team_roles', lazy='dynamic')
 
     def __init__(self, **kwargs):

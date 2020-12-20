@@ -399,8 +399,10 @@ def invite_user_to_team(username, team_id):#username, team_id):
         #if user == current_user:
         #    flash("You cannot invite yourself")
         #    return redirect(url_for('main.invite_to_team', id=team.id))
-        team.invite_user(user.username)
-        
+        tm = team.invite_user(user.username)
+        print("tm: ", tm)
+        db.session.add(tm)
+        db.session.commit()
         flash(message=('Invited user ' + user.username))
         return redirect(url_for('main.invite_to_team', id=team.id))
     return render_template(url_for('main.invite_to_team', id=team.id))
