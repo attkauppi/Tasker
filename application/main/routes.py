@@ -462,5 +462,6 @@ def team(id):
 def edit_member_roles(id):
     """ Allows editing member roles """
     team = Team.query.get_or_404(id)
-    users = User.query.all()
-    return render_template('team_edit_member_roles.html', team=team, users=users, team_id=team.id)
+    print("Team users")
+    print(team.users)
+    return render_template('team_edit_member_roles.html', team=team, users=team.users, team_id=team.id)

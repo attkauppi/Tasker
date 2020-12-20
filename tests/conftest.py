@@ -24,6 +24,19 @@ def handler(postgresql):
         default_role BOOLEAN,
         permissions INTEGER
     )""")
+    cursor.execute("""CREATE TABLE team_roles (
+    id SERIAL PRIMARY KEY,
+    team_role_name TEXT,
+    default_role BOOLEAN,
+    team_permissions INTEGER
+    )""")
+    cursor.execute("""CREATE TABLE teams (
+    id SERIAL PRIMARY KEY,
+    title TEXT,
+    description TEXT,
+    CREATED TIMESTAMP WITHOUT TIME ZONE,
+    MODIFIED TIMESTAMP WITHOUT TIME ZONE
+    )""")
     cursor.execute("CREATE TABLE messages(id SERIAL PRIMARY KEY, content TEXT)")
     cursor.execute("""CREATE TABLE users (
         id SERIAL PRIMARY KEY,
@@ -37,6 +50,15 @@ def handler(postgresql):
         role_id INTEGER,
         avatar_hash TEXT,
         FOREIGN KEY (role_id) REFERENCES roles (id)
+    )""")
+    cursor.execute("""CREATE TABLE team_members (
+    id SERIAL PRIMARY KEY,
+    team_id INTEGER NOT NULL,
+    team_member_id INTEGER NOT NULL,
+    team_role_id INTEGER NOT NULL,
+    FOREIGN KEY (team_id) REFERENCES teams (id),
+    FOREIGN KEY (team_member_id) REFERENCES users (id),
+    FOREIGN KEY (team_role_id) REFERENCES team_roles (id)
     )""")
     cursor.execute("INSERT INTO messages (content) VALUES ('hello'), ('ciao')")
     cursor.execute("""CREATE TABLE tasks (

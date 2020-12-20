@@ -48,7 +48,7 @@ sys.path.insert(0, parentdir)
 import testing.postgresql
 
 from application import create_app, db
-from application.models import User, Task, Permission, Role, AnonymousUser
+from application.models import User, Task, Permission, Role, AnonymousUser, Team, TeamMember, TeamPermission, TeamRole
 
 # create initial data on create as fixtures into the database
 def handler(postgresql):
@@ -87,6 +87,7 @@ class UserModelCase(unittest.TestCase):
         self.app = self._app.test_client()
         db.create_all()
         Role.insert_roles()
+        TeamRole.insert_roles()
         
         # Yksi ohje taalta
         # https://stackoverflow.com/questions/16117094/flask-unit-tests-with-sqlalchemy-and-postgresql-exhausts-db-connections
@@ -237,7 +238,45 @@ class UserModelCase(unittest.TestCase):
         # expired
         time.sleep(2)
         self.assertFalse(u1.confirm(token))
-        
+    
+    def test_user_team_memberships(self):
+        """ Test that user can use the relationship
+        between user and teams """
+        u = User(username='u1', password='u1')
+        db.session.add(u)
+        db.session.commit()
+        u = User.query.filter_by(username=u.username).first()
+
+
+        t = Team(title='u1sen tiimi', description='Tämä on testi tiimi')
+        db.session.add(t)
+        db.session.commit()
+
+        t = Team.query.filter_by(title=t.title).first()
+
+        tr = TeamRole.query.filter_by(team_role_name="Administrator").first()
+
+        # Create team member
+        tm = TeamMember(
+            team_id = t.id,
+            team_member_id = u.id,
+            team_role_id = tr.id
+        )
+
+        db.session.add(tm)
+        db.session.commit()
+
+        self.assertTrue(u.is_team_administrator(t.id))
+        # Checks that Admins have Moderator rights as well
+        self.assertTrue(u.is_team_moderator(t.id))
+        # Checks that the actual role the user has is Administrator
+        self.assertTrue(u.is_team_role(t.id, "Administrator"))
+        # Checks that the user's actual role isn't Moderator despite
+        # the user having moderator rights as administrator
+        self.assertFalse(u.is_team_role(t.id, "Team moderator"))
+
+
+
     
 
 
