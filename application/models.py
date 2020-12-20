@@ -344,18 +344,6 @@ class TeamMember(db.Model):
         """ Sets team member roles. Sets Admin if email matches """
         super(TeamMember, self).__init__(**kwargs)
         
-        #print("self.team_role")
-        #print(self.team_role)
-        #print(self.team)
-        #self.email = email
-        # print("self.team_role")
-
-        # print(self.team_role)
-        # print("team memberin self.user")
-        # print(self.team_member_id)
-        # print(self.get_user())
-        # self.username = username
-        # self.password = password
         #TODO: Tässä voi olla virhe, vaihdoit self.rolen
         # self.team_roleksi
         print("self.team_role: ", self.team_role_id)
