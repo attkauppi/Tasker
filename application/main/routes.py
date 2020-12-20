@@ -7,6 +7,9 @@ from application.main.forms import TaskForm, EditProfileForm, EditProfileAdmin, 
 from application.models import User, Task, Role, Team, TeamMember, TeamRole, TeamPermission
 from application.main import bp
 from utils.decorators import admin_required
+from sqlalchemy.orm import session
+from sqlalchemy import and_, or_, not_, MetaData
+meta = MetaData()
 
 print("Main luokka")
 # @login_manager.user_loader
@@ -403,6 +406,7 @@ def invite_user_to_team(username, team_id):#username, team_id):
         print("tm: ", tm)
         db.session.add(tm)
         db.session.commit()
+        
         flash(message=('Invited user ' + user.username))
         return redirect(url_for('main.invite_to_team', id=team.id))
     return render_template(url_for('main.invite_to_team', id=team.id))
@@ -417,6 +421,33 @@ def team(id):
     print(current_user.team_memberships)
     team = Team.query.get_or_404(id)
 
+    print("current_user team_memberships")
+    print(current_user.team_memberships)
+
+    print("membership tyypit:")
+    for i in current_user.team_memberships:
+        print("\t", type(i))
+    tm = TeamMember.query.filter_by(team_id=id)
+
+    print("user metodin testaus")
+    tm = current_user.get_team_member_object(id)
+    print("user is moderator? ", tm.is_team_moderator())
+
+    # print("current user can moderate?")
+    print(current_user.can_team(id, TeamPermission.CREATE_TASKS))
+    if current_user.can_team(id, TeamPermission.CREATE_TASKS):
+        print("Kayttaja saa luoda tehtavia!")
+
+    if current_user.is_team_role(id, "Team member"):
+        print("Kayttajalla on perus tiimiläisen oikeudet!")
+    #meta.Session.query(Team)
+
+    tm1 = TeamMember.query.filter_by(team_id=id).filter_by(team_member_id=current_user.id).first()
+    print(tm1)
+
+    print("type tm1: ", type(tm1))
+    print("queryn tulos: ", tm1)
+
     team_members = team.users
     print("Team members")
     for i in team_members:
@@ -425,3 +456,11 @@ def team(id):
 
     
     return render_template('team.html', team=team)
+
+@bp.route('/team/<int:id>/edit_member_roles', methods=["GET", "POST"])
+@login_required
+def edit_member_roles(id):
+    """ Allows editing member roles """
+    team = Team.query.get_or_404(id)
+    users = User.query.all()
+    return render_template('team_edit_member_roles.html', team=team, users=users, team_id=team.id)

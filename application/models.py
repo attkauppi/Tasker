@@ -170,6 +170,85 @@ class User(UserMixin, db.Model):
             default=default,
             rating=rating
         )
+    
+    def can_team(self, team_id, team_perm):
+        """ Checks if the user has the required
+        permissions to carry out a function on the
+        team site """
+        tm = self.get_team_member_object(team_id)
+        if tm is None:
+            return False
+        print("can_team käsiteltävänä oleva tm: ", tm)
+        teamrole = TeamRole.query.filter_by(id=tm.team_role_id).first()
+        if teamrole is None:
+            return False
+
+        if teamrole is not None and teamrole.has_permission(team_perm):
+            return True
+        return False
+    
+    def is_team_role(self, team_id, team_role_name):
+        """ Checks user privileges using team_roles names """
+        tm = self.get_team_member_object(team_id)
+        if tm is None:
+            return False
+
+        teamrole_user = TeamRole.query.filter_by(id=tm.team_role_id).first()
+        if teamrole_user is not None and teamrole_user.team_role_name == team_role_name:
+            return True
+
+        return False
+        #teamrole_searched = TeamRole.query.filter_by(team_role_name=team_role_name).first()
+
+
+        #if teamrole is not None:
+    
+    def is_team_administrator(self, team_id):
+        tm = self.get_team_member_object(team_id)
+        if tm is None:
+            return False
+        
+        if tm.is_team_administrator():
+            return True
+        return False
+
+        # teamrole_user = TeamRole.query.filter_by(id=tm.team_role_id).first()
+
+        
+        # if teamrole_user is not None and teamrole_user.team_role_name == "Administrator":
+        #     return True
+        # return False
+    
+    def is_team_moderator(self, team_id):
+        tm = self.get_team_member_object(team_id)
+        if tm is None:
+            return False
+        
+        if tm.is_team_moderator():
+            return True
+        return False
+        
+        #teamrole_user = TeamRole.query.filter_by(id=tm.team_role_id).first()
+        #if teamrole_user is not None and teamrole_user.team_role_name == "Administrator":
+        #    return True
+        #return False
+
+
+    def get_team_member_object(self, team_id):
+        """ Finds the role of the user in a given group """
+        #print("TEAM MEMBERSHIPS")
+        for i in self.team_memberships:
+            #print(i)
+            if i.team_id is not None and i.team_id == team_id:
+                #print("Tämän pitäisi olla oikea tm: ", i)
+                return i
+        return None
+        #for tm in self.team_memberships:
+        #    if tm.team_id == team_id:
+        #        return tm
+        #return None
+
+        
 
 # TODO: Lisää tämä myös team permissioneiden tarkistukseen, jos tarpeen
 # miguelin kirjasta s. 132
@@ -371,6 +450,12 @@ class TeamMember(db.Model):
         """ Checks whether user is allowed to carry out a particular
         function in a team """
         return self.team_role is not None and self.team_role.has_permission(perm)
+    
+    def is_team_member(self):
+        tr = TeamRole.query.filter_by(team_role_name="Team member").first()
+        print("self.team_role")
+        print(self.team_role)
+        #return self.can(TeamPermission.)
     
     def is_team_administrator(self):
         """ Checks if user has admin privileges """

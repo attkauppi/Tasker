@@ -2,10 +2,10 @@ from flask import Blueprint
 
 bp = Blueprint('main', __name__)
 
-from application.main import routes
+#from application.main import routes
 
 from application.main import routes
-from application.models import Permission
+from application.models import Permission, TeamPermission
 
 # TODO: et ole varma toimiiko tämä
 @bp.app_context_processor
@@ -20,3 +20,8 @@ def inject_permissions():
     during rendering.
     """
     return dict(Permision=Permission)
+
+@bp.app_context_processor
+def inject_team_permissions():
+    """ Injects team permissions to templates """
+    return dict(TeamPermission=TeamPermission)
