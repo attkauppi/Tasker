@@ -106,12 +106,16 @@ def create_app(config_class=Config):
     
     #
     with app.app_context():
-        #db.create_all()
-        #from .db import init_db, init_db_command
+        db.create_all()
+        from .db import init_db, init_db_command
         #init_db()
-        #init_db_command()
+        init_db()
+        #db.create_all()
         from application.models import Role
         Role.insert_roles()
+
+        from application.models import TeamRole
+        TeamRole.insert_roles()
         #_db.init_db()
         #db.create_all()
     #     @app.route("/send")

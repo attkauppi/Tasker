@@ -4,7 +4,7 @@ from flask import render_template, flash, redirect, url_for, request, g, \
 from flask_login import current_user, login_required
 from application import db, login_manager
 from application.main.forms import TaskForm, EditProfileForm, EditProfileAdmin, TeamCreateForm, TeamEditForm, TeamInviteForm#, EmptyForm, PostForm
-from application.models import User, Task, Role, Team, TeamMember
+from application.models import User, Task, Role, Team, TeamMember, TeamRole, TeamPermission
 from application.main import bp
 from utils.decorators import admin_required
 
@@ -201,10 +201,13 @@ def create_team():
         # been assigned
         t = Team.query.filter_by(title=team.title).first()
 
+        tr = TeamRole.query.filter_by(team_role_name='Administrator').first()
+
         # Create team_member association table record
         team_member = TeamMember(
             team_id = t.id,
-            team_member_id = current_user.id
+            team_member_id = current_user.id,
+            team_role_id = tr.id
         )
 
         db.session.add(team_member)
@@ -406,6 +409,10 @@ def invite_user_to_team(username, team_id):#username, team_id):
 @login_required
 def team(id):
     #team = Team.query.filter_by(id=team_id).first_or_404()
+    print("Current user teams: ")
+    print(current_user.teams)
+    print("Current user team_members")
+    print(current_user.team_memberships)
     team = Team.query.get_or_404(id)
 
     team_members = team.users

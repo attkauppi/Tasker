@@ -2,7 +2,7 @@ from functools import wraps
 from threading import Thread
 from flask import abort
 from flask_login import current_user
-from application.models import Permission
+from application.models import Permission#, TeamPermission
 
 def permission_required(permission):
     def decorator(f):

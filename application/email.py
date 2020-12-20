@@ -19,6 +19,18 @@ import flask
 from flask import jsonify
 import json
 
+# Team function
+# def send_team_invite_email(user):
+#     token = user.generate_confirmation_token()
+#     send_email(('[Tasker] Reset Your Password'),
+#                #sender=current_app.config['ADMINS'][0],
+#                sender=current_app.config['MAIL_USERNAME'],
+#                recipients=[user.email],
+#                text_body=render_template('auth/confirm.txt',
+#                                          user=user, token=token),
+#                html_body=render_template('auth/confirm.html',
+#                                          user=user, token=token))                                        
+
 
 def send_email(subject, sender, recipients, text_body, html_body):
     msg = Message(subject, sender=sender, recipients=recipients)
