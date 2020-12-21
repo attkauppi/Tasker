@@ -171,6 +171,17 @@ class User(UserMixin, db.Model):
             rating=rating
         )
     
+    def get_team_role(self, team_id):
+        """ Returns a user's team role, used in layouts, for example """
+        # tm = TeamMember object
+        tm = self.get_team_member_object(team_id)
+        print("get_team_role() tm: ", tm)
+        teamrole = TeamRole.get_role_by_id(tm.team_role_id)
+        print("Tuloksena saatu team role: ", teamrole)
+        return teamrole
+        
+
+
     def can_team(self, team_id, team_perm):
         """ Checks if the user has the required
         permissions to carry out a function on the
@@ -290,8 +301,18 @@ class Role(db.Model):
     def has_permission(self, perm):
         return self.permissions & perm == perm
     
+    @staticmethod
+    def get_role_by_id(id):
+        """ Returns the role given a Role.id """
+        return Role.query.filter_by(id=id).first()
+        
+    
     def __repr__(self):
         return '<Role %r>' % self.role_name
+    
+    def __str__(self):
+        """ Returns the role name as string """
+        return self.role_name
     
     @staticmethod
     def insert_roles():
@@ -489,6 +510,7 @@ class TeamRole(db.Model):
     #team_role = relationship(TeamMember, backref='TeamRole', lazy='dynamic')
     #team_role = relationship(TeamMember, backref=backref("TeamRole"), lazy='dynamic')
     
+    #member_role = 
     team_members = relationship('TeamMember', backref='team_role', lazy='dynamic')
     #team_members = relationship("TeamMember", back_populates='team_role')
     #team_member_roles = relationship(TeamMember, backref='team_roles', lazy='dynamic')
@@ -512,8 +534,21 @@ class TeamRole(db.Model):
     def has_permission(self, perm):
         return self.team_permissions & perm == perm
     
+    @staticmethod
+    def get_role_by_id(id):
+        """ Returns the role given a Role.id """
+        return Role.query.filter_by(id=id).first()
+    
     def __repr__(self):
         return '<TeamRole %r>' % self.team_role_name
+    
+    def __str__(self):
+        """ Returns the role name as string """
+        return self.team_role_name
+    
+    #@staticmethod
+    #def get_team_role_name(self):
+    #    return self.team_role_name
     
     @staticmethod
     def insert_roles():#default_member_role='Team member'):

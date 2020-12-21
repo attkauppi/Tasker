@@ -450,11 +450,17 @@ def team(id):
 
     team_members = team.users
     print("Team members")
-    for i in team_members:
-        
-        print(i)
+    #for i in team_members:
+    #    
+    #    print(i)
 
-    
+    print("=====================")
+    print("Käyttäjien roolien palauttaminen uudella metodilla: ")
+    for u in team.users:
+        r = u.get_team_role(team.id)
+        print("\t rooli: ", r)
+        
+
     return render_template('team.html', team=team)
 
 @bp.route('/team/<int:id>/edit_member_roles', methods=["GET", "POST"])
