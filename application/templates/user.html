@@ -21,6 +21,19 @@
             </p>
             
         </td>
+        {#
+        {% if (user == current_user) or (current_user.is_administrator()) %}
+        #}
+        <td>
+            <h2>Belongs to teams</h2>
+            <ul>
+            {% for team in user.teams %}
+                <li>
+                    <a href="{{ url_for('main.team', id=team.id) }}">{{ team.title }}</a>
+                </li>
+            {% endfor %}
+            </ul>
+        </td>
     </tr>
 </table>
     <div>
