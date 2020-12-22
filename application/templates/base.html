@@ -41,9 +41,8 @@
                             {% for team in current_user.teams %}
                             <li><a href="{{ url_for('main.team', id=team.id) }}">{{ team.title }}</a></li> 
                             {% endfor %}
+                            <li><hr class="dropdown-divider"></li>
                             <li><a href="{{ url_for('main.create_team') }}">Create team</a></li>
-                            <li><a href="{{ url_for('main.edit_profile') }}">Edit profile</a></li>
-                            <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
                         </ul>
                     </li>
                     {% endif %}
