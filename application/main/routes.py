@@ -248,12 +248,15 @@ def edit_team(id):
 @login_required
 def invite_to_team(id):
     """ Route of endpoint for sending
-    team invitations. """
+    team """
     team = Team.query.get_or_404(id)
     users = User.query.all()
 
+    print("Team users: ")
+    print(team.users)
     # Filters out the users already in the team
     for u in users:
+
         if u in team.users:
             users.remove(u)
 
@@ -315,7 +318,9 @@ def user_popup(username, team_id):
 
     if "team_id" in args:
         print("team id on query parametri")
-   
+    ##team_id = args.get('team_id')
+    #team_id = args.get('team_id')
+    #print("TEAM_ID: ", team_id)
     team = Team.query.filter_by(id=team_id).first()
     #print("team: ", team)
     #print("TEAM_ID: ", team_id)
@@ -401,6 +406,7 @@ def invite_user_to_team(username, team_id):#username, team_id):
     form = TeamInviteForm()
 
     if form.validate_on_submit():
+        print("Validoi ")
         #user = User.query.filter_by(username=username).first()
         #if user == current_user:
         #    flash("You cannot invite yourself")
@@ -411,18 +417,30 @@ def invite_user_to_team(username, team_id):#username, team_id):
         db.session.commit()
         
         flash(message=('Invited user ' + user.username))
+        print("Suoritus loppumassa iffin sisäiseen redirectiin")
         return redirect(url_for('main.invite_to_team', id=team.id))
-    return render_template(url_for('main.invite_to_team', id=team.id))
+    print("Suoritus loppumassa render_templateen")
+    #return render_template(url_for('main.invite_to_team', id=team.id))
+    return redirect(url_for('main.invite_to_team', id=team.id))
+
 
 @bp.route('/team/<int:id>', methods=["GET", "POST"])
 @login_required
 def team(id):
     #team = Team.query.filter_by(id=team_id).first_or_404()
+    
+
     print("Current user teams: ")
     print(current_user.teams)
     print("Current user team_members")
     print(current_user.team_memberships)
     team = Team.query.get_or_404(id)
+
+    print("=======")
+    print("Tiimin nykyiset jäsenet")
+    for i in team.users:
+        print("\t", i, " Rooli tiimissä: ", i.get_team_role(team.id))
+        print("\t\t tiimiläisetn team_member-olio: ", i.get_team_member_object(team.id))
 
     print("current_user team_memberships")
     print(current_user.team_memberships)

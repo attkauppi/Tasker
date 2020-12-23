@@ -110,9 +110,9 @@
                 function(event) {
                     // mouse IN event handler
                     var elem = $(event.currentTarget);
-                    var spaninarvo = elem.attr('id');
-                    console.log('spaninarvo value: ' + spaninarvo)
-                    var string = elem.first().text().trim();
+                    var string = elem.attr('id');
+                    console.log('spaninarvo value: ' + string)
+                    // var string = elem.first().text().trim();
                     console.log("string: " + string);
                     var piste = string.indexOf(".");
                     var pisteplusyksi = piste+1;

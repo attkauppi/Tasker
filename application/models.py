@@ -68,9 +68,9 @@ class User(UserMixin, db.Model):
     
     def __eq__(self, other):
         """ Allows comparing user objects """
-        if not isinstance(self, User):
-            return NotImplemented
-        return self.id == other.id
+        if isinstance(self, User):
+            return self.id == other.id
+        return False
     
     def set_password(self, password):
         """ Sets user password, hashed """
@@ -181,9 +181,9 @@ class User(UserMixin, db.Model):
         """ Returns a user's team role, used in layouts, for example """
         # tm = TeamMember object
         tm = self.get_team_member_object(team_id)
-        print("get_team_role() tm: ", tm)
+        #print("get_team_role() tm: ", tm)
         teamrole = TeamRole.get_role_by_id(tm.team_role_id)
-        print("Tuloksena saatu team role: ", teamrole)
+        # print("Tuloksena saatu team role: ", teamrole)
         return teamrole
         
 
