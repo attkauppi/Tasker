@@ -66,6 +66,12 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return '<User {}>'.format(self.username)
     
+    def __eq__(self, other):
+        """ Allows comparing user objects """
+        if not isinstance(self, User):
+            return NotImplemented
+        return self.id == other.id
+    
     def set_password(self, password):
         """ Sets user password, hashed """
         print("generate_password_hash: ", generate_password_hash(password))
@@ -209,10 +215,6 @@ class User(UserMixin, db.Model):
             return True
 
         return False
-        #teamrole_searched = TeamRole.query.filter_by(team_role_name=team_role_name).first()
-
-
-        #if teamrole is not None:
     
     def is_team_administrator(self, team_id):
         tm = self.get_team_member_object(team_id)
@@ -222,13 +224,6 @@ class User(UserMixin, db.Model):
         if tm.is_team_administrator():
             return True
         return False
-
-        # teamrole_user = TeamRole.query.filter_by(id=tm.team_role_id).first()
-
-        
-        # if teamrole_user is not None and teamrole_user.team_role_name == "Administrator":
-        #     return True
-        # return False
     
     def is_team_moderator(self, team_id):
         tm = self.get_team_member_object(team_id)
@@ -238,12 +233,6 @@ class User(UserMixin, db.Model):
         if tm.is_team_moderator():
             return True
         return False
-        
-        #teamrole_user = TeamRole.query.filter_by(id=tm.team_role_id).first()
-        #if teamrole_user is not None and teamrole_user.team_role_name == "Administrator":
-        #    return True
-        #return False
-
 
     def get_team_member_object(self, team_id):
         """ Finds the role of the user in a given group """

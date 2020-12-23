@@ -247,17 +247,22 @@ def edit_team(id):
 @bp.route('/teams/<int:id>/invite', methods=["GET", "POST"])
 @login_required
 def invite_to_team(id):
+    """ Route of endpoint for sending
+    team invitations. """
     team = Team.query.get_or_404(id)
     users = User.query.all()
+
+    # Filters out the users already in the team
+    for u in users:
+        if u in team.users:
+            users.remove(u)
+
     form = TeamInviteForm()
     #team = Team.query.get_or_404(team_id)
     #team
     print("invite_to_team id: ", id)
     print("Team johon kutsutaan: ", team)
     form = TeamInviteForm()
-
-
-
 
     if form.validate_on_submit():
         args = request.args.to_dict()
