@@ -5,7 +5,7 @@
 {% for user in users %}
 <p>
 
-    <span class="user_popup">
+    <span class="user_popup" id="{{ user.username }}.{{ team_id }}">
         <a href="{{ url_for('main.user_popup', username=user.username, team_id=team_id) }}">
             {{ user.username }}.{{ team_id }}
         </a>

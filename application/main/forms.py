@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField, SelectField
 from wtforms.validators import ValidationError, DataRequired, Length, Email, Regexp
 # from flask_babel import _, lazy_gettext as _l
-from application.models import User, Role
+from application.models import User, Role, TeamRole
 
 
 class EditProfileForm(FlaskForm):
@@ -90,5 +90,6 @@ class TeamEditForm(FlaskForm):
 class TeamInviteForm(FlaskForm):
     """ Form used to invite new members to Team """
     # TODO: Lisättävä kai selectfield, johon määritetään roolit/permissionit? Vrt. EditProfileAdmin-lomakkeeseen.
+    team_role = SelectField('Team role', coerce=int)
     submit = SubmitField('Invite')
 

@@ -315,9 +315,7 @@ def user_popup(username, team_id):
 
     if "team_id" in args:
         print("team id on query parametri")
-    ##team_id = args.get('team_id')
-    #team_id = args.get('team_id')
-    #print("TEAM_ID: ", team_id)
+   
     team = Team.query.filter_by(id=team_id).first()
     #print("team: ", team)
     #print("TEAM_ID: ", team_id)
