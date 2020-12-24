@@ -1,0 +1,61 @@
+<table class="table table-hover">
+    <tr>
+        <td width="70px">
+            <img src="{{ user.gravatar(64) }}"></td>
+        <td>
+            <p><a href="{{ url_for('main.user', username=user.username) }}">{{ user.username }}</a></p>
+            
+                {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+                {# If request path is in an url associated with inviting users, show the popup #}
+                {% if "teams" in request.referrer and "invite" in request.referrer %}
+                    <!-- Lisaa toiminto, joka tarkistaa, onko kayttaja jo tiimissa -->
+                    <p>
+                        <form action="{{ url_for('main.invite_user_to_team',username=user.username, team_id=team_id) }}" method="post">
+                            {# {{ form.team_role.label }}{{ form.team_role }} #}
+                            {{ form.hidden_tag() }}
+                            {{ form.submit(value=('invite_user_to_team'), class_='btn btn-default btn-sm') }}
+                        </form>
+                    </p>
+                {% endif %}
+            </small>
+            <div class="post-footer">
+                {# {% elif current_user.is_administrator() %} #}
+                {% if user == current_user %}
+                <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">Edit Profile</a>
+                {% endif %}
+                {% if current_user.is_administrator() %}
+                <a class="btn btn-danger" href="{{ url_for('main.edit_profile_admin', id=user.id) }}">Edit Profile [Admin]</a>
+                {% endif %}
+            </div>
+        </td>
+    </tr>
+</table>
+{#
+<ul class="users">
+    <li class="user">
+        <div class="user-thumbnail">
+            <a href="{{ url_for('main.user', username=user.username) }}">
+                <img class="img-rounded profile-thumbnail" src="{{ user.gravatar(size=40) }}">
+            </a>
+        </div>
+        <div class="user-content">
+            <div class="user"><a href="{{ url_for('main.user', username=user.username) }}">{{ user.username }}</a></div>
+            <div class="user-body">
+                {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+            </div>
+            <div class="user-footer">
+                {% if user == current_user %}
+                <a href="{{ url_for('.edit_profile') }}">
+                    <span class="label label-primary">Edit Profile</span>
+                </a>
+                {% endif %}
+                {% if current_user.is_administrator() %}
+                <a href="{{ url_for('main.edit_profile_admin', id=user.id) }}">
+                    <span class="label label-danger">Edit Profile [Admin]"</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </li>
+</ul>
+#}

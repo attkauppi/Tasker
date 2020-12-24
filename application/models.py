@@ -109,8 +109,17 @@ class User(UserMixin, db.Model):
         except:
             return False
         
+        
         if id != self.id:
             print("Pääsi iffin läpi, mutta id ei vastannut")
+            return False
+        
+        try: 
+            expiration = jwt.decode(token, current_app.config['SECRET_KEY'],
+                            algorithms=['HS256']
+            )['exp']
+            print("Expiration: ", expiration)
+        except:
             return False
         # Token vastasi id:tä
         self.confirmed = True

@@ -103,3 +103,14 @@ class TeamInviteForm(FlaskForm):
     #    if field.data != self.user.email and User.query.filter_by(email=field.data).first():
     #        raise(ValidationError("Email already registered."))
 
+class TeamEditMemberForm(FlaskForm):
+    """ Form for editing team member roles """
+    team_role = SelectField('Team role', coerce=int)
+
+    
+    
+    def __init__(self, *args, **kwargs):
+        super(TeamInviteForm, self).__init__(*args, **kwargs)
+        self.team_role.choices = [(team_role.id, team_role.team_role_name)
+            for team_role in TeamRole.query.order_by(TeamRole.team_role_name).all()]
+        self.user = user

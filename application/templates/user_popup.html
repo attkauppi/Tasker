@@ -6,6 +6,8 @@
             <small>
                 {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
 
+                {# If request path is in an url associated with inviting users, show the popup #}
+                {% if "teams" in request.referrer and "invite" in request.referrer %}
                     <!-- Lisaa toiminto, joka tarkistaa, onko kayttaja jo tiimissa -->
                     <p>
                         <form action="{{ url_for('main.invite_user_to_team',username=user.username, team_id=team_id) }}" method="post">
@@ -14,6 +16,7 @@
                             {{ form.submit(value=('invite_user_to_team'), class_='btn btn-default btn-sm') }}
                         </form>
                     </p>
+                {% endif %}
 
 
             </small>

@@ -19,13 +19,13 @@ def send_password_reset_email(user):
 
 def send_confirmation_email(user):
     token = user.generate_confirmation_token()
-    send_email(('[Tasker] Reset Your Password'),
+    send_email(('[Tasker] Confirm your account'),
                #sender=current_app.config['ADMINS'][0],
                sender=current_app.config['MAIL_USERNAME'],
                recipients=[user.email],
-               text_body=render_template('auth/confirm.txt',
+               text_body=render_template('auth/email/confirm.txt',
                                          user=user, token=token),
-               html_body=render_template('auth/confirm.html',
+               html_body=render_template('auth/email/confirm.html',
                                          user=user, token=token))                                        
 
 # def send_password_reset_email(user):

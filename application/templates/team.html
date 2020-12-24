@@ -1,7 +1,39 @@
-{% extends "base.html" %}
-{% import 'bootstrap/wtf.html' as wtf %}
+{% extends "_team_base.html" %}
+{# {% import 'bootstrap/wtf.html' as wtf %} #}
 
+{# {% block head %}
+{{ super() }}
+<!--<link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/offcanvas/"> -->
+<link href="/docs/5.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+{% endblock %} #}
 {% block app_content %}
+
+{# <div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span> #}
+                {#<a class="btn btn-default" href="{{ url_for('.team_members', id=team.id) }}">Members</a>#}
+                {# <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ url_for('.team', id=team.id) }}">{{ team.title }}</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="{{ url_for('.team_members', id=team.id) }}">Members</a></li>
+                
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                
+                <li><a href="/auth/login">Log In</a></li>
+                
+            </ul>
+        </div>
+    </div>
+</div>#}
 <table class="table table-hover">
     <tr>
         <td width="256px"><img src={{ url_for('static', filename='teamlogo.png') }}></td>
@@ -12,11 +44,14 @@
             
             </p>
             <p>
-                <a class="btn btn-default" href="{{ url_for('.edit_team', id=team.id) }}">Edit team</a>
-                <a class="btn btn-default" href="{{ url_for('.invite_to_team', id=team.id) }}">Invite to team</a>
                 {% if current_user.is_team_moderator(team.id) or current_user.is_team_administrator(team.id) %}
-                <a class="btn btn-default" href="{{ url_for('.edit_member_roles', id=team.id) }}">Edit team member roles</a>
+                    <a class="btn btn-default" href="{{ url_for('.edit_team', id=team.id) }}">Edit team</a>
+                    <a class="btn btn-default" href="{{ url_for('.invite_to_team', id=team.id) }}">Invite to team</a>
+                    {# <a class="btn btn-default" href="{{ url_for('.edit_member_roles', id=team.id) }}">Edit team member roles</a> #}
+                    <a class="btn btn-default" href="{{ url_for('.team_members', id=team.id) }}">Members</a>
                 {% endif %}
+                
+
             </p>
         </td>
         <td>
@@ -36,22 +71,23 @@
                 {% for user in team.users %}
                 <div class="list-group mb-3">
                     <span class="user_popup">
-                    {# <a class="list-group-item list-group-item-action d-flex align-items-center" href="https://github.com/mdo"> #}
-                    <a class="list-group-item list-group-item-action d-flex align-items-center" href="{{ url_for('main.user_popup', username=user.username, team_id=team.id) }}">
-                        {# <img src="https://github.com/mdo.png" alt="@mdo" width="32" height="32" class="rounded me-2" loading="lazy"> #}
+                    <a class="list-group-item list-group-item-action d-flex align-items-center" href="{{ url_for('main.user', username=user.username) }}">
+                    {# href="{{ url_for('main.user_popup', username=user.username, team_id=team.id) }}">#}
                         <img src="{{ user.gravatar(32) }}", width="32", height="32", class="rounded me-2", loading="lazy">
-                        {#<p>
-                            {{ user.username }}
-                        </p>#}
                         <span>
                           <strong>{{ user.userame }}</strong> <b>{{ user.username }}</b>
                         </span>
                     </a>
                     </span>
+                    <a>
+                        {% if current_user.is_administrator() %}
+                            <a class="btn btn-danger" href="{{ url_for('main.edit_profile_admin', id=user.id) }}">Edit Profile [Admin]</a>
+                        {% endif %}
+                    </a>
                 </div>
                 {##}
                 {% endfor %}
-                <p>
+                {# <p>
                 {% for user in team.users %}
                 <table>
                     <tr>
@@ -60,15 +96,20 @@
                     </tr>
                     <tr>
                         <td>{{ user.username }}</td>
-                        {# <td>{{ (user.get_team_role(team.id)) }}</td> #}
                         <td>{{ get_user_team_role(user, team.id) }}</td>
                     </tr>
                 </table>
                 {% endfor %}
-                </p>
+                </p>#}
             </p>
         </td>
     </tr>
 </table>
 
 {% endblock %}
+
+{# {% block scripts %}
+    {{ super() }}
+    <script src="/docs/5.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <script src="offcanvas.js"></script>
+{% endblock %} #}

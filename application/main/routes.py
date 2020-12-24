@@ -3,13 +3,19 @@ from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app
 from flask_login import current_user, login_required
 from application import db, login_manager
-from application.main.forms import TaskForm, EditProfileForm, EditProfileAdmin, TeamCreateForm, TeamEditForm, TeamInviteForm#, EmptyForm, PostForm
+from application.main.forms import (
+    TaskForm, EditProfileForm, EditProfileAdmin, TeamCreateForm, TeamEditForm,
+    TeamInviteForm,
+    TeamEditMemberForm
+)#, EmptyForm, PostForm
 from application.models import User, Task, Role, Team, TeamMember, TeamRole, TeamPermission
 from application.main import bp
 from utils.decorators import admin_required
 from sqlalchemy.orm import session
 from sqlalchemy import and_, or_, not_, MetaData
 meta = MetaData()
+from flask import request
+
 
 print("Main luokka")
 # @login_manager.user_loader
@@ -451,11 +457,26 @@ def team(id):
 
     return render_template('team.html', team=team)
 
-@bp.route('/team/<int:id>/edit_member_roles', methods=["GET", "POST"])
+@bp.route('/team/<int:id>/members', methods=["GET", "POST"])
 @login_required
-def edit_member_roles(id):
+def team_members(id):
     """ Allows editing member roles """
     team = Team.query.get_or_404(id)
+
     print("Team users")
-    print(team.users)
-    return render_template('team_edit_member_roles.html', team=team, users=team.users, team_id=team.id)
+    return render_template('team_members.html', team=team, users=team.users)
+
+# @bp.route('/team/<int:id>/edit_member_role/<username>', methods=["GET", "POST"])
+# @login_required
+# def edit_member_roles(id, username):
+#     """ Allows editing member roles """
+#     team = Team.query.get_or_404(id)
+#     user = User.query.filter_by(username=username).first()
+#     form = TeamEditMemberForm()
+    
+
+#     if form.validate_on_submit():
+#         pass
+
+#     form.
+#     return render_template('edit_team.html', title=("Edit your team"), form=form, team=team, user=user)
