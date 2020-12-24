@@ -166,7 +166,7 @@ def edit_profile_admin(id):
         user.email = form.email.data.lower()
         user.username = form.username.data
         # TODO: Lisää, kun sähköpostivarmistus toimii
-        #user.confirmed = form.confirmed.data
+        user.confirmed = form.confirmed.data
         user.role = Role.query.get(form.role.data)
         # TODO: lisää jos otat nimet käyttöön
         # user.name = form.name.data
@@ -179,7 +179,7 @@ def edit_profile_admin(id):
     # Get-pyyntöä tehdessä, haetaan valmiiksi käyttäjän tiedot kenttiin
     form.email.data = user.email
     form.username.data = user.username
-    # form.confirmed.data = user.confirmed
+    form.confirmed.data = user.confirmed
     form.role.data = user.role_id
     # form.name.data = user.name
     form.about_me = user.about_me
@@ -252,47 +252,32 @@ def invite_to_team(id):
     team = Team.query.get_or_404(id)
     users = User.query.all()
 
-    print("Team users: ")
-    print(team.users)
     # Filters out the users already in the team
-    for u in users:
-
-        if u in team.users:
-            users.remove(u)
-
+    # TODO: Write a better method to do this that doesn't
+    # constantly fail like the other methods you tried. 
+    us = []
+    for i in users:
+        if team in i.teams:
+            print("Tiimi on jo käyttäjän tiimeissä, ei lisätä")
+            #continue
+        else:
+            us.append(i)
+    
     form = TeamInviteForm()
-    #team = Team.query.get_or_404(team_id)
-    #team
     print("invite_to_team id: ", id)
     print("Team johon kutsutaan: ", team)
-    form = TeamInviteForm()
+    #form = TeamInviteForm()
 
     if form.validate_on_submit():
         args = request.args.to_dict()
         print("post args ", args)
         return redirect(url_for('main.invite_user_to_team', team_id=str(id), username=form.username.data))
-        #return redirect(url_for)
-    #     args = request.args.to_dict()
-    #     print("invite_to_team, post args: ", args)
-    #     print("invite_to_team: ", id)
-        
-    #     user = User.query.filter_by(username=username).first()
-    #     #if user == current_user:
-    #     #    flash("You cannot invite yourself")
-    #     #    return redirect(url_for('main.invite_to_team', id=team.id))
-    #     team.invite_user(user.username)
-    #     flash('Invited user ', user)
-    #     return redirect(url_for('main.invite_to_team', id=team.id))
-    #return redirect(url_for('main.invite_to_team', id=team.id))
 
-    # if form.validate_on_submit():
-    #     # Gets username from javascript
-    #     user = User.query.filter_by(username=username).first()
+    if not us:
+        flash("Sorry, we've run out of users, it seems\
+        You could always invite your friend to join the service :-)")
 
-    #     team.invite_user()
-
-
-    return render_template('find_user.html', team_id=id, users=users)
+    return render_template('find_user.html', team_id=id, users=us)
 
 @bp.route('/user/<username>/popup/<int:team_id>')
 @login_required
@@ -335,6 +320,7 @@ def user_popup(username, team_id):
     #d = dict()
     
     form = TeamInviteForm()
+    #form.team_role.data = 
     #if request.method == "POST":
     #    #
 
@@ -362,36 +348,7 @@ def invite_user_to_team(username, team_id):#username, team_id):
     #print("all args: ", request.args.lists())
     args = request.args.to_dict()
     print("args: ", args)
-
-
-    #print("args.get('username'): ", args['user_id'])
-    #print("args.get('team_id'): ", args['team_id'])
-
-    #args = dict(request.args.get('data'))
-    #print(args)
-    #print("args[team_id]")
-    #print(args.keys())
-    #print("args.get(data): ", args['data'])
-    #print("type args.get('data'): ", type(args.get('data')))
-    #print()
-    #data = args['data']
-    # print("datan tyyppi: ", type(data))
-    # team_id = data.get('team_id')
-    # print("team_id: ", team_id)
-    # # print(data)
-    # # team_id = data.get('team_id')
-    # # username = data.get('username')
-    # print(args)
-    # #username = args.get('username')
-    # print("argumentti username")
-    # #print(username)
-    # #team_id = args.get('team_id')
-    # print("arg id: ", team_id)
-    # print(id)
-    #print("")
-    #print("id, username")
-    #print(id)
-    #print(username)
+    
     team = Team.query.filter_by(id=team_id).first()
     print("Team: ", team)
     #user = User.query.filter_by(username=username).first()
@@ -406,15 +363,22 @@ def invite_user_to_team(username, team_id):#username, team_id):
     form = TeamInviteForm()
 
     if form.validate_on_submit():
+        print("Forimin saama rooli määritys: ")
         print("Validoi ")
         #user = User.query.filter_by(username=username).first()
         #if user == current_user:
         #    flash("You cannot invite yourself")
         #    return redirect(url_for('main.invite_to_team', id=team.id))
         tm = team.invite_user(user.username)
-        print("tm: ", tm)
-        db.session.add(tm)
-        db.session.commit()
+
+        # If invite was successful, carry out
+        # database operation.
+        if tm:
+            db.session.add(tm)
+            db.session.commit()
+        else:
+            flash('Did you try to invite someone already in your team?')
+            return redirect(url_for('main.invite_to_team', id=team.id))
         
         flash(message=('Invited user ' + user.username))
         print("Suoritus loppumassa iffin sisäiseen redirectiin")
@@ -436,10 +400,13 @@ def team(id):
     print(current_user.team_memberships)
     team = Team.query.get_or_404(id)
 
+    print("TEAM MEMBERS")
+    print(team.team_members)
+
     print("=======")
     print("Tiimin nykyiset jäsenet")
     for i in team.users:
-        print("\t", i, " Rooli tiimissä: ", i.get_team_role(team.id))
+        print("\t", i, " (id=",i.id,")", " Rooli tiimissä: ", i.get_team_role(team.id))
         print("\t\t tiimiläisetn team_member-olio: ", i.get_team_member_object(team.id))
 
     print("current_user team_memberships")

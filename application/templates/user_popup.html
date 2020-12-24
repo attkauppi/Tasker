@@ -9,11 +9,12 @@
                     <!-- Lisaa toiminto, joka tarkistaa, onko kayttaja jo tiimissa -->
                     <p>
                         <form action="{{ url_for('main.invite_user_to_team',username=user.username, team_id=team_id) }}" method="post">
+                            {# {{ form.team_role.label }}{{ form.team_role }} #}
                             {{ form.hidden_tag() }}
                             {{ form.submit(value=('invite_user_to_team'), class_='btn btn-default btn-sm') }}
                         </form>
                     </p>
-                    
+
 
             </small>
         </td>

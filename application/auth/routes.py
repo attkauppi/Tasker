@@ -34,7 +34,10 @@ def before_request():
     /auth/unconfirmed route that shows a page with information about
     account confirmation. 
     """
-    if current_user.is_authenticated and not current_user.confirmed and request.blueprint != 'auth' and request.endpoint != 'static':
+    if current_user.is_authenticated \
+            and not current_user.confirmed \
+            and request.blueprint != 'auth' \
+            and request.endpoint != 'static':
         return redirect(url_for('auth.unconfirmed'))
 
 @bp.route('/unconfirmed')

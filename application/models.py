@@ -14,6 +14,7 @@ import jwt
 import os
 import hashlib
 from urllib import request
+from wtforms.validators import ValidationError
 
 class User(UserMixin, db.Model):
     """ User accont db model """
@@ -35,9 +36,6 @@ class User(UserMixin, db.Model):
     team_memberships = relationship('TeamMember', back_populates='user')
     # tasks = db.relationship('Task', back_populates='users')
     #tasks = db.relationship('Task', backref='user', lazy='dynamic')
-
-    # Turha kommentti
-
 
     def __init__(self, **kwargs): # Initializes user roles
         """ Sets user roles. Sets Admin if email matches """
@@ -391,12 +389,21 @@ class Team(db.Model):
 
     def __repr__(self):
         return "<Team {}>".format(self.title)
+    
+    def __eq__(self, other):
+        """ Allows comparing user objects """
+        if isinstance(self, User):
+            return self.id == other.id
+        return False
 
     def invite_user(self, username):
         u = User.query.filter_by(username=username).first()
         print("Team users: ")
         print(self.users)
 
+        if u in self.users:
+            print("Oli käyttäjissä, ei anneta mennä läpi")
+            return None
         #if u in self.users:
         #    print("Kuuluu jo tiimiin")
         #    pass
