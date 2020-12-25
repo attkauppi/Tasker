@@ -6,8 +6,21 @@ bp = Blueprint('main', __name__)
 
 from application.main import routes
 from application.models import Permission, TeamPermission, User
-
+from flask import request
 # TODO: et ole varma toimiiko tämä
+
+# @bp.app_context_processor()
+# def inject_team_id():
+#     if "team" in request.path:
+#         return dict()
+
+
+# @bp.app_context_processor()
+# def inject_team_id():
+   
+#     if "team" in request.path:
+#         print("Request path: ", request.path)
+
 @bp.app_context_processor
 def inject_permissions():
     """

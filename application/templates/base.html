@@ -35,15 +35,13 @@
                 <ul class="nav navbar-nav navbar-center">
                     {% if current_user.is_authenticated %}
                     <li class="dropdown">
-                        <a href="#" class="dropdown_toggle" data-toggle="dropdown">
-                            Teams <b class="caret"></b>
-                        </a>
+                        <a href="#" class="dropdown_toggle" data-toggle="dropdown" id="team">Teams<b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             {% for team in current_user.teams %}
                             <li><a href="{{ url_for('main.team', id=team.id) }}">{{ team.title }}</a></li> 
                             {% endfor %}
                             <li><hr class="dropdown-divider"></li>
-                            <li><a href="{{ url_for('main.create_team') }}">Create team</a></li>
+                            <li><a href="{{ url_for('main.create_team') }}" id="create_team">Create team</a></li>
                         </ul>
                     </li>
                     {% endif %}

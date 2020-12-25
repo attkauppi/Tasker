@@ -73,7 +73,7 @@ class SeleniumTestCase(unittest.TestCase):
         try:
             #cls.client = webdriver.Chrome(chrome_options=options)
             print("CURRENT DIR: ", currentdir)
-            cls.client = webdriver.Chrome(currentdir+"/chromedriver"); time.sleep(10)
+            cls.client = webdriver.Chrome(currentdir+"/chromedriver")
             #cls.client.get('google.com'); time.sleep(10)
         except:
             pass
@@ -81,6 +81,8 @@ class SeleniumTestCase(unittest.TestCase):
         # Skip if browser can't be started
         if cls.client:
             print("Iffin sisällä")
+            #cls.client.implicitly_wait(30)
+            #cls.client.maximize_window()
 
             # Oma lisäys
             cls.postgresql = Postgresql()
@@ -116,11 +118,15 @@ class SeleniumTestCase(unittest.TestCase):
 
             cls.server_thread = threading.Thread(
                 target=cls.app.run,
-                kwargs={'debug':False}
+                kwargs={
+                    'debug':'false',
+                    'use_reloader': False,
+                    'use_debugger': False
+                }
             )
 
             cls.server_thread.start()
-            time.sleep(10)
+            #time.sleep(10)
 
             # add an administrator user
             # admin_role = Role.query.filter_by(name='Administrator').first()
@@ -167,34 +173,217 @@ class SeleniumTestCase(unittest.TestCase):
         tasker = self.client.find_element_by_xpath("/html/body/nav/div[1]/a").text
         self.assertEqual(tasker, "Tasker")
 
-        self.client.find_element_by_xpath('//*[@id="bs-example-navbar-collapse-1"]/ul[4]').click()
-        time.sleep(5)
+        #self.client.find_element_by_xpath('//*[@id="bs-example-navbar-collapse-1"]/ul[4]').click()
+        #time.sleep(5)
     
     def test_login(self):
         """ Test logging in """
-        self.client.get('http://127.0.0.1:5000/auth/login')
+        self.client.get('http://localhost:5000/auth/login')
         time.sleep(3)
 
         # Finds the login button from the navbar and clicks
-        self.client.find_element_by_xpath('//*[@id="bs-example-navbar-collapse-1"]/ul[4]').click()
+        #self.client.find_element_by_xpath('//*[@id="bs-example-navbar-collapse-1"]/ul[4]').click()
+        #self.client.find_element_by_link_text('Log In').click()
+        
         time.sleep(3)
 
         # Finds username field
-        username= self.client.find_element_by_id('username')
-        username.send_keys('testaaja25')
-        time.sleep(2)
+        try:
+            username= self.client.find_element_by_id('username').click()
+            time.sleep()
+            username.send_keys('testaaja25')
+            time.sleep(2)
+        except Exception:
+            pass
 
         # finds password field
-        password = self.client.find_element_by_id('password')
-        password.send_keys('testaaja25')
+        try:
+            password = self.client.find_element_by_id('password').click()
+            time.sleep(2)
+            password.send_keys('testaaja25')
+            time.sleep(2)
+        except Exception:
+            pass
 
+        
         time.sleep(2)
 
         # submit button
-        self.client.find_element_by_id('submit').click()
-        time.sleep(10)
+        try:
+            self.client.find_element_by_id('submit').click()
+            time.sleep(10)
+        except Exception:
+            pass
 
         self.assertIn("<h1>Hei testaaja25</h1>", self.client.page_source)
+    
+    def test_create_team(self):
+        """ Tests that creating a team is possible """
+        
+        # Log in ######
+        try:
+            self.client.get('http://localhost:5000/auth/login')
+            time.sleep(3)
+
+            # Finds the login button from the navbar and clicks
+            #self.client.find_element_by_xpath('//*[@id="bs-example-navbar-collapse-1"]/ul[4]').click()
+            #time.sleep(3)
+
+            # Finds username field
+            username= self.client.find_element_by_id('username')
+            username.send_keys('testaaja25')
+            time.sleep(2)
+
+            # finds password field
+            password = self.client.find_element_by_id('password')
+            password.send_keys('testaaja25')
+
+            time.sleep(2)
+
+            # submit button
+            self.client.find_element_by_id('submit').click()
+            time.sleep(5)
+            #######
+
+            # Finds the create team button
+            self.client.find_element_by_id('team').click()
+            time.sleep(2)
+            self.client.find_element_by_link_text('Create team').click()
+            time.sleep(3)
+            
+            #time.sleep(3)
+
+            # Finds the team name field
+            team_title = self.client.find_element_by_id('title')
+            team_title.send_keys('testaaja25:sen tiimi')
+            #time.sleep(3)
+
+            # Finds the description field
+            team_desc = self.client.find_element_by_id('description')
+            team_desc.send_keys('description')
+            #time.sleep(3)
+
+            # Finds the submit button
+            self.client.find_element_by_id('submit').click()
+
+            #time.sleep(3)
+        except Exception:
+            pass
+
+        self.assertIn('testaaja25:sen tiimi', self.client.page_source)
+        self.assertIn('Team members', self.client.page_source)
+    
+
+    def test_creator_is_team_owner(self):
+        """ Tests that the creator of the team
+        becomes its owner """
+        try:
+            self.client = self.login()
+
+            time.sleep(2)
+            self.client.get('http://localhost:5000/user/testaaja25')
+            time.sleep(2)
+
+            self.client.find_element_by_xpath('/html/body/div[1]/table/tbody/tr/td[3]/ul/li[1]/a').click()
+            time.sleep(2)
+            #self.client.find_element_by_partial_link_text('')
+
+
+            #self.client.find_element_by_id('team').click()
+            #time.sleep(2)
+            print("Current url: ", self.client.current_url)
+            self.client.find_element_by_link_text('Members').click()
+            time.sleep(10)
+
+            self.client.find_element_by_link_text('testaaja25:sen tiimi').click()
+            time.sleep(3)
+
+        except Exception:
+            pass
+
+        self.assertIn('Team owner', self.client.page_source)
+
+    ########### UTILITY METHODS ######
+    def login(self):
+        try:
+            self.client.get('http://127.0.0.1:5000/auth/login')
+            time.sleep(3)
+
+            # Finds the login button from the navbar and clicks
+            #self.client.find_element_by_xpath('//*[@id="bs-example-navbar-collapse-1"]/ul[4]').click()
+            time.sleep(3)
+
+            # Finds username field
+            username= self.client.find_element_by_id('username')
+            username.send_keys('testaaja25')
+            time.sleep(2)
+
+            # finds password field
+            password = self.client.find_element_by_id('password')
+            password.send_keys('testaaja25')
+
+            time.sleep(2)
+
+            # submit button
+            self.client.find_element_by_id('submit').click()
+            time.sleep(5)
+        except Exception:
+            pass
+        return self.client
+    
+    def create_team(self):
+        try:
+            self.client.get('http://localhost:5000/auth/login')
+            time.sleep(3)
+
+            # Finds the login button from the navbar and clicks
+            #self.client.find_element_by_xpath('//*[@id="bs-example-navbar-collapse-1"]/ul[4]').click()
+            #time.sleep(3)
+
+            # Finds username field
+            username= self.client.find_element_by_id('username')
+            username.send_keys('testaaja25')
+            time.sleep(2)
+
+            # finds password field
+            password = self.client.find_element_by_id('password')
+            password.send_keys('testaaja25')
+
+            time.sleep(2)
+
+            # submit button
+            self.client.find_element_by_id('submit').click()
+            time.sleep(5)
+            #######
+
+            # Finds the create team button
+            self.client.find_element_by_id('team').click()
+            time.sleep(2)
+            self.client.find_element_by_link_text('Create team').click()
+            time.sleep(3)
+            
+            #time.sleep(3)
+
+            # Finds the team name field
+            team_title = self.client.find_element_by_id('title')
+            team_title.send_keys('testaaja25:sen tiimi')
+            #time.sleep(3)
+
+            # Finds the description field
+            team_desc = self.client.find_element_by_id('description')
+            team_desc.send_keys('description')
+            #time.sleep(3)
+
+            # Finds the submit button
+            self.client.find_element_by_id('submit').click()
+
+            #time.sleep(3)
+        except Exception:
+            pass
+            
+        return self.client
+
+
         
 if __name__ == '__main__':
     unittest.main()

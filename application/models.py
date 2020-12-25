@@ -195,21 +195,29 @@ class User(UserMixin, db.Model):
         
 
 
-    def can_team(self, team_id, team_perm):
+    def can_team(self, id, team_perm):
         """ Checks if the user has the required
         permissions to carry out a function on the
         team site """
-        tm = self.get_team_member_object(team_id)
+        print("saatu team_id: ", id)
+        tm = self.get_team_member_object(id)
+        print("SAATU TEAM PERM: ", team_perm)
         if tm is None:
+            print("TEAMMEMBER OLIO OLI MUKAMAS NONE")
             return False
         print("can_team käsiteltävänä oleva tm: ", tm)
         teamrole = TeamRole.query.filter_by(id=tm.team_role_id).first()
+        print("=======team role: ", teamrole)
         if teamrole is None:
+            print("TEAM ROLE OLI MUKAMAS NONE")
             return False
 
         if teamrole is not None and teamrole.has_permission(team_perm):
             return True
+        print("Kaatui has_permission kohtaan!!!")
         return False
+    
+    # def can_moderate(self, )
     
     def is_team_role(self, team_id, team_role_name):
         """ Checks user privileges using team_roles names """
@@ -441,7 +449,7 @@ class TeamMember(db.Model):
     #role_id = db.Column(db.Integer, db.ForeignKey('team_roles.id'))
     team_role_id = db.Column(db.Integer, db.ForeignKey('team_roles.id'))
     #users = relationship('User', backref='role', lazy='dynamic')
-    # team_permissions = db.Column(db.Integer)
+    #team_permissions = db.Column(db.Integer)
     user = relationship(User, backref=backref("team_members", cascade="all, delete-orphan"))
     team = relationship(Team, backref=backref("team_members", cascade="all, delete-orphan"))
     #team_role = relationship('TeamRole', back_populates='team_members')
@@ -480,6 +488,8 @@ class TeamMember(db.Model):
                 print("Team role id lopussa: ", self.team_role_id)
             elif self.team_role_id is None:
                 self.team_role_id = TeamRole.query.filter_by(default_role=True).first().id
+        else:
+            self.team_role_id = team_role_id
         
         print("Team role id lopussa: ", self.team_role_id)#else:
         #    self.team_role_id =team_role_id
@@ -494,6 +504,11 @@ class TeamMember(db.Model):
     def can(self, perm):
         """ Checks whether user is allowed to carry out a particular
         function in a team """
+        print("Team rolen can metodista: ")
+        print("Input perm: ", perm)
+        print("self.etam_role.has_permission: ", self.team_role.has_permission)
+        print("Team member objectin team_role: ", self.team_role)
+        print(self.team_role)
         return self.team_role is not None and self.team_role.has_permission(perm)
     
     def is_team_member(self):
@@ -556,6 +571,8 @@ class TeamRole(db.Model):
         self.team_permissions = 0
     
     def has_permission(self, perm):
+        print("self permissions: ", self.team_permissions)
+        #print("perm == perm",)
         return self.team_permissions & perm == perm
     
     @staticmethod
@@ -568,7 +585,7 @@ class TeamRole(db.Model):
     
     def __str__(self):
         """ Returns the role name as string """
-        return self.team_role_name# + " ; perms: " + str(self.team_permissions)
+        return self.team_role_name + " ; perms: " + str(self.team_permissions)
     
     #@staticmethod
     #def get_team_role_name(self):

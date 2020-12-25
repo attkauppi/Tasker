@@ -486,10 +486,10 @@ def team_members(id):
     print("Team users")
     return render_template('team_members.html', team=team, users=team.users)
 
+# TODO: Korjaa team_permission_required-dekoraattori
 @bp.route('/team/<int:id>/members/edit/<username>', methods=["GET", "POST"])
 @login_required
-# FIXME: Lisättävä, kun saat toimimaan.
-#@team_permission_required(id, TeamPermission.MODERATE_TEAM)
+@team_moderator_required(id)#, TeamPermission.MODERATE_TEAM)
 def edit_team_member(id, username):
     """ Allows editing a team members team details """
     team = Team.query.get_or_404(id)
@@ -532,7 +532,7 @@ def edit_team_member(id, username):
     print("team: ", team)
     print("user: ", username)
 
-    return render_template('edit_team.html', title=("Edit {{user.username}}'s team role"), form=form, user=user, team=team, max_role_id = max_role_id)
+    return render_template('edit_team_member.html', title=("Edit {{user.username}}'s team role"), form=form, user=user, team=team, max_role_id = max_role_id)
 
 
 # @bp.route('/team/<int:id>/edit_member_role/<username>', methods=["GET", "POST"])

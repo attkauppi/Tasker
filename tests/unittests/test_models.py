@@ -257,7 +257,7 @@ class UserModelCase(unittest.TestCase):
         t = Team.query.filter_by(title=t.title).first()
 
         # 5 = admin
-        tr = TeamRole.query.filter_by(id=5).first()
+        tr = TeamRole.query.filter_by(id=4).first()
         print("Team role: ", tr)
 
         # Create team member
@@ -267,21 +267,32 @@ class UserModelCase(unittest.TestCase):
             team_role_id = tr.id
         )
 
+        print("TeamMember olio kun luotu: ", tm)
+
         
 
         db.session.add(tm)
         db.session.commit()
 
+        tm2 = TeamMember.query.filter_by(team_member_id=tm.team_member_id).first()
+
         print("Käyttäjän tiimiläisolio: ", u.get_team_member_object(t.id))
 
-        self.assertTrue(u.is_team_administrator(t.id))
+        print("Ennen testiä, haettu tietokannasta: ", tm2)
+        self.assertFalse(u.is_team_administrator(t.id))
         # Checks that Admins have Moderator rights as well
         self.assertTrue(u.is_team_moderator(t.id))
         # Checks that the actual role the user has is Administrator
-        self.assertTrue(u.is_team_role(t.id, "Administrator"))
+        self.assertFalse(u.is_team_role(t.id, "Administrator"))
         # Checks that the user's actual role isn't Moderator despite
         # the user having moderator rights as administrator
+        self.assertTrue(u.is_team_role(t.id, "Team owner"))
         self.assertFalse(u.is_team_role(t.id, "Team moderator"))
+        self.assertTrue(u.can_team(t.id, TeamPermission.MODERATE_TEAM))
+
+        team_role_u = u.get_team_role(t.id)
+        self.assertTrue(team_role_u.has_permission(TeamPermission.MODERATE_TEAM))
+
 
 
 
