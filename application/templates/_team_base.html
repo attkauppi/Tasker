@@ -8,7 +8,8 @@
 
 {% block navbar %}
 {{ super() }}
-<div class="navbar navbar-inverse" role="navigation">
+
+<div class="navbar navbar-inverse" role="navigation" margin-bottom="0px" margin-top="0px">
     <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -33,4 +34,11 @@
         </div>
     </div>
 </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="/docs/5.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <script src="offcanvas.js"></script>
 {% endblock %}

@@ -78,6 +78,8 @@ class UserModelCase(unittest.TestCase):
         self.postgresql = Postgresql()
         print("postgresql url: ", self.postgresql.url())
         self._app = create_app()
+        self._app.config['TESTING'] = True
+        #self._app.update_config
         self._app.config['SQLALCHEMY_DATABASE_URI'] = self.postgresql.url()
         # self._app
         self.ctx = self._app.test_request_context()
@@ -254,7 +256,9 @@ class UserModelCase(unittest.TestCase):
 
         t = Team.query.filter_by(title=t.title).first()
 
-        tr = TeamRole.query.filter_by(team_role_name="Administrator").first()
+        # 5 = admin
+        tr = TeamRole.query.filter_by(id=5).first()
+        print("Team role: ", tr)
 
         # Create team member
         tm = TeamMember(
@@ -263,8 +267,12 @@ class UserModelCase(unittest.TestCase):
             team_role_id = tr.id
         )
 
+        
+
         db.session.add(tm)
         db.session.commit()
+
+        print("Käyttäjän tiimiläisolio: ", u.get_team_member_object(t.id))
 
         self.assertTrue(u.is_team_administrator(t.id))
         # Checks that Admins have Moderator rights as well

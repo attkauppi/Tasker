@@ -106,11 +106,24 @@ class TeamInviteForm(FlaskForm):
 class TeamEditMemberForm(FlaskForm):
     """ Form for editing team member roles """
     team_role = SelectField('Team role', coerce=int)
-
+    submit = SubmitField('Save changes')
     
     
-    def __init__(self, *args, **kwargs):
-        super(TeamInviteForm, self).__init__(*args, **kwargs)
+    def __init__(self, max_role_id, *args, **kwargs):
+        super(TeamEditMemberForm, self).__init__(*args, **kwargs)
+        #self.team_role_choices = 
         self.team_role.choices = [(team_role.id, team_role.team_role_name)
-            for team_role in TeamRole.query.order_by(TeamRole.team_role_name).all()]
-        self.user = user
+            for team_role in TeamRole.query.order_by(TeamRole.id).all()]
+        
+        for i in self.team_role.choices:
+            if i[0] > max_role_id:
+                self.team_role.choices.remove(i)
+        
+        print(self.team_role.choices)
+        print("max role: ", max_role_id)
+        #for i in self.team_role.choices:
+        #    if i.team_permissions > max_role.permissions:
+        #        self.team_role.choices.remove(i)
+        #print("Team edit member formin roolit: ", self.team_role.choices)
+        #print("sovelluksen käyttäjän rooli: ", user)
+        

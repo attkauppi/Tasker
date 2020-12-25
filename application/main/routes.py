@@ -10,11 +10,17 @@ from application.main.forms import (
 )#, EmptyForm, PostForm
 from application.models import User, Task, Role, Team, TeamMember, TeamRole, TeamPermission
 from application.main import bp
-from utils.decorators import admin_required
+from utils.decorators import (
+    admin_required,
+    permission_required,
+    team_moderator_required,
+    team_permission_required
+)
 from sqlalchemy.orm import session
 from sqlalchemy import and_, or_, not_, MetaData
 meta = MetaData()
 from flask import request
+from flask import abort
 
 
 print("Main luokka")
@@ -55,6 +61,17 @@ def before_request():
     
     # TODO: If there's time, you might want to implement locales.
     # g.locale = str(get_locale())
+
+@bp.route("/shutdown")
+def server_shutdown():
+    """ needed for selenium testing """
+    if not current_app.testing:
+        abort(404)
+    shutdown = request.environ.get('werkzeug.server.shutdown')
+    if not shutdown:
+        abort(500)
+    shutdown()
+    return('Shutting down')
 
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
@@ -210,7 +227,7 @@ def create_team():
         # been assigned
         t = Team.query.filter_by(title=team.title).first()
 
-        tr = TeamRole.query.filter_by(team_role_name='Administrator').first()
+        tr = TeamRole.query.filter_by(id=4).first()
 
         # Create team_member association table record
         team_member = TeamMember(
@@ -221,6 +238,9 @@ def create_team():
 
         db.session.add(team_member)
         db.session.commit()
+
+        tm_uusi = TeamMember.query.filter_by(team_id=t.id).first()
+        print("TM UUSI: ", tm_uusi)
 
         flash("Your team was created!")
         return redirect(url_for('main.team', id=t.id))#title=(team.title), team_id=t.id))
@@ -409,11 +429,11 @@ def team(id):
     print("TEAM MEMBERS")
     print(team.team_members)
 
-    print("=======")
-    print("Tiimin nykyiset jäsenet")
-    for i in team.users:
-        print("\t", i, " (id=",i.id,")", " Rooli tiimissä: ", i.get_team_role(team.id))
-        print("\t\t tiimiläisetn team_member-olio: ", i.get_team_member_object(team.id))
+    # print("=======")
+    # print("Tiimin nykyiset jäsenet")
+    # for i in team.users:
+    #     print("\t", i, " (id=",i.id,")", " Rooli tiimissä: ", i.get_team_role(team.id))
+    #     print("\t\t tiimiläisetn team_member-olio: ", i.get_team_member_object(team.id))
 
     print("current_user team_memberships")
     print(current_user.team_memberships)
@@ -465,6 +485,55 @@ def team_members(id):
 
     print("Team users")
     return render_template('team_members.html', team=team, users=team.users)
+
+@bp.route('/team/<int:id>/members/edit/<username>', methods=["GET", "POST"])
+@login_required
+# FIXME: Lisättävä, kun saat toimimaan.
+#@team_permission_required(id, TeamPermission.MODERATE_TEAM)
+def edit_team_member(id, username):
+    """ Allows editing a team members team details """
+    team = Team.query.get_or_404(id)
+    user = User.query.filter_by(username=username).first()
+
+    # Any user should not be able to assign a role higher than
+    # they already have to anyone else.
+    max_role = current_user.get_team_role(id)
+
+    max_role_id = current_user.get_team_member_object(id).team_role_id
+    print(max_role_id)
+
+    form = TeamEditMemberForm(max_role_id=max_role_id)
+
+    if form.validate_on_submit():
+        user_team_member_object = user.get_team_member_object(id)
+        print("Team member alussa: ", user_team_member_object)
+        #user_teamrole = user.get_team_role(id)
+        #Team role check
+        print("Lomakkeessta saatu team_role_id: ", form.team_role.data)
+        
+        tr = TeamRole.query.filter_by(id=form.team_role.data).first()
+        if tr is None:
+            flash('Something went wrong')
+            return redirect(url_for('.team_members', id=team.id))
+        
+        user_team_member_object.team_role_id = form.team_role.data
+        print("Lomakkeessta saatu team_role_id: ", form.team_role.data)
+        
+        db.session.add(user_team_member_object)
+        db.session.commit()
+        
+        tm = TeamMember.query.filter_by(id=user_team_member_object.id).first()
+        print("Team member lopussa: ", tm)
+
+
+        flash("Member permissions updated!")
+        return redirect(url_for('.team_members', id=team.id))
+
+    print("team: ", team)
+    print("user: ", username)
+
+    return render_template('edit_team.html', title=("Edit {{user.username}}'s team role"), form=form, user=user, team=team, max_role_id = max_role_id)
+
 
 # @bp.route('/team/<int:id>/edit_member_role/<username>', methods=["GET", "POST"])
 # @login_required

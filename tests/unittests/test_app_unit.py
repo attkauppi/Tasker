@@ -128,6 +128,44 @@ class TestAppUnit(unittest.TestCase):
         # Should be 302, when attempted access without logon; redirects to login page.
         self.assertTrue(response.status_code, 302)
     
+    # def test_profile_page(self):
+    #     """ Tets whether profile page is accessible """
+    #     u = User()
+    #     u.username = "ttesti"
+    #     u.set_password("ttestiS")
+    #     u.confirmed = True
+    #     #u.set_password("ttestiS")
+    #     db.session.add(u)
+    #     db.session.commit()
+
+    #     response = self.app.post(
+    #         "/auth/login",
+    #         data=dict(
+    #             username=u.username,
+    #             password=u.password,
+    #         ),
+    #         follow_redirects=True
+    #     )
+
+    #     print("Response: ", response)
+
+        
+        
+    #     response = self.app.get('/user/ttesti')
+    #     print("RESPONSE.DATA: ", response.data)
+    #     print("RESPONSE STATUS CODE: ", response.status_code)
+        
+    #     self.assertIn(b"Belongs to teams", response.data)
+
+
+        
+
+
+
+
+
+
+
     # def test_add_task(self):
     #     """ Tests adding a task """
     #     #self.register(

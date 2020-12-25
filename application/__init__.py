@@ -27,14 +27,19 @@ def create_app(config_class=Config):
     """ Initializes the core application """
     app = Flask(__name__, instance_relative_config=False)
     app.config.from_object(config_class)
+    # app.config.from_object('config.DevConfig')
     #app.config.from_object(os.environ['APP_SETTINGS'])
     print(os.environ.get('SECRET_KEY'))
     app.config['DEBUG'] = True
     app.debug = True
+    # Tämä toimii
+    # app.config.from_object(os.environ.get('APP_SETTINGS'))
+
     #app.config.from_object('config.DevConfig')
 
     #app = Flask(__name__, instance_relative_config=False)
     #app.config.from_object(os.environ['APP_SETTINGS'])
+
     #app.config.from_object('config.Config')
     
     #app.config['DEBUG'] = True

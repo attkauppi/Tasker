@@ -219,6 +219,8 @@ class User(UserMixin, db.Model):
 
         teamrole_user = TeamRole.query.filter_by(id=tm.team_role_id).first()
         if teamrole_user is not None and teamrole_user.team_role_name == team_role_name:
+            print("Käyttäjän team role: ", teamrole_user)
+            print("Haettava team role: ", team_role_name)
             return True
 
         return False
@@ -418,7 +420,7 @@ class Team(db.Model):
         #    pass
         #else:
             #tr = TeamRole()
-        tr = TeamRole()
+        #tr = TeamRole()
         tm = TeamMember(
             team_id=self.id,
             team_member_id=u.id
@@ -445,7 +447,7 @@ class TeamMember(db.Model):
     #team_role = relationship('TeamRole', back_populates='team_members')
     team_member_user = relationship('User', back_populates='team_members')
 
-    def __init__(self, **kwargs): # Initializes user roles
+    def __init__(self, team_role_id=None, **kwargs): # Initializes user roles
         """ Sets team member roles. Sets Admin if email matches """
         super(TeamMember, self).__init__(**kwargs)
         
@@ -459,12 +461,29 @@ class TeamMember(db.Model):
             # This will not work, if in the registration form
             # the user is not instantiated with at least the
             # email, i.e., u = User(email=form.email.data)
+
+            team_id = kwargs.get('team_id')
+            team = Team.query.filter_by(id=team_id).first()
+            print("KONSTRUKTORIN TEAM_ID", team_id)
             if self.get_user().email == os.getenv('ADMIN'): # Checks whether the email address of the user matches that of the admin's
                 # TODO: Tietokantaviritykset lopuksi
                 print("Pääsi iffiin, tästä tulee admini")
+                tr = TeamRole.query.filter_by(team_role_name='Administrator').first()
+                print("Halutun tiimi roolin id: ", tr.id)
                 self.team_role_id = TeamRole.query.filter_by(team_role_name='Administrator').first().id
-            if self.team_role_id is None:
+            elif (len(team.users) == 0):
+                # Tyhjä, joten tästä kaverista tehdään omistaja
+                tr = TeamRole.query.filter_by(team_role_name='Team owner').first()
+                print("Halutun tiimi roolin id: ", tr.id)
+                print("Tiimi tyhjä joten tästä kaverista tulee omistjaa")
+                self.team_role_id = tr.id#TeamRole.query.filter_by(team_role_name='Team owner').first()
+                print("Team role id lopussa: ", self.team_role_id)
+            elif self.team_role_id is None:
                 self.team_role_id = TeamRole.query.filter_by(default_role=True).first().id
+        
+        print("Team role id lopussa: ", self.team_role_id)#else:
+        #    self.team_role_id =team_role_id
+        
         # Gravatar
         #if self.email is not None and self.avatar_hash is None:
         #    self.avatar_hash = self.gravatar_hash()
@@ -507,7 +526,7 @@ class TeamRole(db.Model):
     #TODO: Lisää roolit schema.sql:n
     __tablename__ = 'team_roles'
     id = db.Column(db.Integer, primary_key=True)
-    team_role_name = db.Column(db.String(64), unique=True)
+    team_role_name = db.Column(db.String(64), unique=True, nullable=False)
     default_role = db.Column(db.Boolean, default=False)
     team_permissions = db.Column(Integer)
     #users = relationship('TeamMember', backref='teamrole', lazy='dynamic')
@@ -542,14 +561,14 @@ class TeamRole(db.Model):
     @staticmethod
     def get_role_by_id(id):
         """ Returns the role given a Role.id """
-        return Role.query.filter_by(id=id).first()
+        return TeamRole.query.filter_by(id=id).first()
     
     def __repr__(self):
-        return '<TeamRole %r>' % self.team_role_name
+        return '<TeamRole {}, permissions {}>'.format(self.team_role_name, self.team_permissions)
     
     def __str__(self):
         """ Returns the role name as string """
-        return self.team_role_name
+        return self.team_role_name# + " ; perms: " + str(self.team_permissions)
     
     #@staticmethod
     #def get_team_role_name(self):
