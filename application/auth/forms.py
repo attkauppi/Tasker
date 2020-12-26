@@ -44,4 +44,3 @@ class ResetPasswordForm(FlaskForm):
     password2 = PasswordField('Repeat password', validators=[DataRequired()])
     # TODO: Jos tulee ongelmia, muutit seuraavan nimen
     submit = SubmitField('Reset password')
-

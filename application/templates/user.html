@@ -49,6 +49,14 @@
         {{ wtf.quick_form(form) }}
         <br>
         {% endif %}
-        </div>
+    </div>
+
+    {# Esimerkki modaalilomake #}
+    <!-- Dynamic Modal -->
+    <p>
+    <a class="edit-modal-opener" data-toggle="modal"
+        data-whatever="{{ url_for('main.user_edit') }}" href="#">Linkki</a> 
+        {# href="{{ url_for('main.user_edit', id=user.id) }}">Linkki</a> #}
+    </p>
 
 {% endblock %}

@@ -126,4 +126,10 @@ class TeamEditMemberForm(FlaskForm):
         #        self.team_role.choices.remove(i)
         #print("Team edit member formin roolit: ", self.team_role.choices)
         #print("sovelluksen käyttäjän rooli: ", user)
-        
+
+
+class TestForm(FlaskForm):
+    """ Test Form """
+    vastaanottaja = TextAreaField('Vastaanottaja', validators=[DataRequired()])
+    viesti = TextAreaField('Viesti', validators=[DataRequired()])
+    submit = SubmitField('Tee jotain')

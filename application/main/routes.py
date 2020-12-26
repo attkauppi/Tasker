@@ -8,6 +8,7 @@ from application.main.forms import (
     TeamInviteForm,
     TeamEditMemberForm
 )#, EmptyForm, PostForm
+# from application.main.forms import TestForm
 from application.models import User, Task, Role, Team, TeamMember, TeamRole, TeamPermission
 from application.main import bp
 from utils.decorators import (
@@ -21,6 +22,7 @@ from sqlalchemy import and_, or_, not_, MetaData
 meta = MetaData()
 from flask import request
 from flask import abort
+from application.main.forms import TestForm
 
 
 print("Main luokka")
@@ -533,6 +535,40 @@ def edit_team_member(id, username):
     print("user: ", username)
 
     return render_template('edit_team_member.html', title=("Edit {{user.username}}'s team role"), form=form, user=user, team=team, max_role_id = max_role_id)
+
+@bp.route('/send_popup', methods=["GET", "POST"])
+@login_required
+def user_edit():
+    # Testasit tätä
+    #user = User.query.filter_by(username=username).first()
+    form = TestForm()
+    print("Sai jotain")
+    form.vastaanottaja.data = "Ari tietenkin"
+    form.viesti.data = "Viestin tynka"
+
+
+    return render_template('_form_edit.html', form=form)
+
+@bp.route('/send/<username>/send', methods=["GET", "POST"])
+@login_required
+def receive_edit(username):
+    form = TestForm()
+    user = User.query.filter_by(username=username).first()
+    if form.validate_on_submit():
+        #vastaanottaja = User.query.filter_by(username=username).first()
+        print(form.vastaanottaja.data)
+        print(form.viesti.data)
+        flash('Mukamas')
+        return redirect(url_for('.user', username=user.username))
+    
+    flash('Lomake ei validoinut itseään')
+    redirect(url_for('.user', username=user.username))
+
+
+
+
+
+
 
 
 # @bp.route('/team/<int:id>/edit_member_role/<username>', methods=["GET", "POST"])
