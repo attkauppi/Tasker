@@ -6,7 +6,8 @@ from application import db, login_manager
 from application.main.forms import (
     TaskForm, EditProfileForm, EditProfileAdmin, TeamCreateForm, TeamEditForm,
     TeamInviteForm,
-    TeamEditMemberForm
+    TeamEditMemberForm,
+    EmptyForm
 )#, EmptyForm, PostForm
 # from application.main.forms import TestForm
 from application.models import User, Task, Role, Team, TeamMember, TeamRole, TeamPermission
@@ -15,7 +16,8 @@ from utils.decorators import (
     admin_required,
     permission_required,
     team_moderator_required,
-    team_permission_required
+    team_permission_required,
+    team_permission_required2
 )
 from sqlalchemy.orm import session
 from sqlalchemy import and_, or_, not_, MetaData
@@ -251,6 +253,8 @@ def create_team():
 
 @bp.route('/teams/<int:id>/edit_team', methods=["GET", "POST"])
 @login_required
+#@team_permission_required2(id, TeamPermission.TEAM_OWNER)
+@team_moderator_required(id)
 def edit_team(id):
     """ edit team form """
     team = Team.query.get_or_404(id)
@@ -270,7 +274,60 @@ def edit_team(id):
     form.title.data = team.title
     form.description.data = team.description
     
-    return render_template('edit_team.html', title=("Edit your team"), form=form)
+    return render_template('edit_team.html', title=("Edit your team222"), form=form, team=team)    
+
+@bp.route("/teams/<int:id>/delete", methods=["GET", "POST"])
+@login_required
+@team_permission_required2(id, TeamPermission.TEAM_OWNER)
+def team_delete(id):
+    team = Team.query.get_or_404(id)
+    form = EmptyForm(value="Delete")
+    
+    if form.validate_on_submit():
+        flash('Successfully deleted')
+
+        db.session.delete(team)
+        db.session.commit()
+        return redirect(url_for('main.index'))
+
+    text = """Are you sure you want to do this?
+    If you carry this out, all your team members will be removed, all the tasks they've done or are planning to do will disappear without a trace."""
+    return render_template(
+        '_confirm.html',
+        id=team.id,
+        form=form, value="Delete team",
+        endpoint='main.team_delete',
+        title="Are you sure?",
+        text=text
+    )
+
+#TODO: Tämä on periaattteessa turha. Halusit yhdennäköistää members-sivun
+@bp.route('/teams/<int:id>/invites', methods=["GET", "POST"])
+@login_required
+def team_invite(id):
+    """ Route for sending team invites """
+    team = Team.query.get_or_404(id)
+    print("Team: ", team)
+    users = User.query.all()
+    #form = TeamInviteForm()
+    form = EmptyForm()
+
+    # Filters out the users already in the team
+    us = []
+    for i in users:
+        if team in i.teams:
+            print("Tiimi on jo käyttäjän tiimeissä, ei lisätä")
+            #continue
+        else:
+            us.append(i)
+    
+    #form = EmptyForm()
+
+    if form.validate_on_submit():
+        return redirect(url_for('main.invite_user_to_team', team_id=id, username=form.username.data))
+    
+    return render_template('team_members.html', team=team, users=us, form=form, team_id=team.id)
+
 
 @bp.route('/teams/<int:id>/invite', methods=["GET", "POST"])
 @login_required
@@ -299,7 +356,7 @@ def invite_to_team(id):
     if form.validate_on_submit():
         args = request.args.to_dict()
         print("post args ", args)
-        return redirect(url_for('main.invite_user_to_team', team_id=str(id), username=form.username.data))
+        return redirect(url_for('main.invite_user_to_team', username=form.username.data, team_id=id))
 
     if not us:
         flash("Sorry, we've run out of users, it seems\
@@ -319,38 +376,23 @@ def user_popup(username, team_id):
     print("popup args: ", args)
 
     form = TeamInviteForm()
-    
-    # print("query string: ")
-    # print(request.query_string)
+
     user = User.query.filter_by(username=username).first_or_404()
     
 
     args = request.args.to_dict()
 
-    print("popup args: ", args)
-
     if "team_id" in args:
         print("team id on query parametri")
-    ##team_id = args.get('team_id')
-    #team_id = args.get('team_id')
-    #print("TEAM_ID: ", team_id)
+
     team = Team.query.filter_by(id=team_id).first()
-    #print("team: ", team)
-    #print("TEAM_ID: ", team_id)
+   
     d = {
         "team_id": team_id,
         "username": user.username
     }
-    print("d: ", d)
-    #d['team_id'] = str(team_id)
-    #d['username'] = user.username
-
-    #d = dict()
     
     form = TeamInviteForm()
-    #form.team_role.data = 
-    #if request.method == "POST":
-    #    #
 
     return render_template('user_popup.html', user=user, team_id=team_id, data=d, form=form)
 
@@ -388,15 +430,12 @@ def invite_user_to_team(username, team_id):#username, team_id):
     #team = Team.query.filter_by(id=team_id).first()
     #team
     print("Team johon kutsutaan: ", team)
+
     form = TeamInviteForm()
 
     if form.validate_on_submit():
         print("Forimin saama rooli määritys: ")
         print("Validoi ")
-        #user = User.query.filter_by(username=username).first()
-        #if user == current_user:
-        #    flash("You cannot invite yourself")
-        #    return redirect(url_for('main.invite_to_team', id=team.id))
         tm = team.invite_user(user.username)
 
         # If invite was successful, carry out
@@ -406,6 +445,7 @@ def invite_user_to_team(username, team_id):#username, team_id):
             db.session.commit()
         else:
             flash('Did you try to invite someone already in your team?')
+            #TODO: Vaihda, jos siirryt toiseen kutsunta menetelmään
             return redirect(url_for('main.invite_to_team', id=team.id))
         
         flash(message=('Invited user ' + user.username))

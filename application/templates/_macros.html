@@ -1,0 +1,100 @@
+
+{% macro modal_form(endpoint, linkki) %}
+<div class="modal fade" id="Modal" tabindex="-1" role="dialog" aria-labelledby="FormModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <p>
+            <a class="edit-modal-opener" data-toggle="modal"
+            data-whatever="{{ url_for(endpoint) }}" href="#">{{ linkki }}</a>
+            {# href="{{ url_for('main.user_edit', id=user.id) }}">Linkki</a> #}
+            </p>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro delete_team_form(id, endpoint) %}
+<div class="modal fade" id="Modal" tabindex="-1" role="dialog" aria-labelledby="FormModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <p>
+                {#<button type="button" class="btn btn-danger">Delete</button> #}
+                {# href="{{ url_for('.edit_profile_admin', id=user.id) }}">
+                Edit Profile [Admin] #}
+            <a class="edit-modal-opener" data-toggle="modal"
+            data-whatever="{{ url_for(endpoint, id=id, **kwargs) }}" href="#">Linkki</a> 
+            {# href="{{ url_for('main.user_edit', id=user.id) }}">Linkki</a> #}
+            </p>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro modal_form2(teksti) %}
+<div class="modal fade" id="Modal" tabindex="-1" role="dialog" aria-labelledby="FormModal" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <p>
+            <a class="edit-modal-opener" data-toggle="modal"
+            data-whatever="{{ url_for('main.user_edit') }}" href="#">{{ teksti }}</a>
+            {# href="{{ url_for('main.user_edit', id=user.id) }}">Linkki</a> #}
+            </p>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro show_name(username) %}
+<p>
+    {{ username }}
+</p>
+{% endmacro %}
+
+{% macro tee_jotain() %}
+
+{% endmacro %}
+
+{% macro modal_form33(endpoint, teksti) %}
+            <button class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="background-color:indianred">{{ teksti }}</button>
+{% endmacro %}
+
+{# TOIMII #}
+{% macro modal_form3(teksti) %}
+            <button class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for('main.user_edit') }}" style="background-color:indianred">{{ teksti }}</button>
+{% endmacro %}
+
+{% macro modal_form4(input, teksti) %}
+<div class="modal fade" id="Modal" tabindex="-1" role="dialog" aria-labelledby="FormModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <p>
+            {{ modal_form3(teksti) }}
+            </p>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro modal_form5(input, linkki) %}
+    <a class="edit-modal-opener" data-toggle="modal" data-whatever="modal_form6({{ input }})" href="#">{{ linkki }}</a>
+{% endmacro %}
+
+{% macro modal_form6(input) %}
+<div class="modal fade" id="Modal" tabindex="-1" role="dialog" aria-labelledby="FormModal" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <p>
+
+            </p>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+
+{% macro button_delete(endpoint, id) %}
+
+<button class="edit-modal-opener" data-toggle="modal"
+        data-whatever="{{ url_for('main.user_edit') }}" href="#" value="juttu" color="IndianRed">
+{% endmacro %}

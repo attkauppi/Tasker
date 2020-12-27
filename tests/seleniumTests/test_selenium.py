@@ -302,6 +302,9 @@ class SeleniumTestCase(unittest.TestCase):
             pass
 
         self.assertIn('Team owner', self.client.page_source)
+    
+    def test_can_invite_to_team(self):
+        """ Tests that it's possible to invite users to team """
 
     ########### UTILITY METHODS ######
     def login(self):

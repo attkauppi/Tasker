@@ -1,0 +1,22 @@
+{% import 'bootstrap/wtf.html' as wtf %}
+{% from 'bootstrap/wtf.html' import form_field %}
+
+<form id="ModalForm" name="stepForm" action="{{ url_for(endpoint, id=id) }}" class="form" method="post">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title">{{ title }}</h4>
+        </div>
+        <div class="modal-body">
+            {{ text }}
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            {{ form.hidden_tag() }}
+            <button id="submit" type="submit" class="btn btn-danger">{{ value }}</button>
+            {# {{ form.submit(value_= class_="btn btn-danger") }} #}
+        </div>
+    </form>
+    
+    {# Esimerkki modaalilomake #}

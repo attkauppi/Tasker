@@ -67,6 +67,10 @@ class EditProfileAdmin(FlaskForm):
 #     post = TextAreaField('Say something', validators=[DataRequired()])
 #     submit = SubmitField('Submit')
 
+class EmptyForm(FlaskForm):
+    """ Used for forms with only a button """
+    submit = SubmitField('Submit')
+
 class TaskForm(FlaskForm):
     """ Used to create tasks """
     # TODO: Saatat joutua muuttamaan myöhemmin, mikäli ryhmien luomia tehtäviä varten.
@@ -74,6 +78,10 @@ class TaskForm(FlaskForm):
     task_description = TextAreaField('Task description', validators=[DataRequired()])
     done = BooleanField('Task done?', default=False)
     submit = SubmitField('Create/Edit')
+
+class TeamDeleteForm(FlaskForm):
+    """ Form for deleting team """
+    submit = SubmitField('Delete team')
 
 class TeamCreateForm(FlaskForm):
     """ Used to create teams """

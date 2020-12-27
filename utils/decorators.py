@@ -19,6 +19,22 @@ def team_role_required(team_id):
         return decorated_function
     return decorator
 
+
+def team_permission_required2(id, permission):
+    """ Decorator for ensuring user has a team role """
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            
+            tiimi_id_view = request.view_args.get('id')
+            tiimi_rooli = current_user.get_team_role(tiimi_id_view)
+
+            if not tiimi_rooli.has_permission(permission):
+                abort(403)
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
 def team_moderator_required(id):
     """ Ensures that the user has at least team
     moderator privileges 

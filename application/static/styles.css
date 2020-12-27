@@ -10,6 +10,8 @@ body {
   padding-bottom: 0px;
 }
 
+.button2 {background-color: #008CBA;}
+
 @media (max-width: 991.98px) {
     .offcanvas-collapse {
       position: fixed;
