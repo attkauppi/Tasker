@@ -13,3 +13,8 @@ def error_response(status_code, message=None):
 def bad_request(message):
     """ A dedicated function for bad requests """
     return error_response(400, message)
+
+def forbidden(message):
+    response = jsonify({'error': 'forbidden', 'message': message})
+    response.status_code = 403
+    return response

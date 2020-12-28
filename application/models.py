@@ -15,6 +15,7 @@ import os
 import hashlib
 from urllib import request
 from wtforms.validators import ValidationError
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 class User(UserMixin, db.Model):
     """ User accont db model """
@@ -86,6 +87,23 @@ class User(UserMixin, db.Model):
             print("Olivat mukamas samat")
 
         return check_password_hash(self.password, password)
+    
+    def generate_auth_token(self, expiration):
+        """ Generates an auth token for API """
+        s = Serializer(current_app.config["SECRET_KEY"],
+            expires_in=expiration)
+        return s.dumps({'id': self.id}).decode('utf-8')
+
+    @staticmethod
+    def verify_auth_token(token):
+        """ Verifies auth token sent by user to API """
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return None
+        return User.query.get(data['id'])
+
     
     def generate_confirmation_token(self, expires_in=3600):
         """ Generates confirmation tokens. Used, for example,

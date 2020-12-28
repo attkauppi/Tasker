@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import render_template, flash, redirect, url_for, request, g, \
-    jsonify, current_app
+    jsonify, current_app, send_from_directory, send_file
 from flask_login import current_user, login_required
 from application import db, login_manager
 from application.main.forms import (
@@ -459,59 +459,33 @@ def invite_user_to_team(username, team_id):#username, team_id):
 @bp.route('/team/<int:id>', methods=["GET", "POST"])
 @login_required
 def team(id):
-    #team = Team.query.filter_by(id=team_id).first_or_404()
-    
-
-    print("Current user teams: ")
-    print(current_user.teams)
-    print("Current user team_members")
-    print(current_user.team_memberships)
     team = Team.query.get_or_404(id)
 
-    print("TEAM MEMBERS")
-    print(team.team_members)
+    # print("current_user team_memberships")
+    # print(current_user.team_memberships)
 
-    # print("=======")
-    # print("Tiimin nykyiset jäsenet")
-    # for i in team.users:
-    #     print("\t", i, " (id=",i.id,")", " Rooli tiimissä: ", i.get_team_role(team.id))
-    #     print("\t\t tiimiläisetn team_member-olio: ", i.get_team_member_object(team.id))
-
-    print("current_user team_memberships")
-    print(current_user.team_memberships)
-
-    print("membership tyypit:")
+    # print("membership tyypit:")
     for i in current_user.team_memberships:
         print("\t", type(i))
     tm = TeamMember.query.filter_by(team_id=id)
 
-    print("user metodin testaus")
+    # print("user metodin testaus")
     tm = current_user.get_team_member_object(id)
-    print("user is moderator? ", tm.is_team_moderator())
+    # print("user is moderator? ", tm.is_team_moderator())
 
     # print("current user can moderate?")
-    print(current_user.can_team(id, TeamPermission.CREATE_TASKS))
+    # print(current_user.can_team(id, TeamPermission.CREATE_TASKS))
     if current_user.can_team(id, TeamPermission.CREATE_TASKS):
         print("Kayttaja saa luoda tehtavia!")
 
-    if current_user.is_team_role(id, "Team member"):
-        print("Kayttajalla on perus tiimiläisen oikeudet!")
-    #meta.Session.query(Team)
+    # if current_user.is_team_role(id, "Team member"):
+    #     print("Kayttajalla on perus tiimiläisen oikeudet!")
+    # #meta.Session.query(Team)
 
     tm1 = TeamMember.query.filter_by(team_id=id).filter_by(team_member_id=current_user.id).first()
-    print(tm1)
-
-    print("type tm1: ", type(tm1))
-    print("queryn tulos: ", tm1)
 
     team_members = team.users
-    print("Team members")
-    #for i in team_members:
-    #    
-    #    print(i)
-
-    print("=====================")
-    print("Käyttäjien roolien palauttaminen uudella metodilla: ")
+  
     for u in team.users:
         r = u.get_team_role(team.id)
         print("\t rooli: ", r)
@@ -576,6 +550,27 @@ def edit_team_member(id, username):
 
     return render_template('edit_team_member.html', title=("Edit {{user.username}}'s team role"), form=form, user=user, team=team, max_role_id = max_role_id)
 
+@bp.route('/teams/<int:id>/tasks', methods=["GET", "POST"])
+@login_required
+def team_tasks(id):
+    """ For team tasks """
+    team = Team.query.get_or_404(id)
+    return render_template('team_tasks.html', team=team, team_id=team.id)
+
+# @bp.route('/teams/tasks_static', methods=["GET", "POST"])
+# @login_required
+# def team_tasks():
+#     #team = Team.query.get_or_404(id)
+#     return send_from_directory('static/js/src/', 'index.html')
+
+@bp.route('/teams/<int:id>/tasks_frame', methods=["GET", "POST"])
+@login_required
+def team_tasks_static(id):
+    """ For loading static team tasks assets """
+    team = Team.query.get_or_404(id)
+    #return send_file('templates/_team_tasks2.html')
+    return render_template('_team_tasks2.html')
+
 @bp.route('/send_popup', methods=["GET", "POST"])
 @login_required
 def user_edit():
@@ -603,6 +598,8 @@ def receive_edit(username):
     
     flash('Lomake ei validoinut itseään')
     redirect(url_for('.user', username=user.username))
+
+
 
 
 

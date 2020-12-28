@@ -16,3 +16,4 @@ api.log
 .vscode
 .vscode/*
 chromedriver
+node_modules

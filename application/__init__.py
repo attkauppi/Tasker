@@ -12,8 +12,11 @@ import logging
 from werkzeug.middleware.proxy_fix import ProxyFix
 from logging.handlers import SMTPHandler, RotatingFileHandler
 from flask_migrate import Migrate
+from flask_restful import Api
+#from application.api import AuthAPI
 # Globally accessible libraries
 # Lahde: https://hackersandslackers.com/flask-application-factory/
+
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
@@ -21,6 +24,7 @@ login_manager.login_view = 'auth.login'
 mail = Mail()
 bootstrap = Bootstrap()
 moment = Moment()
+api = Api()
 
 
 def create_app(config_class=Config):
@@ -69,6 +73,33 @@ def create_app(config_class=Config):
     app.register_blueprint(main_bp)
     from application.api import bp as api_bp
     app.register_blueprint(api_bp, url_prefix='/api/v1')
+
+    from application.api import api_bp_restful
+    api = Api(api_bp_restful)
+
+    from application.api.resources import AuthAPI
+    api.add_resource(AuthAPI, '/api/v1/tokens', endpoint='tokens')
+
+    app.register_blueprint(api_bp_restful)
+
+
+
+
+
+    # api.app = app
+    # api.init_app(app)
+    # api.add_resource(AuthAPI, '/api/v1/tokens', endpoint='tokens')
+
+
+    #api.add_resource(TaskAPI, '/todo/api/v1.0/tasks/<int:id>', endpoint='task')
+
+
+
+
+
+
+
+
 
     # if app.config['MAIL_SERVER']:
     #     auth = None

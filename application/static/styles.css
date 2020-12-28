@@ -79,6 +79,11 @@ ul.users li.user {
     border-bottom: 1px solid #e0e0e0;
 }
 
+div.tasks {
+  width: 2000px;
+  margin: auto;
+}
+
 div.user-thumbnail {
     position: absolute;
 }

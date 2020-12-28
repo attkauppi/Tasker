@@ -84,7 +84,11 @@
 
 {% endblock %}
 {% block content %}
+    {% if "teams" in request.path and "tasks" in request.path %}
+    <div class="container.fluid">
+    {% else %}
     <div class="container">
+    {% endif %}
         {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
