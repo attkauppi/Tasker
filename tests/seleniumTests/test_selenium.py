@@ -101,8 +101,8 @@ class SeleniumTestCase(unittest.TestCase):
 
             # Create the database
             db.create_all()
-            Role.insert_roles()
-            TeamRole.insert_roles()
+            # Role.insert_roles()
+            # TeamRole.insert_roles()
 
             u = User(
                 username="testaaja25",

@@ -77,8 +77,9 @@ def create_app(config_class=Config):
     from application.api import api_bp_restful
     api = Api(api_bp_restful)
 
-    from application.api.resources import AuthAPI
+    from application.api.resources import AuthAPI, TaskListAPI
     api.add_resource(AuthAPI, '/api/v1/tokens', endpoint='tokens')
+    api.add_resource(TaskListAPI, '/api/v1/tasks', endpoint='tasks')
 
     app.register_blueprint(api_bp_restful)
 
@@ -146,7 +147,7 @@ def create_app(config_class=Config):
         #from .db import init_db, init_db_command
         #init_db()
         #init_db()
-        #db.create_all()
+        db.create_all()
         from application.models import Role
         Role.insert_roles()
 

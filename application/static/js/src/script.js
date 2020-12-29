@@ -28,7 +28,64 @@ $(document).ready(()=>{
     initializeBoards();
     if(JSON.parse(localStorage.getItem('@kanban:data'))){
         dataCards = JSON.parse(localStorage.getItem('@kanban:data'));
-        console.log(JSON.parse(localStorage.getItem('@kanban:data')));
+        console.log('Alkuperäiset cardit: ', dataCards.cards);
+        $.getJSON("http://127.0.0.1:5000/api/v1/tasks", function(data) {
+            max_id = data.config;
+            maxid_oma = max_id['maxid'];
+            console.log('maxid: ', maxid_oma);
+            //console.log('max_id: ', max_id);
+            for ( var i = 0; i < data.cards.length; i++) {
+                var card = data.cards[i];
+                console.log('cardsit: ', card);
+
+                var card_id = card['id'];
+                var card_title = card['title'];
+                console.log('card_title');
+                var card_description = card['description'];
+                var card_position = card['position'];
+                var card_priority = card['priority'];
+                console.log(current_user.id);
+                
+                console.log('card title: ', card_title);
+
+                
+                
+                let id = dataCards.config.maxid+1;
+               
+                const newCard = {
+                    id: card_id,
+                    title: card_title,
+                    description: card_description,
+                    position: card_position,
+                    priority: card_priority
+                }
+                dataCards.cards.push(newCard);
+                dataCards.config.maxid = id;
+            }
+        });
+
+
+        // $.ajax(
+        //     {
+        //         type: "GET",
+        //         url: "127.0.0.1:5000/api/v1/tasks",
+        //         dataType: 'json',
+        //         //username: 'eyJhbGciOiJIUzUxMiIsImlhdCI6MTYwOTEzMzI2NiwiZXhwIjoxNjA5MTM2ODY2fQ.eyJpZCI6MTN9.cbxmKoT4-uZgUhrWE3_5tzL0kh9dSo2hmQSsj1NW3vWzuBH_DaXxXs1BpiawDMrxUy2_-f-w8KklmUEc3oLFig',
+        //         async: true,
+        //         data: {}
+        //     }).done(
+        //         function(data) {
+        //             for (var i = 0; i < data.cards.length; i++) {
+        //                 var obj = data.cards[i];
+        //                 console.log('obj: ' + obj);
+        //             }
+        //         }
+                
+
+        //         ///dataCards = JSON.parse(this.responseText);
+        //     );
+        console.log("dataArray.cards: " + dataCards);
+        console.log('dataCards: ', dataCards);
         initializeComponents(dataCards);
     }
     initializeCards();
@@ -46,6 +103,7 @@ $(document).ready(()=>{
                 position:"yellow",
                 priority: false
             }
+            console.log('new card: ', newCard);
             dataCards.cards.push(newCard);
             dataCards.config.maxid = id;
             save();
@@ -103,6 +161,7 @@ function initializeCards(){
 
 function initializeComponents(dataArray){
     //create all the stored cards and put inside of the todo area
+
     dataArray.cards.forEach(card=>{
         appendComponents(card); 
     })
@@ -147,11 +206,28 @@ function deleteCard(id){
         if(card.id === id){
             let index = dataCards.cards.indexOf(card);
             console.log(index)
+
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "http://127.0.0.1:5000/api/v1/tasks",
+                    dataType: "json",
+                    async: true,
+                    data: JSON.stringify(dataCards),
+                }
+            );
+
+
             dataCards.cards.splice(index, 1);
             console.log(dataCards.cards);
             save();
         }
     })
+}
+
+function deleteOne(id) {
+    /// Deletes one card using api
+
 }
 
 
@@ -166,6 +242,15 @@ function removeClasses(cardBeignDragged, color){
 }
 
 function save(){
+    $.ajax(
+            {
+                type: "POST",
+                url: "http://127.0.0.1:5000/api/v1/tasks",
+                dataType: "json",
+                async: true,
+                data: JSON.stringify(dataCards),
+            }
+        );
     localStorage.setItem('@kanban:data', JSON.stringify(dataCards));
 }
 

@@ -16,6 +16,132 @@ import hashlib
 from urllib import request
 from wtforms.validators import ValidationError
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+import json
+
+class TeamPermission:
+    CREATE_TASKS = 1
+    CLAIM_TASKS = 2
+    ASSIGN_TASKS = 4
+    MODERATE_TEAM = 8
+    TEAM_OWNER = 16
+    ADMIN = 32
+
+class TeamRole(db.Model):
+    """ Implements team roles for team members """
+    #TODO: Lisää roolit schema.sql:n
+    __tablename__ = 'team_roles'
+    id = db.Column(db.Integer, primary_key=True)
+    team_role_name = db.Column(db.String(64), unique=True, nullable=False)
+    default_role = db.Column(db.Boolean, default=False)
+    team_permissions = db.Column(Integer)
+    #users = relationship('TeamMember', backref='teamrole', lazy='dynamic')
+    #FIXME: backref voi aiheuttaa ongelmia! Et tiennyt, olisiko pitänyt olla team_role vai teamrole
+    #team_role = relationship(TeamMember, backref='TeamRole', lazy='dynamic')
+    #team_role = relationship(TeamMember, backref=backref("TeamRole"), lazy='dynamic')
+    # team_members = db.relationship('TeamMember', backref='team_role')
+    #member_role = 
+    team_members = relationship('TeamMember', backref='team_role', lazy='dynamic')
+    #team_members = relationship("TeamMember", back_populates='team_role')
+    #team_member_roles = relationship(TeamMember, backref='team_roles', lazy='dynamic')
+
+    def __init__(self, **kwargs):
+        super(TeamRole, self).__init__(**kwargs)
+        if self.team_permissions is None:
+            self.team_permissions = 0
+    
+    def add_permission(self, perm):
+        if not self.has_permission(perm):
+            self.team_permissions += perm
+    
+    def remove_permissions(self, perm):
+        if self.has_permissions(perm):
+            self.team_permissions -= perm
+    
+    def reset_permissions(self):
+        self.team_permissions = 0
+    
+    def has_permission(self, perm):
+        print("self permissions: ", self.team_permissions)
+        #print("perm == perm",)
+        return self.team_permissions & perm == perm
+    
+    @staticmethod
+    def get_role_by_id(id):
+        """ Returns the role given a Role.id """
+        return TeamRole.query.filter_by(id=id).first()
+    
+    def __repr__(self):
+        return '<TeamRole {}, permissions {}>'.format(self.team_role_name, self.team_permissions)
+    
+    def __str__(self):
+        """ Returns the role name as string """
+        return self.team_role_name + " ; perms: " + str(self.team_permissions)
+    
+    #@staticmethod
+    #def get_team_role_name(self):
+    #    return self.team_role_name
+    
+    @staticmethod
+    def insert_roles():#default_member_role='Team member'):
+        # TODO: On lisättävä email confirmation, jotta admin-tiliä ei voida kaapata.
+        """
+        Tries to find existing roles by name and update
+        those. A new role is created only for those roles
+        that aren't in the database already. This is done
+        so the role list can be updated in the future when
+        changes need to be made.
+
+        This gives admission priveleges to the user who has
+        the admin email address (defined in .env in the root
+        folder). Whoever has this address, is the admin user.
+        ==> Would work better, if confirmation emails would be
+        possible to send.
+        """
+        roles = {
+            'Team member': [
+                TeamPermission.CREATE_TASKS,
+                TeamPermission.CLAIM_TASKS
+            ],
+            'Team member with assign': [
+                TeamPermission.CREATE_TASKS,
+                TeamPermission.CLAIM_TASKS,
+                TeamPermission.ASSIGN_TASKS
+            ],
+            'Team moderator': [
+                TeamPermission.CREATE_TASKS,
+                TeamPermission.CLAIM_TASKS,
+                TeamPermission.ASSIGN_TASKS,
+                TeamPermission.MODERATE_TEAM
+            ],
+            'Team owner': [
+                TeamPermission.CREATE_TASKS,
+                TeamPermission.CLAIM_TASKS,
+                TeamPermission.ASSIGN_TASKS,
+                TeamPermission.MODERATE_TEAM,
+                TeamPermission.TEAM_OWNER
+            ],
+            'Administrator': [
+                TeamPermission.CREATE_TASKS,
+                TeamPermission.CLAIM_TASKS,
+                TeamPermission.ASSIGN_TASKS,
+                TeamPermission.MODERATE_TEAM,
+                TeamPermission.TEAM_OWNER,
+                TeamPermission.ADMIN
+            ]
+        }
+        #default_role = 'User'
+        default_role = 'Team member'
+        for r in roles:
+            role = TeamRole.query.filter_by(team_role_name=r).first()
+            print("Team role insert, löytynyt rooli: ", role)
+            if role is None:
+                role = TeamRole(team_role_name=r)
+            role.reset_permissions()
+            for perm in roles[r]:
+                role.add_permission(perm)
+            role.default_role = (role.team_role_name == default_role)
+            db.session.add(role)
+        db.session.commit()
 
 class User(UserMixin, db.Model):
     """ User accont db model """
@@ -405,12 +531,19 @@ class Task(db.Model):
     created = db.Column(DateTime, default=datetime.utcnow())
     done = db.Column(db.Boolean)
     creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    position = db.Column(db.Text())
+
     #user = db.relationship('User')
     user = relationship('User', back_populates='tasks')
     #user = db.relationship('User', innerjoin=True, back_populates='tasks')
 
     def __repr__(self):
         return "<Task {}>".format(self.title)
+    
+    # Lähde: https://stackoverflow.com/a/63901556
+    # def serializers(self):
+    #    dict_val={"id":self.id,"title":self.title,"description":self.description}#,"done":self.done,"updated_at":self.updated_at}
+    #    return json.loads(json.dumps(dict_val))#,default=default))
 
 class Team(db.Model):
     """ A team data model """
@@ -465,13 +598,14 @@ class TeamMember(db.Model):
     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
     team_member_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     #role_id = db.Column(db.Integer, db.ForeignKey('team_roles.id'))
-    team_role_id = db.Column(db.Integer, db.ForeignKey('team_roles.id'))
+    team_role_id = db.Column(db.Integer, db.ForeignKey('team_roles.id'), nullable=False)
     #users = relationship('User', backref='role', lazy='dynamic')
     #team_permissions = db.Column(db.Integer)
     user = relationship(User, backref=backref("team_members", cascade="all, delete-orphan"))
     team = relationship(Team, backref=backref("team_members", cascade="all, delete-orphan"))
     #team_role = relationship('TeamRole', back_populates='team_members')
     team_member_user = relationship('User', back_populates='team_members')
+    
 
     def __init__(self, team_role_id=None, **kwargs): # Initializes user roles
         """ Sets team member roles. Sets Admin if email matches """
@@ -554,130 +688,9 @@ class TeamMember(db.Model):
 
 
 
-class TeamRole(db.Model):
-    """ Implements team roles for team members """
-    #TODO: Lisää roolit schema.sql:n
-    __tablename__ = 'team_roles'
-    id = db.Column(db.Integer, primary_key=True)
-    team_role_name = db.Column(db.String(64), unique=True, nullable=False)
-    default_role = db.Column(db.Boolean, default=False)
-    team_permissions = db.Column(Integer)
-    #users = relationship('TeamMember', backref='teamrole', lazy='dynamic')
-    #FIXME: backref voi aiheuttaa ongelmia! Et tiennyt, olisiko pitänyt olla team_role vai teamrole
-    #team_role = relationship(TeamMember, backref='TeamRole', lazy='dynamic')
-    #team_role = relationship(TeamMember, backref=backref("TeamRole"), lazy='dynamic')
-    
-    #member_role = 
-    team_members = relationship('TeamMember', backref='team_role', lazy='dynamic')
-    #team_members = relationship("TeamMember", back_populates='team_role')
-    #team_member_roles = relationship(TeamMember, backref='team_roles', lazy='dynamic')
 
-    def __init__(self, **kwargs):
-        super(TeamRole, self).__init__(**kwargs)
-        if self.team_permissions is None:
-            self.team_permissions = 0
-    
-    def add_permission(self, perm):
-        if not self.has_permission(perm):
-            self.team_permissions += perm
-    
-    def remove_permissions(self, perm):
-        if self.has_permissions(perm):
-            self.team_permissions -= perm
-    
-    def reset_permissions(self):
-        self.team_permissions = 0
-    
-    def has_permission(self, perm):
-        print("self permissions: ", self.team_permissions)
-        #print("perm == perm",)
-        return self.team_permissions & perm == perm
-    
-    @staticmethod
-    def get_role_by_id(id):
-        """ Returns the role given a Role.id """
-        return TeamRole.query.filter_by(id=id).first()
-    
-    def __repr__(self):
-        return '<TeamRole {}, permissions {}>'.format(self.team_role_name, self.team_permissions)
-    
-    def __str__(self):
-        """ Returns the role name as string """
-        return self.team_role_name + " ; perms: " + str(self.team_permissions)
-    
-    #@staticmethod
-    #def get_team_role_name(self):
-    #    return self.team_role_name
-    
-    @staticmethod
-    def insert_roles():#default_member_role='Team member'):
-        # TODO: On lisättävä email confirmation, jotta admin-tiliä ei voida kaapata.
-        """
-        Tries to find existing roles by name and update
-        those. A new role is created only for those roles
-        that aren't in the database already. This is done
-        so the role list can be updated in the future when
-        changes need to be made.
 
-        This gives admission priveleges to the user who has
-        the admin email address (defined in .env in the root
-        folder). Whoever has this address, is the admin user.
-        ==> Would work better, if confirmation emails would be
-        possible to send.
-        """
-        roles = {
-            'Team member': [
-                TeamPermission.CREATE_TASKS,
-                TeamPermission.CLAIM_TASKS
-            ],
-            'Team member with assign': [
-                TeamPermission.CREATE_TASKS,
-                TeamPermission.CLAIM_TASKS,
-                TeamPermission.ASSIGN_TASKS
-            ],
-            'Team moderator': [
-                TeamPermission.CREATE_TASKS,
-                TeamPermission.CLAIM_TASKS,
-                TeamPermission.ASSIGN_TASKS,
-                TeamPermission.MODERATE_TEAM
-            ],
-            'Team owner': [
-                TeamPermission.CREATE_TASKS,
-                TeamPermission.CLAIM_TASKS,
-                TeamPermission.ASSIGN_TASKS,
-                TeamPermission.MODERATE_TEAM,
-                TeamPermission.TEAM_OWNER
-            ],
-            'Administrator': [
-                TeamPermission.CREATE_TASKS,
-                TeamPermission.CLAIM_TASKS,
-                TeamPermission.ASSIGN_TASKS,
-                TeamPermission.MODERATE_TEAM,
-                TeamPermission.TEAM_OWNER,
-                TeamPermission.ADMIN
-            ]
-        }
-        #default_role = 'User'
-        default_role = 'Team member'
-        for r in roles:
-            role = TeamRole.query.filter_by(team_role_name=r).first()
-            print("Team role insert, löytynyt rooli: ", role)
-            if role is None:
-                role = TeamRole(team_role_name=r)
-            role.reset_permissions()
-            for perm in roles[r]:
-                role.add_permission(perm)
-            role.default_role = (role.team_role_name == default_role)
-            db.session.add(role)
-        db.session.commit()
 
-class TeamPermission:
-    CREATE_TASKS = 1
-    CLAIM_TASKS = 2
-    ASSIGN_TASKS = 4
-    MODERATE_TEAM = 8
-    TEAM_OWNER = 16
-    ADMIN = 32
 
 @login_manager.user_loader
 def load_user(id):

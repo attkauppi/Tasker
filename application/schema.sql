@@ -57,6 +57,7 @@ CREATE TABLE tasks (
     title TEXT,
     description TEXT,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    position TEXT,
     done BOOLEAN,
     FOREIGN KEY (creator_id) REFERENCES users (id)
 );
