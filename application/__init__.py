@@ -77,9 +77,11 @@ def create_app(config_class=Config):
     from application.api import api_bp_restful
     api = Api(api_bp_restful)
 
-    from application.api.resources import AuthAPI, TaskListAPI
+    from application.api.resources import AuthAPI, TaskListAPI, TaskCheckAPI, TaskAPI
     api.add_resource(AuthAPI, '/api/v1/tokens', endpoint='tokens')
     api.add_resource(TaskListAPI, '/api/v1/tasks', endpoint='tasks')
+    api.add_resource(TaskCheckAPI, '/api/v1/task_check/<int:id>', endpoint='task_check')
+    api.add_resource(TaskAPI, '/api/v1/task/<int:id>', endpoint='task')
 
     app.register_blueprint(api_bp_restful)
 
@@ -153,6 +155,9 @@ def create_app(config_class=Config):
 
         from application.models import TeamRole
         TeamRole.insert_roles()
+
+        from application.models import Task
+        Task.insert_boards()
         #_db.init_db()
         #db.create_all()
     #     @app.route("/send")

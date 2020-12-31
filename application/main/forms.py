@@ -135,6 +135,16 @@ class TeamEditMemberForm(FlaskForm):
         #print("Team edit member formin roolit: ", self.team_role.choices)
         #print("sovelluksen käyttäjän rooli: ", user)
 
+class TeamTaskForm(FlaskForm):
+    """ Form for creating team tasks """
+    title = TextAreaField('Title', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()])
+    priority = BooleanField('Give priority', default=False)
+    # board valinta?
+    submit = SubmitField('Create')
+    
+
+
 
 class TestForm(FlaskForm):
     """ Test Form """

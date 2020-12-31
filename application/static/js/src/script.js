@@ -19,6 +19,77 @@ let dataCards = {
 let theme="light";
 //initialize
 
+console.log("token: ", sessionStorage.getItem('token'));
+function make_base_auth() {//username_or_token) {
+        var tok = sessionStorage.getItem('token');
+        var hash = btoa(tok);
+        return "Basic " + hash;
+}
+if(JSON.parse(localStorage.getItem('@kanban:data'))){
+    dataCards = JSON.parse(localStorage.getItem('@kanban:data'));
+    $.ajax(
+            {
+                type: "GET",
+                url: "http://127.0.0.1:5000/api/v1/tasks",
+                dataType: 'json',
+                //contentType: "text/json"
+                //username: 'eyJhbGciOiJIUzUxMiIsImlhdCI6MTYwOTEzMzI2NiwiZXhwIjoxNjA5MTM2ODY2fQ.eyJpZCI6MTN9.cbxmKoT4-uZgUhrWE3_5tzL0kh9dSo2hmQSsj1NW3vWzuBH_DaXxXs1BpiawDMrxUy2_-f-w8KklmUEc3oLFig',
+                async: true,
+                headers: {"Authorization": "Basic " + btoa(sessionStorage.getItem('token')+":"+"")},
+                //beforeSend: function (xhr){ 
+                //    xhr.setRequestHeader('Authorization', make_base_auth()); 
+                //},
+                data: {}
+            }).done(function(data) {
+                console.log("Data: ", data);
+                max_id = data.config;
+                maxid_oma = max_id['maxid'];
+                console.log('maxid: ', maxid_oma);
+                //console.log('max_id: ', max_id);
+                //dataCards.cards = [];
+                for ( var i = 0; i < data.cards.length; i++) {
+                    const olijo = false;
+                    for (var j=0; j < dataCards.cards.length; j++) {
+                        if (data.cards[i].id == dataCards.cards[j].id) {
+                            olijo = true;
+                        }
+                    }
+                    if (!olijo) {
+                        var card = data.cards[i];
+                        console.log('cardsit: ', card);
+
+                        var card_id = card['id'];
+                        var card_title = card['title'];
+                        console.log('card_title');
+                        var card_description = card['description'];
+                        var card_position = card['position'];
+                        var card_priority = card['priority'];
+
+                        const newCard = {
+                            id: card_id,
+                            title: card_title,
+                            description: card_description,
+                            position: card_position,
+                            priority: card_priority
+                        }
+                        dataCards.cards.push(newCard)
+                        dataCards.config.maxid = maxid_oma;
+                    }
+            }
+        }
+        );
+
+        // let setOfIds = new Set();
+        // for (var i = 0; i < dataCards.cards.length; i++) {
+        //     card = dataCards.cards[i];
+        //     if (!setOfIds.has(card.id)) {
+        //         setOfIds.add(card.id)
+        //     } else {
+        //         deleteCard(card.id);
+        //     }
+        // }
+}
+
 $(document).ready(()=>{
     $("#loadingScreen").addClass("d-none");
     theme = localStorage.getItem('@kanban:theme');
@@ -27,14 +98,37 @@ $(document).ready(()=>{
     }
     initializeBoards();
     if(JSON.parse(localStorage.getItem('@kanban:data'))){
-        dataCards = JSON.parse(localStorage.getItem('@kanban:data'));
-        console.log('Alkuperäiset cardit: ', dataCards.cards);
-        $.getJSON("http://127.0.0.1:5000/api/v1/tasks", function(data) {
-            max_id = data.config;
-            maxid_oma = max_id['maxid'];
-            console.log('maxid: ', maxid_oma);
-            //console.log('max_id: ', max_id);
-            for ( var i = 0; i < data.cards.length; i++) {
+        //dataCards = JSON.parse(localStorage.getItem('@kanban:data'));
+        $.ajax(
+            {
+                type: "GET",
+                url: "http://127.0.0.1:5000/api/v1/tasks",
+                dataType: 'json',
+                //contentType: "text/json"
+                //username: 'eyJhbGciOiJIUzUxMiIsImlhdCI6MTYwOTEzMzI2NiwiZXhwIjoxNjA5MTM2ODY2fQ.eyJpZCI6MTN9.cbxmKoT4-uZgUhrWE3_5tzL0kh9dSo2hmQSsj1NW3vWzuBH_DaXxXs1BpiawDMrxUy2_-f-w8KklmUEc3oLFig',
+                async: true,
+                headers: {"Authorization": "Basic " + btoa(sessionStorage.getItem('token')+":"+"")},
+                //beforeSend: function (xhr){ 
+                //    xhr.setRequestHeader('Authorization', make_base_auth()); 
+                //},
+                data: {}
+            }).done(function(data) {
+                console.log("Data: ", data);
+                max_id = data.config;
+                maxid_oma = max_id['maxid'];
+                console.log('maxid: ', maxid_oma);
+                //console.log('max_id: ', max_id);
+                //dataCards.cards = [];
+                // for ( var i = 0; i < data.cards.length; i++) {
+                //     const olijo = false;
+                //     for (var j=0; j < dataCards.cards.length; j++) {
+                //         if (data.cards[i].id == dataCards.cards[j].id) {
+                //             olijo = true;
+                //         }
+                //     }
+                //     if (!olijo) {
+                for ( var i = 0; i < data.cards.length; i++) {
+                        //     const olijo = false;
                 var card = data.cards[i];
                 console.log('cardsit: ', card);
 
@@ -44,14 +138,7 @@ $(document).ready(()=>{
                 var card_description = card['description'];
                 var card_position = card['position'];
                 var card_priority = card['priority'];
-                console.log(current_user.id);
-                
-                console.log('card title: ', card_title);
 
-                
-                
-                let id = dataCards.config.maxid+1;
-               
                 const newCard = {
                     id: card_id,
                     title: card_title,
@@ -59,33 +146,24 @@ $(document).ready(()=>{
                     position: card_position,
                     priority: card_priority
                 }
-                dataCards.cards.push(newCard);
-                dataCards.config.maxid = id;
+                dataCards.cards.push(newCard)
+                dataCards.config.maxid = maxid_oma;
+                }
+                    // }
+            // }
+        }
+        );
+
+        let setOfIds = new Set();
+        for (var i = 0; i < dataCards.cards.length; i++) {
+            card = dataCards.cards[i];
+            if (!setOfIds.has(card.id)) {
+                console.log("oli jo");
+                setOfIds.add(card.id)
+            } else {
+                deleteCard(card.id);
             }
-        });
-
-
-        // $.ajax(
-        //     {
-        //         type: "GET",
-        //         url: "127.0.0.1:5000/api/v1/tasks",
-        //         dataType: 'json',
-        //         //username: 'eyJhbGciOiJIUzUxMiIsImlhdCI6MTYwOTEzMzI2NiwiZXhwIjoxNjA5MTM2ODY2fQ.eyJpZCI6MTN9.cbxmKoT4-uZgUhrWE3_5tzL0kh9dSo2hmQSsj1NW3vWzuBH_DaXxXs1BpiawDMrxUy2_-f-w8KklmUEc3oLFig',
-        //         async: true,
-        //         data: {}
-        //     }).done(
-        //         function(data) {
-        //             for (var i = 0; i < data.cards.length; i++) {
-        //                 var obj = data.cards[i];
-        //                 console.log('obj: ' + obj);
-        //             }
-        //         }
-                
-
-        //         ///dataCards = JSON.parse(this.responseText);
-        //     );
-        console.log("dataArray.cards: " + dataCards);
-        console.log('dataCards: ', dataCards);
+        }
         initializeComponents(dataCards);
     }
     initializeCards();
@@ -103,9 +181,47 @@ $(document).ready(()=>{
                 position:"yellow",
                 priority: false
             }
-            console.log('new card: ', newCard);
-            dataCards.cards.push(newCard);
-            dataCards.config.maxid = id;
+
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "http://127.0.0.1:5000/api/v1/tasks/",
+                    dataType: "json",
+                    async: true,
+                    headers: {"Authorization": "Basic " + btoa(sessionStorage.getItem('token')+":"+"")},
+                    data: JSON.stringify(newCard),
+                }
+            ).done(
+                function(data) {
+
+                    uusi_id = data['id'];
+                    newCard = {
+                        uusi_id,
+                        title,
+                        description,
+                        position:"yellow",
+                        priority: false
+                    }
+                    dataCards.cards.push(newCard);
+                    dataCards.config.maxid = uusi_id;
+
+                });
+            
+
+       
+
+            //dataCards.cards.push(newCard);
+            //dataCards.config.maxid = id;
+
+            let setOfIds = new Set();
+            for (var i = 0; i < dataCards.cards.length; i++) {
+                card = dataCards.cards[i];
+                if (!setOfIds.has(card.id)) {
+                    setOfIds.add(card.id)
+                } else {
+                    deleteCard(card.id);
+                }
+            }
             save();
             appendComponents(newCard);
             initializeCards();
@@ -115,6 +231,10 @@ $(document).ready(()=>{
         dataCards.cards = [];
         save();
     });
+    
+
+ 
+   
     $("#theme-btn").click((e)=>{
         e.preventDefault();
         $("body").toggleClass("darkmode");
@@ -126,6 +246,43 @@ $(document).ready(()=>{
         }
     });
 });
+
+function checkCards() {
+    for (var i = 0; i < dataCards.cards.length; i++) {
+        card = dataCards.cards[i];
+        urli =  "http://127.0.0.1:5000/api/v1/task_check/"+(card.id.toString());
+        console.log("urli: ", urli);
+        $.ajax(
+            {
+                type: "PUT",
+                url: "http://127.0.0.1:5000/api/v1/task_check/"+(card.id.toString()),
+                dataType: 'json',
+                //contentType: "text/json"
+                //username: 'eyJhbGciOiJIUzUxMiIsImlhdCI6MTYwOTEzMzI2NiwiZXhwIjoxNjA5MTM2ODY2fQ.eyJpZCI6MTN9.cbxmKoT4-uZgUhrWE3_5tzL0kh9dSo2hmQSsj1NW3vWzuBH_DaXxXs1BpiawDMrxUy2_-f-w8KklmUEc3oLFig',
+                async: true,
+                headers: {"Authorization": "Basic " + btoa(sessionStorage.getItem('token')+":"+"")},
+                //beforeSend: function (xhr){ 
+                //    xhr.setRequestHeader('Authorization', make_base_auth()); 
+                //},
+                data: JSON.stringify(card)
+            }).done(function (data) {
+
+                //dataCards.cards[index] = data.JSON.parse(data)
+
+                if (!data['keep']) {
+                    console.log("data['keep']: ", data['keep']);
+                    console.log('card: ', JSON.stringify(card));
+                    id = dataCards.cards[i].id;
+                    deleteCard(id);
+                }
+    
+        });
+        
+
+
+    }
+    save();
+}
 
 //functions
 function initializeBoards(){    
@@ -161,7 +318,6 @@ function initializeCards(){
 
 function initializeComponents(dataArray){
     //create all the stored cards and put inside of the todo area
-
     dataArray.cards.forEach(card=>{
         appendComponents(card); 
     })
@@ -206,28 +362,11 @@ function deleteCard(id){
         if(card.id === id){
             let index = dataCards.cards.indexOf(card);
             console.log(index)
-
-            $.ajax(
-                {
-                    type: "POST",
-                    url: "http://127.0.0.1:5000/api/v1/tasks",
-                    dataType: "json",
-                    async: true,
-                    data: JSON.stringify(dataCards),
-                }
-            );
-
-
             dataCards.cards.splice(index, 1);
             console.log(dataCards.cards);
             save();
         }
     })
-}
-
-function deleteOne(id) {
-    /// Deletes one card using api
-
 }
 
 
@@ -242,23 +381,51 @@ function removeClasses(cardBeignDragged, color){
 }
 
 function save(){
-    $.ajax(
-            {
-                type: "POST",
-                url: "http://127.0.0.1:5000/api/v1/tasks",
-                dataType: "json",
-                async: true,
-                data: JSON.stringify(dataCards),
-            }
-        );
     localStorage.setItem('@kanban:data', JSON.stringify(dataCards));
 }
 
 function position(cardBeignDragged, color){
     const index = dataCards.cards.findIndex(card => card.id === parseInt(cardBeignDragged.id));
     dataCards.cards[index].position = color;
+    card = dataCards.cards[index];
+    console.log("Lähetettävä siirretty kortti: ", JSON.stringify(card));
+    $.ajax(
+        {
+            type: "PUT",
+            url: "http://127.0.0.1:5000/api/v1/task/"+(card.id.toString()),
+            dataType: 'json',
+            //contentType: "text/json"
+            //username: 'eyJhbGciOiJIUzUxMiIsImlhdCI6MTYwOTEzMzI2NiwiZXhwIjoxNjA5MTM2ODY2fQ.eyJpZCI6MTN9.cbxmKoT4-uZgUhrWE3_5tzL0kh9dSo2hmQSsj1NW3vWzuBH_DaXxXs1BpiawDMrxUy2_-f-w8KklmUEc3oLFig',
+            async: true,
+            headers: {"Authorization": "Basic " + btoa(sessionStorage.getItem('token')+":"+"")},
+            //beforeSend: function (xhr){ 
+            //    xhr.setRequestHeader('Authorization', make_base_auth()); 
+            //},
+            data: JSON.stringify(card)
+        }).done(function (data) {
+            //dataCards.cards[index] = data.JSON.parse(data);
+            dataCards.card[index].position = data.position
+
+        });
+    }
+
+
+    // let setOfIds = new Set();
+    // for (var i = 0; i < dataCards.cards.length; i++) {
+    //     card = dataCards.cards[i];
+    //     if (!setOfIds.has(card.id)) {
+    //         console.log("oli jo");
+    //         setOfIds.add(card.id)
+    //     } else {
+    //         deleteCard(card.id);
+    //     }
+    // }
+
+
     save();
-}
+    //localStorage('@kanban:data')
+    checkCards();
+
 
 //cards
 function dragstart(){

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
+{% from "_macros.html" import modal_form33 with context %}
 
 {% block head %}
     {{ super() }}
@@ -25,12 +26,17 @@
             <ul class="nav navbar-nav">
                 <li><a href="{{ url_for('.team_members', id=team.id) }}">Members</a></li>
                 <li><a href="{{ url_for('.team_tasks', id=team.id) }}">Team tasks</a></li>
-                
+                <li><a href="{{ url_for('.team_tasks_uusi', id=team.id, team=team) }}">Team tasks2</a></li>
+                {##}
             </ul>
             <ul class="nav navbar-nav navbar-right">
+                <!-- <li>
+                    <a href=
+                </li> -->
                 
-                <li><a href="/auth/login">Log In</a></li>
-                
+                {#<li><a href="/auth/login">Log In</a></li>#}
+
+                    <li>{{ modal_form33('main.create_team_task', id=team.id, form=form, team=team, teksti="Create task") }}</li>
             </ul>
         </div>
     </div>
@@ -38,6 +44,22 @@
 
 {% endblock %}
 
+{% block app_content %}
+<p>
+<ul>
+<div class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <li>
+            {{ modal_form33('main.create_team_task', id=team.id, form=form, team=team) }}
+        </li>
+        </div>
+    </div>
+</div>
+</ul>
+</p>
+
+{% endblock %}
 
 
 {% block scripts %}

@@ -18,6 +18,19 @@ from wtforms.validators import ValidationError
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 import json
 
+
+class TeamTask(db.Model):
+    """ A table for team tasks """
+    __tablename__ = "team_tasks"
+    id = db.Column(Integer, primary_key=True)
+    team_id = db.Column(db.Integer, db.ForeignKey('teams.id'))
+    task_id = db.Column(db.Integer, db.ForeignKey('tasks.id'))
+    # who is doing
+    doing = db.Column(db.Integer, db.ForeignKey('team_members.id'))
+    # Was task assigned or claimed?
+    assigned = db.Column(db.Boolean, default=False)
+    team_tasks = db.relationship('Task', backref='team')#, lazy='dynamic')
+
 class TeamPermission:
     CREATE_TASKS = 1
     CLAIM_TASKS = 2
@@ -507,13 +520,6 @@ class Role(db.Model):
             db.session.add(role)
         db.session.commit()
 
-class Permission:
-    CREATE_TASKS = 1
-    CREATE_GROUPS = 2
-    CREATE_GROUP_TASKS = 4
-    MODERATE_GROUP = 8
-    ADMIN = 16
-
 class Messages(db.Model):
     """ A Model of messages table """
     id = db.Column(db.Integer, primary_key=True)
@@ -522,6 +528,21 @@ class Messages(db.Model):
     def __repr__(self):
         return f"Message saved: {self.message}"
 
+class Permission:
+    CREATE_TASKS = 1
+    CREATE_GROUPS = 2
+    CREATE_GROUP_TASKS = 4
+    MODERATE_GROUP = 8
+    ADMIN = 16
+
+class Board:
+    TODO = 1
+    DOING = 2
+    DONE = 4
+
+
+
+    
 class Task(db.Model):
     """ A model of tasks """
     __tablename__ = "tasks"
@@ -532,14 +553,67 @@ class Task(db.Model):
     done = db.Column(db.Boolean)
     creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     position = db.Column(db.Text())
+    priority = db.Column(db.Boolean, default=False)
+    board = db.Column(db.Integer, default=1)
+    is_team_task = db.Column(db.Boolean, default=False)
+    user = relationship('User', back_populates='tasks')
+    team_tasks = relationship('TeamTask', backref='tasks')#, lazy='dynamic')
+
+    def __init__(self, **kwargs):
+        super(Task, self).__init__(**kwargs)
+        if self.board is None:
+            self.board = Board.TODO
+
+    @staticmethod
+    def insert_boards():
+        """ 
+        Inserts the task into one of the three
+        boards todo, doing, or done, if it doesn't have
+        a value defined yet. 
+        """
+        default_board = Board.TODO
+        tasks = Task.query.filter_by(board=None)
+
+        for i in tasks:
+            i.board = default_board
+            db.session.add(i)
+        db.session.commit()
+
+    def set_doing(self):
+        """ Sets task state to doing """
+        self.board = Board.DOING
+    
+    def set_done(self):
+        """ Sets task to done  """
+        self.board = Board.DONE
+
+    def set_todo(self):
+        self.board = Board.TODO
 
     #user = db.relationship('User')
-    user = relationship('User', back_populates='tasks')
+
     #user = db.relationship('User', innerjoin=True, back_populates='tasks')
 
+    def to_json(self):
+        json_task = {
+            'description': self.description,
+            'id': self.id,
+            'position': self.position,
+            'priority': self.priority,
+            'title': self.title
+        }
+        return json_task
+
     def __repr__(self):
-        return "<Task {}>".format(self.title)
+        return "<Task priority: {}, title: {}, self.description: {}, position: {}>".format(self.priority, self.title, self.description, self.position)
     
+    def __hash__(self, other):
+        return hash(self.__repr__())
+
+    def __eq__(self, other):
+        """ Checks equals """
+        if isinstance(other, Task):
+            return ((self.id == other.id) and (self.title == other.title) and (self.description == other.description))
     # Lähde: https://stackoverflow.com/a/63901556
     # def serializers(self):
     #    dict_val={"id":self.id,"title":self.title,"description":self.description}#,"done":self.done,"updated_at":self.updated_at}
@@ -554,8 +628,13 @@ class Team(db.Model):
     created = db.Column(DateTime, default=datetime.utcnow())
     modified = db.Column(DateTime, default=datetime.utcnow())
     users = relationship("User", secondary='team_members')
-
-
+    #team_tasks = relationship('TeamTask', backref='team_tasks', lazy='dynamic')
+    # team_tasks = db.relationship(
+    #     'Task',
+    #     secondary='team_tasks',
+    #     backref=db.backref('team', lazy='dynamic'),
+    #     lazy='dynamic'
+    # )
 
     def __repr__(self):
         return "<Team {}>".format(self.title)
@@ -588,6 +667,18 @@ class Team(db.Model):
 
         #db.session.add(tm)
         return tm
+    
+    def create_team_task(self, task):
+        """ Creates a team task but returns
+        it to the method calling it before
+        writing to database """
+        team_task = TeamTask(
+            team_id = self.id,
+            task_id = task.id,
+            doing = None,
+            assigned = False
+        )
+        return team_task
 
 #     #creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
@@ -624,20 +715,14 @@ class TeamMember(db.Model):
 
             team_id = kwargs.get('team_id')
             team = Team.query.filter_by(id=team_id).first()
-            print("KONSTRUKTORIN TEAM_ID", team_id)
             if self.get_user().email == os.getenv('ADMIN'): # Checks whether the email address of the user matches that of the admin's
                 # TODO: Tietokantaviritykset lopuksi
-                print("Pääsi iffiin, tästä tulee admini")
                 tr = TeamRole.query.filter_by(team_role_name='Administrator').first()
-                print("Halutun tiimi roolin id: ", tr.id)
                 self.team_role_id = TeamRole.query.filter_by(team_role_name='Administrator').first().id
             elif (len(team.users) == 0):
                 # Tyhjä, joten tästä kaverista tehdään omistaja
                 tr = TeamRole.query.filter_by(team_role_name='Team owner').first()
-                print("Halutun tiimi roolin id: ", tr.id)
-                print("Tiimi tyhjä joten tästä kaverista tulee omistjaa")
                 self.team_role_id = tr.id#TeamRole.query.filter_by(team_role_name='Team owner').first()
-                print("Team role id lopussa: ", self.team_role_id)
             elif self.team_role_id is None:
                 self.team_role_id = TeamRole.query.filter_by(default_role=True).first().id
         else:
@@ -685,7 +770,6 @@ class TeamMember(db.Model):
         return "<TeamMember: id:{}; team_id:{}; team_member_id:{}; team_role_id:{}>".format(self.id, self.team_id, self.team_member_id, self.team_role_id)
     # TODO: Implement
     #team_role_id = db.Column(db.Integer)
-
 
 
 

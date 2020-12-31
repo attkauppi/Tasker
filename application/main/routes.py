@@ -7,7 +7,8 @@ from application.main.forms import (
     TaskForm, EditProfileForm, EditProfileAdmin, TeamCreateForm, TeamEditForm,
     TeamInviteForm,
     TeamEditMemberForm,
-    EmptyForm
+    EmptyForm,
+    TeamTaskForm
 )#, EmptyForm, PostForm
 # from application.main.forms import TestForm
 from application.models import User, Task, Role, Team, TeamMember, TeamRole, TeamPermission
@@ -28,12 +29,12 @@ from application.main.forms import TestForm
 
 
 print("Main luokka")
-# @login_manager.user_loader
-# def load_user(user_id):
-#     """Check if user is logged-in on every page load."""
-#     if user_id is not None:
-#         return User.query.get(user_id)
-#     return None
+@login_manager.user_loader
+def load_user(user_id):
+    """Check if user is logged-in on every page load."""
+    if user_id is not None:
+        return User.query.get(user_id)
+    return None
 
 
 # def login_required(view):
@@ -47,8 +48,8 @@ print("Main luokka")
 
 #     return wrapped_view
 
-#@bp.before_app_request
-#def before_request():
+# @bp.before_app_request
+# def before_request():
 #    if current_user.is_authenticated:
 #        current_user.last_seen = datetime.utcnow()
 #        db.session.commit()
@@ -555,7 +556,79 @@ def edit_team_member(id, username):
 def team_tasks(id):
     """ For team tasks """
     team = Team.query.get_or_404(id)
+
+    form = Team
+
+
     return render_template('team_tasks.html', team=team, team_id=team.id)
+
+@bp.route('/teams/<int:id>/team_tasks/create_task')
+@login_required
+def create_team_task(id):
+    team = Team.query.get_or_404(id)
+
+
+    form = TeamTaskForm()
+
+    # if form.validate_on_submit():
+    #     #vastaanottaja = User.query.filter_by(username=username).first()
+    #     print(form.vastaanottaja.data)
+    #     print(form.viesti.data)
+    #     flash('Mukamas')
+    #     return redirect(url_for('.user', username=user.username))
+
+    if form.validate_on_submit():
+        
+        t = Task(
+            title = form.title.data,
+            description = form.description,
+            priority = form.description
+        )
+        team_task = team.create_team_task(t)
+
+        db.session.add(t)
+        db.session.add(team_task)
+        db.commit()
+        return redirect(url_for('team_tasks_uusi', id=team.id, team=team))
+    
+    return render_template('_modal.html', form=form, id=team.id, team=team, endpoint="main.create_team_task", title="Create task")
+    
+
+@bp.route('/teams/<int:id>/team_tasks', methods=["GET", "POST"])
+@login_required
+def team_tasks_uusi(id):
+    team = Team.query.get_or_404(id)
+
+    form = TeamTaskForm()
+    if form.validate_on_submit():
+        task = Task(
+            title=form.title.data,
+            description = form.description.data,
+            priority = form.priority.data,
+            creator_id = current_user.id,
+            is_team_task = True
+        )
+
+        db.session.add(task)
+
+        db.session.flush()
+        task_id = task.id
+        print("Task id: ", task_id)
+        #db.session.commit()
+
+        task = Task.query.filter_by(id=task_id).first()
+        print("Tietokannan task: ", task)
+
+        team_task = team.create_team_task(task)
+        db.session.add(team_task)
+
+        db.session.flush()
+
+        return redirect(url_for('.team_tasks_uusi', id=team.id, team=team))
+        
+
+
+    return render_template('team_tasksU.html', id=team.id, team=team)
 
 # @bp.route('/teams/tasks_static', methods=["GET", "POST"])
 # @login_required
