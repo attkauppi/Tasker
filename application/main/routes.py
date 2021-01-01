@@ -557,78 +557,142 @@ def team_tasks(id):
     """ For team tasks """
     team = Team.query.get_or_404(id)
 
-    form = Team
+    #form = Team
 
 
     return render_template('team_tasks.html', team=team, team_id=team.id)
 
-@bp.route('/teams/<int:id>/team_tasks/create_task')
+@bp.route('/teams/<int:id>/team_tasks/create_task', methods=["GET", "POST"])
 @login_required
 def create_team_task(id):
     team = Team.query.get_or_404(id)
+    print("saatiin jotain")
+    print("Team: ", team.id)
 
-
+    print("request.endpoint ", request.endpoint)
     form = TeamTaskForm()
 
-    # if form.validate_on_submit():
-    #     #vastaanottaja = User.query.filter_by(username=username).first()
-    #     print(form.vastaanottaja.data)
-    #     print(form.viesti.data)
-    #     flash('Mukamas')
-    #     return redirect(url_for('.user', username=user.username))
-
-    if form.validate_on_submit():
+    if request.method == "POST":
         
-        t = Task(
-            title = form.title.data,
-            description = form.description,
-            priority = form.description
-        )
-        team_task = team.create_team_task(t)
-
-        db.session.add(t)
-        db.session.add(team_task)
-        db.commit()
-        return redirect(url_for('team_tasks_uusi', id=team.id, team=team))
+        return redirect(url_for('main.team_tasks_uusi', id=team.id, team=team), code=307)
+    # if form.validate_on_submit():
     
-    return render_template('_modal.html', form=form, id=team.id, team=team, endpoint="main.create_team_task", title="Create task")
+    #     t = Task(
+    #         title = form.title.data,
+    #         description = form.description.data,
+    #         #priority = form.description,
+    #         done=False,
+    #         creator_id=current_user.id,
+    #         position="yellow",
+    #         priority=False,
+    #         board=1,
+    #         is_team_task=True
+    #     )
+    #     db.session.add(t)
+    #     db.session.commit()
+    #     team_task = team.create_team_task(t)
+
+    #     print("Team task: ", team_task)
+
+    #     #db.session.add(t)
+    #     db.session.add(team_task)
+    #     db.session.commit()
+
+    #     flash('Created a new task for your team!')
+    #     #return redirect(url_for('main.team_tasks_uusi', id=team.id, team=team), code=307)
+        
+    
+    return render_template('_modal.html', id=team.id, form=form, endpoint="main.create_team_task", title="Create task", team=team)
     
 
 @bp.route('/teams/<int:id>/team_tasks', methods=["GET", "POST"])
 @login_required
 def team_tasks_uusi(id):
     team = Team.query.get_or_404(id)
+    print("Team: ", team)
+    print("Team id: ", team.id)
+    args = request.args.to_dict()
+    print(request.path)
+    print("request.endpoint ", request.endpoint)
+    print("args: ", args)
+
+    print("team.team_tasks")
+    print(team.team_tasks)
+
+    todos = team.get_todo_tasks()
+    print("todos: ", todos)
+
+    doings = team.get_doing_tasks()
+    print("Doings: ", doings)
+
+    dones = team.get_done_tasks()
+    print("Dones: ", dones)
 
     form = TeamTaskForm()
-    if form.validate_on_submit():
-        task = Task(
-            title=form.title.data,
+    if form.validate_on_submit() and request.method=="POST":
+
+        t = Task(
+            title = form.title.data,
             description = form.description.data,
-            priority = form.priority.data,
-            creator_id = current_user.id,
-            is_team_task = True
+            #priority = form.description,
+            done=False,
+            creator_id=current_user.id,
+            position="yellow",
+            priority=False,
+            board=1,
+            is_team_task=True
         )
+        db.session.add(t)
+        db.session.commit()
+        team_task = team.create_team_task(t)
 
-        db.session.add(task)
+        print("Team task: ", team_task)
 
-        db.session.flush()
-        task_id = task.id
-        print("Task id: ", task_id)
-        #db.session.commit()
-
-        task = Task.query.filter_by(id=task_id).first()
-        print("Tietokannan task: ", task)
-
-        team_task = team.create_team_task(task)
+        #db.session.add(t)
         db.session.add(team_task)
+        db.session.commit()
 
-        db.session.flush()
+        flash('Created a new task for your team!')
+        # task = Task(
+        #     title=form.title.data,
+        #     description = form.description.data,
+        #     priority = False,#form.priority.data,
+        #     creator_id = current_user.id,
+        #     is_team_task = True
+        # )
 
-        return redirect(url_for('.team_tasks_uusi', id=team.id, team=team))
+        # db.session.add(task)
+        # #db.session.flush()
+        # db.session.commit()
+
+        # #db.session.flush()
+        # task_id = task.id
+        # print("Task id: ", task_id)
+        # #db.session.commit()
+
+        # task = Task.query.filter_by(id=task_id).first()
+        # print("Tietokannan task: ", task)
+
+        # team_task = team.create_team_task(task)
+        # print("Team task: ", team_task)
+        # db.session.add(team_task)
+
+        # db.session.flush()
+        # flash("Created a new task!")
+
+        return render_template('team_tasksU.html', id=team.id, team=team, todos=todos,
+        doings=doings,
+        dones=dones)
         
 
-
-    return render_template('team_tasksU.html', id=team.id, team=team)
+    #request = request.args.get('user')
+    return render_template(
+        'team_tasksU.html',
+        id=team.id,
+        team=team,
+        todos=todos,
+        doings=doings,
+        dones=dones)
 
 # @bp.route('/teams/tasks_static', methods=["GET", "POST"])
 # @login_required
@@ -667,7 +731,7 @@ def receive_edit(username):
         print(form.vastaanottaja.data)
         print(form.viesti.data)
         flash('Mukamas')
-        return redirect(url_for('.user', username=user.username))
+        return redirect(url_for('.user', username=user.username), code=307)
     
     flash('Lomake ei validoinut itseään')
     redirect(url_for('.user', username=user.username))

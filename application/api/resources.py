@@ -236,9 +236,9 @@ class TaskCheckAPI(Resource):
             if t.priority != data['priority']:
                 print("priority erosi")
                 cardMismatch = True
-            if t.done != data['done']:
-                print("done erosi")
-                cardMismatch = True
+            # if t.done != data['done']:
+            #     print("done erosi")
+            #     cardMismatch = True
 
             if not cardMismatch:
                 return {"keep": True}

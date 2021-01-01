@@ -1,19 +1,53 @@
-<div class="container">
-    <div class="row">
-      <div class="col-sm" id="first">
-        <div class="card text-white bg-secondary mb-3" style="max-width: 18rem;">
-          
-        </div>
-      </div>
-      <div class="col-sm" id="second">
-        <div class="card text-white bg-primary mb-3" style="max-width: 18rem;">
 
+<div class="container">
+  <div class="row yellow">
+    <div class="col-lg-12 ">
+      <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 green text-center">
+        <!-- Kolumni 1-->
+        {% for task in todos %}
+          {% include '_task2.html' %}
+        {% endfor %}
+        <!-- otsikko kortti -->
+        <div class="card text-center" style="border:none">
+          <div class="card-body" style="border:none">
+            <h2 class="card-title" style="border:none">Todos</h5>
+          </div>
         </div>
+        <!-- otsikko kortti loppuu -->
+        <!-- Sisältö kortit alkavat -->
+
+        <!-- Sisältö kortit loppuvat -->
+        <!-- Kolumni 1 loppuu -->
       </div>
-      <div class="col-sm" id="third">
-        <div class="card text-white bg-success mb-3" style="max-width: 18rem;">
-            
+      <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 green text-center">
+        <!-- Kolumni 2-->
+        <!-- otsikko kortti -->
+        <div class="card text-center" style="border:none">
+          <div class="card-body" style="border:none">
+            <h2 class="card-title" style="border:none">Todos</h5>
+          </div>
         </div>
+        <!-- otsikko kortti loppuu -->
+        <!-- Sisältö kortit alkavat -->
+
+        <!-- Sisältö kortit loppuvat -->
+        <!-- Kolumni 2 loppuu -->
+      </div>
+      <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 green text-center">
+        <!-- Kolumni 3-->
+        <!-- otsikko kortti -->
+        <div class="card text-center" style="border:none">
+          <div class="card-body" style="border:none">
+            <h2 class="card-title" style="border:none">Todos</h5>
+          </div>
+        </div>
+        <!-- otsikko kortti loppuu -->
+        <!-- Sisältö kortit alkavat -->
+
+        <!-- Sisältö kortit loppuvat -->
+        <!-- Kolumni 3 loppuu-->
       </div>
     </div>
   </div>
+</div>
+

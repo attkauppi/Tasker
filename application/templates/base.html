@@ -101,13 +101,7 @@
         {% block app_content %}{% endblock %}
     </div>
     {# Suurempi lomake #}
-    <div class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-
-            </div>
-        </div>
-    </div>
+    
 
     {# Esimerkki modaalilomake #}
     <div class="modal fade" id="Modal" tabindex="-1" role="dialog" aria-labelledby="FormModal" aria-hidden="true">
@@ -150,6 +144,8 @@
                                 .insertAfter('#' + key);
                             $('.form-group').addClass('has-error')
                             }
+                                
+                        
                         })
                     });
                 })

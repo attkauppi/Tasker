@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField, SelectField
 from wtforms.validators import ValidationError, DataRequired, Length, Email, Regexp
 # from flask_babel import _, lazy_gettext as _l
-from application.models import User, Role, TeamRole
+from application.models import User, Role, TeamRole, Board
 
 
 class EditProfileForm(FlaskForm):
@@ -139,9 +139,26 @@ class TeamTaskForm(FlaskForm):
     """ Form for creating team tasks """
     title = TextAreaField('Title', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
-    priority = BooleanField('Give priority', default=False)
+    board = SelectField('Team role', coerce=int)
+
+
+    # def __init__(self, board_id, *args, **kwargs):
+    #     super(TeamTaskForm, self).__init__(*args, **kwargs)
+    #     #self.team_role_choices = 
+    #     board_names = ["Todos", "Doing", "Done"]
+
+    #     self.board.choices = [(, board_name)
+    #         for board_name in board_names]
+        
+        # for i in self.team_role.choices:
+        #     if i[0] > max_role_id:
+        #         self.team_role.choices.remove(i)
+        
+        # print(self.team_role.choices)
+        # print("max role: ", max_role_id)
+    #priority = BooleanField('Give priority')
     # board valinta?
-    submit = SubmitField('Create')
+    #submit = SubmitField('submit')
     
 
 

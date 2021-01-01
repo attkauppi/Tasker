@@ -540,6 +540,8 @@ class Board:
     DOING = 2
     DONE = 4
 
+    #boards = {"TODO": TODO, "DOING": DOING, "DONE": DONE}
+
 
 
     
@@ -628,7 +630,7 @@ class Team(db.Model):
     created = db.Column(DateTime, default=datetime.utcnow())
     modified = db.Column(DateTime, default=datetime.utcnow())
     users = relationship("User", secondary='team_members')
-    #team_tasks = relationship('TeamTask', backref='team_tasks', lazy='dynamic')
+    team_tasks = relationship('Task', secondary='team_tasks')#backref='team_tasks', lazy='dynamic')
     # team_tasks = db.relationship(
     #     'Task',
     #     secondary='team_tasks',
@@ -667,6 +669,33 @@ class Team(db.Model):
 
         #db.session.add(tm)
         return tm
+    
+    def get_todo_tasks(self):
+        tasks = self.team_tasks
+        todo = []
+
+        for i in tasks:
+            if i.board == Board.TODO:
+                todo.append(i)
+        return todo
+    
+    def get_doing_tasks(self):
+        tasks = self.team_tasks
+        doing = []
+
+        for i in tasks:
+            if i.board == Board.DOING:
+                doing.append(i)
+        return doing
+    
+    def get_done_tasks(self):
+        tasks = self.team_tasks
+        done = []
+
+        for i in tasks:
+            if i.board == Board.DONE:
+                done.append(i)
+        return done
     
     def create_team_task(self, task):
         """ Creates a team task but returns
