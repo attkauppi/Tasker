@@ -42,10 +42,10 @@ if(JSON.parse(localStorage.getItem('@kanban:data'))){
                 //},
                 data: {}
             }).done(function(data) {
-                console.log("Data: ", data);
+                //console.log("Data: ", data);
                 max_id = data.config;
                 maxid_oma = max_id['maxid'];
-                console.log('maxid: ', maxid_oma);
+                //console.log('maxid: ', maxid_oma);
                 //console.log('max_id: ', max_id);
                 //dataCards.cards = [];
                 for ( var i = 0; i < data.cards.length; i++) {
@@ -57,12 +57,12 @@ if(JSON.parse(localStorage.getItem('@kanban:data'))){
                 //     }
                 //     if (!olijo) {
                         var card = data.cards[i];
-                        console.log('cardsit: ', card);
+                        //console.log('cardsit: ', card);
 
                         var card_id = card['id'];
                         var card_title = card['title'];
-                        console.log("card_title1: " + card_title);
-                        console.log('card_title');
+                        //console.log("card_title1: " + card_title);
+                        //console.log('card_title');
                         var card_description = card['description'];
                         var card_position = card['position'];
                         var card_priority = card['priority'];
@@ -107,7 +107,7 @@ $(document).ready(()=>{
                 type: "GET",
                 url: "http://127.0.0.1:5000/api/v1/tasks",
                 dataType: 'json',
-                //contentType: "text/json"
+                contentType: "text/json",
                 //username: 'eyJhbGciOiJIUzUxMiIsImlhdCI6MTYwOTEzMzI2NiwiZXhwIjoxNjA5MTM2ODY2fQ.eyJpZCI6MTN9.cbxmKoT4-uZgUhrWE3_5tzL0kh9dSo2hmQSsj1NW3vWzuBH_DaXxXs1BpiawDMrxUy2_-f-w8KklmUEc3oLFig',
                 async: true,
                 headers: {"Authorization": "Basic " + btoa(sessionStorage.getItem('token')+":"+"")},
@@ -120,7 +120,7 @@ $(document).ready(()=>{
                 console.log("Data: ", data);
                 max_id = data.config;
                 maxid_oma = max_id['maxid'];
-                console.log('maxid: ', maxid_oma);
+                //console.log('maxid: ', maxid_oma);
                 //console.log('max_id: ', max_id);
                 //dataCards.cards = [];
                 // for ( var i = 0; i < data.cards.length; i++) {
@@ -146,8 +146,8 @@ $(document).ready(()=>{
                 //     } 
                 // }
                 var card_title = card['title'];
-                console.log("card_title2: " + card_title);
-                console.log('card_title');
+                //console.log("card_title2: " + card_title);
+                //console.log('card_title');
                 var card_description = card['description'];
                 var card_position = card['position'];
                 var card_priority = card['priority'];
@@ -198,11 +198,11 @@ $(document).ready(()=>{
             $.ajax(
                 {
                     type: "POST",
-                    url: "http://127.0.0.1:5000/api/v1/tasks/",
+                    url: "http://127.0.0.1:5000/api/v1/tasks",
                     dataType: "json",
                     async: true,
                     headers: {"Authorization": "Basic " + btoa(sessionStorage.getItem('token')+":"+"")},
-                    data: JSON.stringify(newCard)
+                    data: JSON.stringify(newCard),
                 }
             ).done(
                 function(data) {
