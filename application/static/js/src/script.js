@@ -133,6 +133,14 @@ $(document).ready(()=>{
                 console.log('cardsit: ', card);
 
                 var card_id = card['id'];
+
+                for (var j = 0; j < dataCards.cards.length; i++) {
+                    card = dataCards.card[j]
+                    //dataCards.cards[j].id
+                    if (card.id == card_id) {
+                        deleteCard(card.id);
+                    } 
+                }
                 var card_title = card['title'];
                 console.log('card_title');
                 var card_description = card['description'];
@@ -202,7 +210,7 @@ $(document).ready(()=>{
                         position:"yellow",
                         priority: false
                     }
-                    dataCards.cards.push(newCard);
+                    dataCards.cards[uusi_id].push(newCard);
                     dataCards.config.maxid = uusi_id;
 
                 });
@@ -254,7 +262,7 @@ function checkCards() {
         console.log("urli: ", urli);
         $.ajax(
             {
-                type: "PUT",
+                type: "POST",
                 url: "http://127.0.0.1:5000/api/v1/task_check/"+(card.id.toString()),
                 dataType: 'json',
                 //contentType: "text/json"
@@ -281,6 +289,18 @@ function checkCards() {
 
 
     }
+
+
+    // let setOfIds = new Set();
+    // for (var i = 0; i < dataCards.cards.length; i++) {
+    //     card = dataCards.cards[i];
+    //     if (!setOfIds.has(card.id)) {
+    //         console.log("oli jo");
+    //         setOfIds.add(card.id)
+    //     } else {
+    //         deleteCard(card.id);
+    //     }
+    // }
     save();
 }
 
@@ -389,6 +409,7 @@ function position(cardBeignDragged, color){
     dataCards.cards[index].position = color;
     card = dataCards.cards[index];
     console.log("Lähetettävä siirretty kortti: ", JSON.stringify(card));
+    save();
     $.ajax(
         {
             type: "PUT",
@@ -408,6 +429,7 @@ function position(cardBeignDragged, color){
 
         });
     }
+    checkCards();
 
 
     // let setOfIds = new Set();
@@ -424,7 +446,6 @@ function position(cardBeignDragged, color){
 
     save();
     //localStorage('@kanban:data')
-    checkCards();
 
 
 //cards

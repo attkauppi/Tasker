@@ -23,13 +23,13 @@ class TeamTask(db.Model):
     """ A table for team tasks """
     __tablename__ = "team_tasks"
     id = db.Column(Integer, primary_key=True)
-    team_id = db.Column(db.Integer, db.ForeignKey('teams.id'))
-    task_id = db.Column(db.Integer, db.ForeignKey('tasks.id'))
+    team_id = db.Column(db.Integer, db.ForeignKey('teams.id', ondelete='cascade'))
+    task_id = db.Column(db.Integer, db.ForeignKey('tasks.id', ondelete='cascade'), unique=True)
     # who is doing
     doing = db.Column(db.Integer, db.ForeignKey('team_members.id'))
     # Was task assigned or claimed?
     assigned = db.Column(db.Boolean, default=False)
-    team_tasks = db.relationship('Task', backref='team')#, lazy='dynamic')
+    team_tasks = db.relationship('Task', backref='team')#, cascade="all, delete-orphan")#, lazy='dynamic')
 
 class TeamPermission:
     CREATE_TASKS = 1
@@ -559,7 +559,7 @@ class Task(db.Model):
     board = db.Column(db.Integer, default=1)
     is_team_task = db.Column(db.Boolean, default=False)
     user = relationship('User', back_populates='tasks')
-    team_tasks = relationship('TeamTask', backref='tasks')#, lazy='dynamic')
+    team_tasks = relationship('TeamTask', backref='tasks')#, cascade="all, delete-orphan")#, cascade="all, delete-orphan")#, lazy='dynamic')
 
     def __init__(self, **kwargs):
         super(Task, self).__init__(**kwargs)
