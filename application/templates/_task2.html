@@ -11,6 +11,7 @@
       <img src="{{ url_for('static', filename='person-bounding-box.svg') }}" href="#" class="card-link" alt="Assign">{{ modal_form34('main.edit_team_task', id=team.id,form=form, team=team, task_id=task.id) }}</a>
     
     {% if assigned_to %}
+    <p>assigned</p>
     <div class="card-footer">
         <img src="{{ assigned_to.gravatar(32) }}", width="32", height="32", class="rounded me-2", loading="lazy">
     </div>

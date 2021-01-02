@@ -254,8 +254,8 @@ class TaskCheckAPI(Resource):
 
 class TaskListAPI(Resource):
 
-    decorators = [auth.login_required]
     #decorators = [auth.login_required]
+    decorators = [auth.login_required]
 
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
@@ -345,21 +345,23 @@ class TaskListAPI(Resource):
     def post(self):
         """ Create a new task """
         r = request.get_json(force=True)
+        print("tasklistapin post pyyntö: ", r)
         print("request: ", request.get_json(force=True))
         #print("Current_user: ", g.current_user)
         args = self.reqparse.parse_args()
+        print("post pyynnön argit: ", args)
 
         task = Task(
             title=args['title'],
             description = args['description']
             #position = args['position'],
-            #priority = args['priority'],
-            #done = args['done']
+            #priority = args['priority']
         )
 
         task.position = r['position']
         task.priority = r['priority']
-        task.done = r['done']
+        #task.done = r['done']
+        task.done = False
         task.creator_id = g.current_user.id
 
 

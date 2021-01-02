@@ -166,6 +166,7 @@ class TeamTaskFormEdit(FlaskForm):
     description = TextAreaField('Description', validators=[DataRequired()])
     #board = SelectField('Team role', coerce=int)
     assign_to_choices = SelectField('Team member', coerce=int)
+    move_to_board_choices = SelectField('Move to board', coerce=int)
 
     def __init__(self, team, *args, **kwargs):
         super(TeamTaskFormEdit, self).__init__(*args, **kwargs)
@@ -175,6 +176,10 @@ class TeamTaskFormEdit(FlaskForm):
             lista.append((member.team_member_user.id, member.team_member_user.username))
         print("lista: ", lista)
         self.assign_to_choices.choices = lista
+        print("self.assign_to_choices: ", self.assign_to_choices)
+        
+        #self.move_to_board_choices = [(1, "todo"), (2, "doing"), (3, "done")]
+
         # self.assign_to_choices.choices = [(team.team_members.team_member_user.id, team.team_members.team_member_user.username)
         #     for team_member in team.team_members.team_member_user]
 

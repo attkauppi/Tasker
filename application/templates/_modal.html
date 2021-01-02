@@ -12,7 +12,7 @@
 
     <p>You can create multiple tasks in this form. Click the x, when you're done.</p>
     {% if "edit_team_task" in request.endpoint %}
-    <p><strong>Currently this task is assigned to: {{ assigned_to.username }}</strong></p>
+    <p>Currently this task is assigned to: <strong id="embed_name">{{ assigned_to.username }}</strong></p>
     {% endif %}
     
     

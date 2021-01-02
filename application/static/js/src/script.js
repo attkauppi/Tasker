@@ -26,7 +26,8 @@ function make_base_auth() {//username_or_token) {
         return "Basic " + hash;
 }
 if(JSON.parse(localStorage.getItem('@kanban:data'))){
-    dataCards = JSON.parse(localStorage.getItem('@kanban:data'));
+    //dataCards = JSON.parse(localStorage.getItem('@kanban:data'));
+    
     $.ajax(
             {
                 type: "GET",
@@ -48,18 +49,19 @@ if(JSON.parse(localStorage.getItem('@kanban:data'))){
                 //console.log('max_id: ', max_id);
                 //dataCards.cards = [];
                 for ( var i = 0; i < data.cards.length; i++) {
-                    const olijo = false;
-                    for (var j=0; j < dataCards.cards.length; j++) {
-                        if (data.cards[i].id == dataCards.cards[j].id) {
-                            olijo = true;
-                        }
-                    }
-                    if (!olijo) {
+                //     var olijo = false;
+                //     for (var j=0; j < dataCards.cards.length; j++) {
+                //         if (data.cards[i].id == dataCards.cards[j].id) {
+                //             olijo = true;
+                //         }
+                //     }
+                //     if (!olijo) {
                         var card = data.cards[i];
                         console.log('cardsit: ', card);
 
                         var card_id = card['id'];
                         var card_title = card['title'];
+                        console.log("card_title1: " + card_title);
                         console.log('card_title');
                         var card_description = card['description'];
                         var card_position = card['position'];
@@ -75,10 +77,11 @@ if(JSON.parse(localStorage.getItem('@kanban:data'))){
                         dataCards.cards.push(newCard)
                         dataCards.config.maxid = maxid_oma;
                     }
-            }
+            // }
         }
         );
-
+        
+        save();
         // let setOfIds = new Set();
         // for (var i = 0; i < dataCards.cards.length; i++) {
         //     card = dataCards.cards[i];
@@ -113,6 +116,7 @@ $(document).ready(()=>{
                 //},
                 data: {}
             }).done(function(data) {
+                console.log("************TOINEN GETTI***************" );
                 console.log("Data: ", data);
                 max_id = data.config;
                 maxid_oma = max_id['maxid'];
@@ -134,14 +138,15 @@ $(document).ready(()=>{
 
                 var card_id = card['id'];
 
-                for (var j = 0; j < dataCards.cards.length; i++) {
-                    card = dataCards.card[j]
-                    //dataCards.cards[j].id
-                    if (card.id == card_id) {
-                        deleteCard(card.id);
-                    } 
-                }
+                // for (var j = 0; j < dataCards.cards.length; j++) {
+                //     card = dataCards.cards[j];
+                //     //dataCards.cards[j].id
+                //     if (card.id == card_id) {
+                //         deleteCard(card.id);
+                //     } 
+                // }
                 var card_title = card['title'];
+                console.log("card_title2: " + card_title);
                 console.log('card_title');
                 var card_description = card['description'];
                 var card_position = card['position'];
@@ -161,17 +166,18 @@ $(document).ready(()=>{
             // }
         }
         );
+        localStorage.setItem('@kanban:data', JSON.stringify(dataCards));
 
-        let setOfIds = new Set();
-        for (var i = 0; i < dataCards.cards.length; i++) {
-            card = dataCards.cards[i];
-            if (!setOfIds.has(card.id)) {
-                console.log("oli jo");
-                setOfIds.add(card.id)
-            } else {
-                deleteCard(card.id);
-            }
-        }
+        // let setOfIds = new Set();
+        // for (var i = 0; i < dataCards.cards.length; i++) {
+        //     card = dataCards.cards[i];
+        //     if (!setOfIds.has(card.id)) {
+        //         console.log("oli jo");
+        //         setOfIds.add(card.id)
+        //     } else {
+        //         deleteCard(card.id);
+        //     }
+        // }
         initializeComponents(dataCards);
     }
     initializeCards();
@@ -182,8 +188,7 @@ $(document).ready(()=>{
         $('#descriptionInput').val('');
         if(title && description){
             let id = dataCards.config.maxid+1;
-            const newCard = {
-                id,
+            var newCard = {
                 title,
                 description,
                 position:"yellow",
@@ -197,10 +202,11 @@ $(document).ready(()=>{
                     dataType: "json",
                     async: true,
                     headers: {"Authorization": "Basic " + btoa(sessionStorage.getItem('token')+":"+"")},
-                    data: JSON.stringify(newCard),
+                    data: JSON.stringify(newCard)
                 }
             ).done(
                 function(data) {
+                    console.log("Data joka saatiin: " + data);
 
                     uusi_id = data['id'];
                     newCard = {
@@ -210,8 +216,10 @@ $(document).ready(()=>{
                         position:"yellow",
                         priority: false
                     }
-                    dataCards.cards[uusi_id].push(newCard);
-                    dataCards.config.maxid = uusi_id;
+                    
+                    console.log("newcard: ", newCard);
+                    dataCards.cards.push(newCard);
+                    dataCards.config.maxid = uusi_id+1;
 
                 });
             
@@ -221,15 +229,15 @@ $(document).ready(()=>{
             //dataCards.cards.push(newCard);
             //dataCards.config.maxid = id;
 
-            let setOfIds = new Set();
-            for (var i = 0; i < dataCards.cards.length; i++) {
-                card = dataCards.cards[i];
-                if (!setOfIds.has(card.id)) {
-                    setOfIds.add(card.id)
-                } else {
-                    deleteCard(card.id);
-                }
-            }
+            // let setOfIds = new Set();
+            // for (var i = 0; i < dataCards.cards.length; i++) {
+            //     card = dataCards.cards[i];
+            //     if (!setOfIds.has(card.id)) {
+            //         setOfIds.add(card.id)
+            //     } else {
+            //         deleteCard(card.id);
+            //     }
+            // }
             save();
             appendComponents(newCard);
             initializeCards();
@@ -258,6 +266,7 @@ $(document).ready(()=>{
 function checkCards() {
     for (var i = 0; i < dataCards.cards.length; i++) {
         card = dataCards.cards[i];
+        console.log("Card: ", card);
         urli =  "http://127.0.0.1:5000/api/v1/task_check/"+(card.id.toString());
         console.log("urli: ", urli);
         $.ajax(
@@ -278,9 +287,10 @@ function checkCards() {
                 //dataCards.cards[index] = data.JSON.parse(data)
 
                 if (!data['keep']) {
+                    console.log("i: " + i);
                     console.log("data['keep']: ", data['keep']);
                     console.log('card: ', JSON.stringify(card));
-                    id = dataCards.cards[i].id;
+                    id = card.id;//dataCards.cards[i].id;
                     deleteCard(id);
                 }
     

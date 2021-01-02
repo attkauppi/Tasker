@@ -143,6 +143,8 @@
                         data) {
                         if (data.status == 'ok') {
                             $('#Modal').modal('hide');
+
+                            console.log("data: ", data);
                             location.reload();
                         } else {
                             var obj = JSON.parse(data);
