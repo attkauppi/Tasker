@@ -697,16 +697,30 @@ class Team(db.Model):
                 done.append(i)
         return done
     
-    def create_team_task(self, task):
+    def create_team_task(self, task, **kwargs):
         """ Creates a team task but returns
         it to the method calling it before
         writing to database """
-        team_task = TeamTask(
-            team_id = self.id,
-            task_id = task.id,
-            doing = None,
-            assigned = False
-        )
+        team_task = TeamTask.query.filter_by(task_id=task.id).first()
+
+        if team_task == None:
+            team_task = TeamTask(
+                team_id = self.id,
+                task_id = task.id,
+                doing = None,
+                assigned = False
+            )
+        
+        
+        if 'form_data' in kwargs:
+            form_data = kwargs.get('form_data')
+            if "assign_to_choices" in form_data:
+                print("assign_to_choices: ", form_data['assign_to_choices'])
+                team_task.doing = form_data['assign_to_choices']
+                team_task.assigned = True
+        else:
+            print("ei löytynyt")
+
         return team_task
 
 #     #creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -725,7 +739,7 @@ class TeamMember(db.Model):
     team = relationship(Team, backref=backref("team_members", cascade="all, delete-orphan"))
     #team_role = relationship('TeamRole', back_populates='team_members')
     team_member_user = relationship('User', back_populates='team_members')
-    
+    team_tasks = relationship("Task", secondary='team_tasks')
 
     def __init__(self, team_role_id=None, **kwargs): # Initializes user roles
         """ Sets team member roles. Sets Admin if email matches """

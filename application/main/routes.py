@@ -8,10 +8,14 @@ from application.main.forms import (
     TeamInviteForm,
     TeamEditMemberForm,
     EmptyForm,
-    TeamTaskForm
+    TeamTaskForm,
+    TeamTaskFormEdit
 )#, EmptyForm, PostForm
 # from application.main.forms import TestForm
-from application.models import User, Task, Role, Team, TeamMember, TeamRole, TeamPermission
+from application.models import (
+    User, Task, Role, Team, TeamMember, TeamRole, TeamPermission,
+    TeamTask
+)
 from application.main import bp
 from utils.decorators import (
     admin_required,
@@ -616,20 +620,29 @@ def team_tasks_uusi(id):
     print("request.endpoint ", request.endpoint)
     print("args: ", args)
 
-    print("team.team_tasks")
-    print(team.team_tasks)
+    #print("team.team_tasks")
+    #print(team.team_tasks)
 
     todos = team.get_todo_tasks()
-    print("todos: ", todos)
+    #print("todos: ", todos)
 
     doings = team.get_doing_tasks()
-    print("Doings: ", doings)
+    #print("Doings: ", doings)
 
     dones = team.get_done_tasks()
-    print("Dones: ", dones)
+    #print("Dones: ", dones)
+
+    # team_task = TeamTask.query.filter_by(task_id=task_id).first()
+    # print("Team task: ", team_task)
+    # assigned_to = None
+    #if team_task.doing is not None:   
+    
+
+    #print("Assigned to: ", assigned_to)
 
     form = TeamTaskForm()
     if form.validate_on_submit() and request.method=="POST":
+        print("request.args: ", request.args)
 
         t = Task(
             title = form.title.data,
@@ -693,12 +706,84 @@ def team_tasks_uusi(id):
         todos=todos,
         doings=doings,
         dones=dones)
+        #assigned_to=assigned_to)
 
 # @bp.route('/teams/tasks_static', methods=["GET", "POST"])
 # @login_required
 # def team_tasks():
 #     #team = Team.query.get_or_404(id)
 #     return send_from_directory('static/js/src/', 'index.html')
+
+@bp.route('/teams/<int:id>/team_tasks/edit_task', methods=["GET", "POST"])
+@login_required
+def edit_team_task(id):
+    task_id = request.args.get('task_id')
+    print("task_id: ", task_id)
+    print("request.args: ", request.args)
+    team = Team.query.get_or_404(id)
+    task = Task.query.get_or_404(task_id)
+
+    form = TeamTaskFormEdit(team=team)
+
+    team_task = TeamTask.query.filter_by(task_id=task_id).first()
+    print("Team task: ", team_task)
+    assigned_to = None
+    #if team_task.doing is not None:   
+    assigned_to = User.query.filter_by(id=team_task.doing).first()
+
+    print("Assigned to: ", assigned_to)
+
+
+
+
+    
+
+
+    print("saatiin jotain")
+    print("Team: ", team.id)
+
+    print("request.endpoint ", request.endpoint)
+    form = TeamTaskFormEdit(team=team)
+
+    if request.method == "POST":
+        print("request.args: ", request.args)
+        print("form.data: ", form.data)
+        print("form: ", form.assign_to_choices.data)
+
+        task.title = form.title.data
+        task.description = form.title.data
+
+        # t = Task(
+        #     title = form.title.data,
+        #     description = form.description.data,
+        #     #priority = form.description,
+        #     done=False,
+        #     creator_id=current_user.id,
+        #     position="yellow",
+        #     priority=False,
+        #     board=1,
+        #     is_team_task=True
+        # )
+        #db.session.add(t)
+        db.session.commit()
+
+        team_task = TeamTask.query.filter_by(task_id=task.id).first()
+
+
+        team_task = team.create_team_task(task, form_data=form.data)
+
+        print("Team task: ", team_task)
+
+        #db.session.add(t)
+        #db.session.add(team_task)
+        db.session.commit() 
+        
+        return redirect(url_for('main.edit_team_task', id=team.id, form=form, title="Edit task", team=team, task=task, assigned_to=assigned_to))
+    form.title.data = task.title
+    form.description.data = task.description
+    #form.assign_to_choices.data = 
+    return render_template('_modal.html', id=team.id, form=form, endpoint="main.edit_team_task", title="Edit task", team=team, task=task, assigned_to=assigned_to)
+
 
 @bp.route('/teams/<int:id>/tasks_frame', methods=["GET", "POST"])
 @login_required
@@ -720,6 +805,9 @@ def user_edit():
 
 
     return render_template('_form_edit.html', form=form)
+
+
+
 
 @bp.route('/send/<username>/send', methods=["GET", "POST"])
 @login_required

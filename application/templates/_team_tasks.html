@@ -5,6 +5,11 @@
       <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 green text-center">
         <!-- Kolumni 1-->
         {% for task in todos %}
+          {% if assigned_to is not none %}
+            {% with assigned_to %}
+              {% include '_task2.html' %}
+            {% endwith %}
+          {% endif %}
           {% include '_task2.html' %}
         {% endfor %}
         <!-- otsikko kortti -->

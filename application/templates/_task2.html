@@ -1,10 +1,23 @@
-
+{% import "bootstrap/utils.html" as utils %}
+{% from "_macros.html" import modal_form34 with context %}
 <div class="card text-center">
     <div class="card-header">{{ task.title }}</div>
     <div class="card-body">
         <p></p>
       <p class="card-text">{{ task.description }}</p>
-      <a href="#" class="card-link">Sun Gone</a>
-      <a href="#" class="card-link">Still Gone</a>
+      
+      {#<a href="#" class="card-link">Still Gone</a>#}
+      <img href="#" class="card-link">{{ utils.icon("pencil", ["small"]) }}edit{{ modal_form34('main.edit_team_task', id=team.id, form=form, team=team, task_id=task.id) }}</a>
+      <img src="{{ url_for('static', filename='person-bounding-box.svg') }}" href="#" class="card-link" alt="Assign">{{ modal_form34('main.edit_team_task', id=team.id,form=form, team=team, task_id=task.id) }}</a>
+    
+    {% if assigned_to %}
+    <div class="card-footer">
+        <img src="{{ assigned_to.gravatar(32) }}", width="32", height="32", class="rounded me-2", loading="lazy">
+    </div>
+    {% endif %}
+     
+      {#<p style="text-align:right" >{{ utils.icon("pencil", ["small"]) }}</p> #}
+
+       
     </div>
 </div>

@@ -139,7 +139,7 @@ class TeamTaskForm(FlaskForm):
     """ Form for creating team tasks """
     title = TextAreaField('Title', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
-    board = SelectField('Team role', coerce=int)
+    #board = SelectField('Team role', coerce=int)
 
 
     # def __init__(self, board_id, *args, **kwargs):
@@ -160,7 +160,34 @@ class TeamTaskForm(FlaskForm):
     # board valinta?
     #submit = SubmitField('submit')
     
+class TeamTaskFormEdit(FlaskForm):
+    """ Form for creating team tasks """
+    title = TextAreaField('Title', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()])
+    #board = SelectField('Team role', coerce=int)
+    assign_to_choices = SelectField('Team member', coerce=int)
 
+    def __init__(self, team, *args, **kwargs):
+        super(TeamTaskFormEdit, self).__init__(*args, **kwargs)
+        #self.team_role_choices = 
+        lista = []
+        for member in team.team_members:
+            lista.append((member.team_member_user.id, member.team_member_user.username))
+        print("lista: ", lista)
+        self.assign_to_choices.choices = lista
+        # self.assign_to_choices.choices = [(team.team_members.team_member_user.id, team.team_members.team_member_user.username)
+        #     for team_member in team.team_members.team_member_user]
+
+        # self.team_.choices = [(team_members.id, team_members.username)
+        #     for team_member in team_members]
+        
+
+
+    # def __init__(self, user, *args, **kwargs):
+    #     super(EditProfileAdmin, self).__init__(*args, **kwargs)
+    #     self.role.choices = [(role.id, role.role_name)
+    #                         for role in Role.query.order_by(Role.role_name).all()]
+    #     self.user = user
 
 
 class TestForm(FlaskForm):

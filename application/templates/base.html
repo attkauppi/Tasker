@@ -104,6 +104,8 @@
     
 
     {# Esimerkki modaalilomake #}
+    {% if request.endpoint %}
+        {% if "edit_team_task" not in request.endpoint %}
     <div class="modal fade" id="Modal" tabindex="-1" role="dialog" aria-labelledby="FormModal" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -111,6 +113,16 @@
             </div>
         </div>
     </div>
+    {% else %}
+    <div class="modal fade" id="Modal" tabindex="-1" role="dialog" aria-labelledby="FormModal" aria-hidden="true" style="width:750px;margin:auto">
+        <div class="modal-dialog">
+            <div class="modal-content">
+             <!-- load content here -->
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
     
 {% endblock %}
 

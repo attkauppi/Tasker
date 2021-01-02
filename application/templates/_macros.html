@@ -135,6 +135,10 @@
 {% endif %} #}
 {% endmacro %}
 
+{% macro modal_form34(endpoint, teksti) %}
+<a class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="color:blue;background-color:rgb(235, 255, 233)">Edit task</a>
+{% endmacro %}
+
 {# TOIMII #}
 {% macro modal_form3(teksti) %}
             <button class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for('main.user_edit') }}" style="background-color:indianred">{{ teksti }}</button>
