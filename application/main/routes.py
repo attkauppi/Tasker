@@ -898,17 +898,9 @@ def team_leave(id, username):
     username_arg = request.view_args.get('username')
     team = Team.query.get_or_404(team_id)
     user = User.query.filter_by(username=username_arg).first()
-
-    #username = request.args.get('username')
-    #print("saatu username: ", username)
-    #user = User.query.filter_by(username=username).first()
-    #team = Team.query.get_or_404(request.args.get('id'))
     
-    #user = User.query.get_or_404(username)
-    #user = User.query.filter_by(username=current_user.username).first()
-    print("team", team)
     form = EmptyForm(value="Delete")
-    print("User: current_user", user)
+    # print("User: current_user", user)
 
     
     #if request.method == "POST":
@@ -917,9 +909,9 @@ def team_leave(id, username):
     #if form.validate_on_submit():
     if request.method == "POST":
 
-        print("form.data: ", form.data)
-        print("request.args: ", request.args)
-        print("view args: ", request.view_args)
+        # print("form.data: ", form.data)
+        # print("request.args: ", request.args)
+        # print("view args: ", request.view_args)
         if form.validate_on_submit():
             print("Form validated")
             user_team_member_object = user.get_team_member_object(id)
@@ -928,40 +920,15 @@ def team_leave(id, username):
             print("request.args: ", request.args)
             print("view args: ", request.view_args)
             flash('Successfully left team')
-            #flash('successfully left')
             return redirect(url_for('main.index'), 307)
 
         flash('something went wrong')
         return redirect(url_for('main.team', id=team.id), 307)
-            # print("**********************")
-            # print("Lomake meni läpi")
-            # print("validated")
-            # tm = user.get_team_member_object(id)
-            # print("tm: ", tm)
-            # db.session.delete(tm)
-            # db.session.commit()
-            # flash('Successfully left team')
-
-            # return redirect(url_for('main.index'))
         
-        
-
     text = """Are you sure you want to do this?
     If you carry this out, you can't access the team pages nor team tasks again without being invited back and you'll lose your team role """
 
-
     return render_template('_confirm.html', id=team.id, username=username, form=form, value="Leave team", endpoint='main.team_leave', title="Are you sure?", text=text)
-    # return render_template(
-    #     '_confirm.html',
-    #     id=team.id,
-    #     username=user.username,
-    #     form=form, value="Leave team",
-    #     endpoint='main.team_leave',
-    #     title="Are you sure?",
-    #     text=text
-    # )
-
-
 
 @bp.route('/send_popup', methods=["GET", "POST"])
 @login_required
