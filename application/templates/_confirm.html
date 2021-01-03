@@ -1,7 +1,11 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 {% from 'bootstrap/wtf.html' import form_field %}
 
-<form id="ModalForm" name="stepForm" action="{{ url_for(endpoint, id=id) }}" class="form" method="post">
+{% if "main.team_delete" in endpoint %}
+    <form id="ModalForm" name="stepForm" action="{{ url_for(endpoint, id=id) }}" class="form" method="post">
+{% elif "main.delete_profile" in endpoint %}
+    <form id="ModalForm" name="stepForm" action="{{ url_for(endpoint, username=username) }}" class="form" method="post">
+{% endif %}
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="close">
                 <span aria-hidden="true">&times;</span>

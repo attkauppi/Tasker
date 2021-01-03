@@ -215,6 +215,7 @@ class TeamTaskFormEdit(FlaskForm):
     #                         for role in Role.query.order_by(Role.role_name).all()]
     #     self.user = user
 
+
 class TeamTaskSendToBoard(FlaskForm):
     """ Sends a task to another board """
     submit = SubmitField('Send to board')

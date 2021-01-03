@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% from "_macros.html" import modal_form33 with context %}
+{% from "_macros.html" import delete with context %}
 
 {% block app_content %}
     <h1>{{ ('Edit team') }}</h1>
@@ -26,7 +27,10 @@
             {% if "create_team" not in request.endpoint %}
             <div class="row">
                 <div class="col-md-4">
+                    {#
                     {{ modal_form33('main.team_delete', id=team.id, teksti="Delete") }}
+                    #}
+                    {{ delete('main.team_delete', id=team.id, teksti="Delete team") }}
                 </div>
             </div>
             {% endif %}

@@ -38,7 +38,9 @@
                 {#<li><a href="/auth/login">Log In</a></li>#}
 
                     {#<li>{{ modal_form33('main.create_team_task', id=id, form=form) }}</li>#}
+                    {% if "team_tasks_uusi" in request.endpoint %}
                     <li>{{ modal_form33('main.create_team_task', id=team.id, form=form, team=team) }}</li>
+                    {% endif %}
             </ul>
         </div>
     </div>

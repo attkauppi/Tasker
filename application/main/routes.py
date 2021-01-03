@@ -186,6 +186,36 @@ def edit_profile():
         form.email.data = current_user.email
     return render_template('edit_profile.html', title=('Edit Profile'), form=form)
 
+@bp.route('/user/<username>/delete', methods=["GET", "POST"])
+@login_required
+def delete_profile(username):
+    user = User.query.filter_by(username=username).first()
+
+    if user is None:
+        return abort(404)
+
+    form = EmptyForm(value="Delete")
+
+    if form.validate_on_submit():
+
+        db.session.delete(user)
+        db.session.commit()
+        flash('Your profile was deleted. Hope to see you again sometime!')
+        return redirect(url_for('main.index'))
+    
+    text = """Are you sure you want to do this?
+    If you carry this out, you will be removed from all your teams, all your tasks will be removed and none of these will be recoverable."""
+
+    return render_template(
+        '_confirm.html',
+        username=user.username,
+        form=form, value="Delete profile",
+        endpoint='main.delete_profile',
+        title="Are you sure?",
+        text=text
+    )
+
+
 @bp.route('/edit_profile/<int:id>', methods=["GET", "POST"])
 @login_required
 @admin_required
@@ -464,6 +494,7 @@ def invite_user_to_team(username, team_id):#username, team_id):
 
 @bp.route('/team/<int:id>', methods=["GET", "POST"])
 @login_required
+@team_role_required(id)
 def team(id):
     team = Team.query.get_or_404(id)
 
@@ -501,6 +532,7 @@ def team(id):
 
 @bp.route('/team/<int:id>/members', methods=["GET", "POST"])
 @login_required
+@team_role_required(id)
 def team_members(id):
     """ Allows editing member roles """
     team = Team.query.get_or_404(id)
@@ -558,6 +590,7 @@ def edit_team_member(id, username):
 
 @bp.route('/teams/<int:id>/tasks', methods=["GET", "POST"])
 @login_required
+@team_role_required(id)
 def team_tasks(id):
     """ For team tasks """
     team = Team.query.get_or_404(id)
@@ -569,6 +602,7 @@ def team_tasks(id):
 
 @bp.route('/teams/<int:id>/team_tasks/create_task', methods=["GET", "POST"])
 @login_required
+@team_role_required(id)
 def create_team_task(id):
     team = Team.query.get_or_404(id)
     print("saatiin jotain")
