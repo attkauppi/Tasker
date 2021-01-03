@@ -802,6 +802,8 @@ def team_tasks_uusi(id):
 @login_required
 @team_role_required(id)
 def edit_team_task(id):
+    """ Method for editing team tasks """
+    #FIXME: tämän modaalissa taisi olla kanssa jotain häikkää?
     task_id = request.args.get('task_id')
     team = Team.query.get_or_404(id)
     task = Task.query.get_or_404(task_id)
@@ -843,6 +845,13 @@ def edit_team_task(id):
     form.title.data = task.title
     form.description.data = task.description
     return render_template('_modal.html', id=team.id, form=form, endpoint="main.edit_team_task", title="Edit task", team=team, task=task, assigned_to=assigned_to)
+
+@bp.route('/teams/<int:id>/team_tasks/edit_task/<int:task_id>/delete', methods=["GET", "POST"])
+@login_required
+@team_role_required(id)
+def team_task_delete(id):
+    """ Method for deleting team tasks """
+
 
 
 @bp.route('/teams/<int:id>/tasks_frame', methods=["GET", "POST"])
