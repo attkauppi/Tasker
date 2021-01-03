@@ -590,7 +590,7 @@ class Task(db.Model):
 
     @staticmethod
     def boards():
-        boards = {'TODO': Board.TODO, 'DOING': Board.DOING, 'DONE': Board.DOING}
+        boards = {'TODO': Board.TODO, 'DOING': Board.DOING, 'DONE': Board.DONE}
         return boards
 
     def set_doing(self):
@@ -600,6 +600,7 @@ class Task(db.Model):
     def set_done(self):
         """ Sets task to done  """
         self.board = Board.DONE
+        self.done = True
 
     def set_todo(self):
         self.board = Board.TODO

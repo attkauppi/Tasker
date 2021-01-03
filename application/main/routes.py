@@ -14,7 +14,7 @@ from application.main.forms import (
 # from application.main.forms import TestForm
 from application.models import (
     User, Task, Role, Team, TeamMember, TeamRole, TeamPermission,
-    TeamTask
+    TeamTask, Board
 )
 from application.main import bp
 from utils.decorators import (
@@ -730,10 +730,24 @@ def edit_team_task(id):
     assigned_to = User.query.filter_by(id=team_task.doing).first()
     form = TeamTaskFormEdit(team=team, task=task)
 
+    print("Task.boards()[DONE]: ", Task.boards()['DONE'])
+
     if request.method == "POST":
         task.title = form.title.data
         task.description = form.title.data
         task.board = form.data['board_choices']
+
+        print("Task.board ", task.board)
+        print("Board.DONE: ", Board.DONE)
+
+        print("samat? ", (int(task.board) == int(Board.DONE)))
+
+        if int(task.board) == int(Board.DONE):
+            print("Oli true")
+            task.done = True
+        elif (int(task.board != int(Board.DONE))):
+            task.done = False
+
 
         db.session.commit()
 
