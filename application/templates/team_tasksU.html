@@ -37,12 +37,13 @@
         <!-- kortti -->
         {% for task in todos %}
         {% with task_id=task.id %}
-        {% if assigned_to is not none %}
-            {% with assigned_to=assigned_to %}
+        {% if get_task_assigned(task.team_tasks) is not none %}
+          {% with user=get_user_from_id(get_task_assigned(task.team_tasks)) %}
               {% include '_task2.html' %}
             {% endwith %}
-          {% endif %}
+        {% else %}
           {% include '_task2.html' %}
+        {% endif %}
           {% endwith %}
           <br>
         {% endfor %}
@@ -57,8 +58,15 @@
         </div>
         <!-- kortti -->
         {% for task in doings %}
+          
           {% with task_id=task.id %}
+          {% if get_task_assigned(task.team_tasks) is not none %}
+          {% with user=get_user_from_id(get_task_assigned(task.team_tasks)) %}
+              {% include '_task2.html' %}
+            {% endwith %}
+        {% else %}
           {% include '_task2.html' %}
+        {% endif %}
           {% endwith %}
           <br>
         {% endfor %}
@@ -81,8 +89,14 @@
         <!-- Kortti alkaa -->
         {% for task in dones %}
         {% with task_id=task.id %}
+        {% if get_task_assigned(task.team_tasks) is not none %}
+            {% with user=get_user_from_id(get_task_assigned(task.team_tasks)) %}
+              {% include '_task2.html' %}
+            {% endwith %}
+        {% else %}
           {% include '_task2.html' %}
-           {% endwith %}
+        {% endif %}
+          {% endwith %}
           <br>
         {% endfor %}
         <div class="card text-center">

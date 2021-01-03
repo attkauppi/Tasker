@@ -31,6 +31,9 @@ class TeamTask(db.Model):
     assigned = db.Column(db.Boolean, default=False)
     team_tasks = db.relationship('Task', backref='team')#, cascade="all, delete-orphan")#, lazy='dynamic')
 
+    def get_doing(self):
+        return self.doing
+
 class TeamPermission:
     CREATE_TASKS = 1
     CLAIM_TASKS = 2
@@ -560,6 +563,9 @@ class Task(db.Model):
     board = db.Column(db.Integer, default=1)
     is_team_task = db.Column(db.Boolean, default=False)
     user = relationship('User', back_populates='tasks')
+    # TODO: Kunnon one-to-one suhdetta varten pitäisi
+    # laittaa uselist=False tähän
+    # https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html#one-to-one
     team_tasks = relationship('TeamTask', backref='tasks')#, cascade="all, delete-orphan")#, cascade="all, delete-orphan")#, lazy='dynamic')
 
     def __init__(self, **kwargs):

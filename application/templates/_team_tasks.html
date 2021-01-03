@@ -9,8 +9,9 @@
             {% with assigned_to %}
               {% include '_task2.html' %}
             {% endwith %}
+          {% else %}
+            {% include '_task2.html' %}
           {% endif %}
-          {% include '_task2.html' %}
         {% endfor %}
         <!-- otsikko kortti -->
         <div class="card text-center" style="border:none">

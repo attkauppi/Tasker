@@ -718,72 +718,33 @@ def team_tasks_uusi(id):
 @login_required
 def edit_team_task(id):
     task_id = request.args.get('task_id')
-    print("task_id: ", task_id)
-    print("request.args: ", request.args)
     team = Team.query.get_or_404(id)
     task = Task.query.get_or_404(task_id)
 
     form = TeamTaskFormEdit(team=team, task=task)
 
     team_task = TeamTask.query.filter_by(task_id=task_id).first()
-    print("Team task: ", team_task)
+    
     assigned_to = None
     #if team_task.doing is not None:   
     assigned_to = User.query.filter_by(id=team_task.doing).first()
-
-    print("Assigned to: ", assigned_to)
-
-
-
-
-    
-
-
-    print("saatiin jotain")
-    print("Team: ", team.id)
-
-    print("request.endpoint ", request.endpoint)
     form = TeamTaskFormEdit(team=team, task=task)
 
     if request.method == "POST":
-        print("request.args: ", request.args)
-        print("form.data: ", form.data)
-        print("form: ", form.assign_to_choices.data)
-        print("Board choices: ", form.data['board_choices'])
-
         task.title = form.title.data
         task.description = form.title.data
         task.board = form.data['board_choices']
 
-        # t = Task(
-        #     title = form.title.data,
-        #     description = form.description.data,
-        #     #priority = form.description,
-        #     done=False,
-        #     creator_id=current_user.id,
-        #     position="yellow",
-        #     priority=False,
-        #     board=1,
-        #     is_team_task=True
-        # )
-        #db.session.add(t)
         db.session.commit()
 
         team_task = TeamTask.query.filter_by(task_id=task.id).first()
-
-
         team_task = team.create_team_task(task, form_data=form.data)
 
-        print("Team task: ", team_task)
-
-        #db.session.add(t)
-        #db.session.add(team_task)
-        db.session.commit() 
+        db.session.commit()
         
         return redirect(url_for('main.edit_team_task', id=team.id, form=form, title="Edit task", team=team, task=task, assigned_to=assigned_to))
     form.title.data = task.title
     form.description.data = task.description
-    #form.assign_to_choices.data = 
     return render_template('_modal.html', id=team.id, form=form, endpoint="main.edit_team_task", title="Edit task", team=team, task=task, assigned_to=assigned_to)
 
 

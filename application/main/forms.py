@@ -168,6 +168,8 @@ class TeamTaskFormEdit(FlaskForm):
     assign_to_choices = SelectField('Team member', coerce=int)
     # FIXME: Korjattava dynaamiseksi
     board_choices = SelectField('Move to board', choices=[(1, "TODO"), (2, "DOING"), (4, "DONE")])
+    
+    
     def __init__(self, team, task, *args, **kwargs):
         super(TeamTaskFormEdit, self).__init__(*args, **kwargs)
         #self.team_role_choices = 
@@ -179,17 +181,10 @@ class TeamTaskFormEdit(FlaskForm):
         lista2 = []
 
         print(args)
-        #
-        #self.board_choices = choices#SelectField('Move to board', choices=[(1, "TODO"), (2, "DOING"), (4, "DONE")], default=task.board, coerce=int)
-
+       
         print("type boards: ", type(Task.boards()))
 
-        # for i in Task.boards():
-        #     print(i)
-
-        # for key, value in Task.boards().items():
-        #     print("key: ", key, " valu: ", value)
-        #     lista2.append((value, key))
+        
         lista2 = []
         for item in Task.boards().items():
             print("Item key: ", item[0])

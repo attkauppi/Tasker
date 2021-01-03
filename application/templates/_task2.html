@@ -12,10 +12,10 @@
       <img src="{{ url_for('static', filename='person-bounding-box.svg') }}" href="#" class="card-link" alt="Assign">{{ modal_form34('main.edit_team_task', id=team.id,form=form, team=team, task_id=task.id) }}</a>
       <img href="#" class="card_link">{{ utils.icon("glyphicon glyphicon-arrow-right", ["small"]) }}</a>
       
-    {% if assigned_to %}
-    <p>assigned</p>
+    {% if user %}
+    
     <div class="card-footer">
-        <img src="{{ assigned_to.gravatar(32) }}", width="32", height="32", class="rounded me-2", loading="lazy">
+      <p>assigned to <strong>{{user.username}}</strong> <img src="{{ user.gravatar(32) }}", width="32", height="32", class="rounded me-2", loading="lazy"></p>
     </div>
     {% endif %}
      
