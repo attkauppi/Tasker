@@ -22,7 +22,8 @@ from utils.decorators import (
     permission_required,
     team_moderator_required,
     team_permission_required,
-    team_permission_required2
+    team_permission_required2,
+    team_role_required
 )
 from sqlalchemy.orm import session
 from sqlalchemy import and_, or_, not_, MetaData
@@ -611,6 +612,7 @@ def create_team_task(id):
 
 @bp.route('/teams/<int:id>/team_tasks', methods=["GET", "POST"])
 @login_required
+@team_role_required(id)
 def team_tasks_uusi(id):
     team = Team.query.get_or_404(id)
     print("Team: ", team)
@@ -716,6 +718,7 @@ def team_tasks_uusi(id):
 
 @bp.route('/teams/<int:id>/team_tasks/edit_task', methods=["GET", "POST"])
 @login_required
+@team_role_required(id)
 def edit_team_task(id):
     task_id = request.args.get('task_id')
     team = Team.query.get_or_404(id)
@@ -736,9 +739,6 @@ def edit_team_task(id):
         task.title = form.title.data
         task.description = form.title.data
         task.board = form.data['board_choices']
-
-        print("Task.board ", task.board)
-        print("Board.DONE: ", Board.DONE)
 
         print("samat? ", (int(task.board) == int(Board.DONE)))
 

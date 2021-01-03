@@ -18,6 +18,18 @@ from wtforms.validators import ValidationError
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 import json
 
+# TODO Lisää mukaan lopuksi, ettei hajota jotain 
+# kesken kaiken
+# class Base(db.Model):
+#     __abstract__ = True
+
+#     id = db.Column(db.Integer, primary_key=True)
+#     created_on = db.Column(DateTime, default=datetime.utcnow())
+#     modified_on = db.Column(
+#         DateTime,
+#         default=datetime.utcnow(),
+#         onupdate=datetime.utcnow()
+#     )
 
 class TeamTask(db.Model):
     """ A table for team tasks """
@@ -219,14 +231,18 @@ class User(UserMixin, db.Model):
         self.password = generate_password_hash(password)
 
     def check_password(self, password):
-        print("Checking password: ")
-        print("self.password: ", password)
-        generated_password = generate_password_hash(password)
-        print("Generated", generated_password)
-        print("self.pass", self.password)
+        """ Checks user password  
         
+        if you want to verify that this method works,
+        you can do this:
+
+        generated_password = generate_password_hash(password)
+
         if self.password == generated_password:
-            print("Olivat mukamas samat")
+            print("Passwords match")
+
+        notice that check_password_hash is a werkzeug method.
+        """
 
         return check_password_hash(self.password, password)
     
@@ -271,14 +287,14 @@ class User(UserMixin, db.Model):
         
         
         if id != self.id:
-            print("Pääsi iffin läpi, mutta id ei vastannut")
+            #print("Pääsi iffin läpi, mutta id ei vastannut")
             return False
         
         try: 
             expiration = jwt.decode(token, current_app.config['SECRET_KEY'],
                             algorithms=['HS256']
             )['exp']
-            print("Expiration: ", expiration)
+            #print("Expiration: ", expiration)
         except:
             return False
         # Token vastasi id:tä
@@ -304,8 +320,8 @@ class User(UserMixin, db.Model):
             id = jwt.decode(token, current_app.config['SECRET_KEY'],
                             algorithms=['HS256']
             )['reset_password']
-            print("verity_reset_password_token")
-            print(id)
+            # print("verity_reset_password_token")
+            # print(id)
         except:
             return
         return User.query.get(id)
@@ -544,11 +560,6 @@ class Board:
     DOING = 2
     DONE = 4
 
-    #boards = {"TODO": TODO, "DOING": DOING, "DONE": DONE}
-
-
-
-    
 class Task(db.Model):
     """ A model of tasks """
     __tablename__ = "tasks"

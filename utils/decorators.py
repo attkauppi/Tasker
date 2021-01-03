@@ -12,7 +12,13 @@ def team_role_required(team_id):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
+            print("request.view_args ", request.view_args)
+            team_id = request.view_args.get('id')
+            #print("Team_id: ", team_id)
             team = Team.query.filter_by(id=team_id).first()
+            print("team.team_members: ", team.team_members)
+            print("Current_user: ", current_user.id)
+
             if not current_user in team.users:
                 abort(403)
             return f(*args, **kwargs)
