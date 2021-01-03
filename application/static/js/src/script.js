@@ -25,6 +25,10 @@ function make_base_auth() {//username_or_token) {
         var hash = btoa(tok);
         return "Basic " + hash;
 }
+
+
+
+
 if(JSON.parse(localStorage.getItem('@kanban:data'))){
     //dataCards = JSON.parse(localStorage.getItem('@kanban:data'));
     
@@ -99,6 +103,7 @@ $(document).ready(()=>{
     if(theme){
         $("body").addClass(`${theme==="light"?"":"darkmode"}`);
     }
+    
     initializeBoards();
     if(JSON.parse(localStorage.getItem('@kanban:data'))){
         //dataCards = JSON.parse(localStorage.getItem('@kanban:data'));
@@ -240,7 +245,11 @@ $(document).ready(()=>{
             // }
             save();
             appendComponents(newCard);
-            initializeCards();
+            
+            //initializeCards();
+            initializeBoards();
+            location.reload();
+            
         }
     });
     $("#deleteAll").click(()=>{

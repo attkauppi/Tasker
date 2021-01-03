@@ -16,7 +16,7 @@
     {% endif %}
     
     
-    {% for field in form if field.name != 'csrf_token' %}
+    {# {% for field in form if field.name != 'csrf_token' %} #}
 
     
 
@@ -24,10 +24,10 @@
         <div class="row">
             
             <div class="col-md-4">
-                {{ field.label }}
-                {{ field()  }}
+                {# {{ field.label }}
+                {{ field()  }} #}
                 
-                {#{{ wtf.quick_form(form) }}#}
+                {{ wtf.quick_form(form) }}
 
 
                  {# {{ form.hidden_tag() }} #}
@@ -36,7 +36,7 @@
         </div>
 
         
-        {% endfor %}
+        {# {% endfor %} #}
         {# {% for error in field.errors %}
             <div class="error">{{ error }}</div>
        

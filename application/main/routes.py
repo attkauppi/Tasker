@@ -723,7 +723,7 @@ def edit_team_task(id):
     team = Team.query.get_or_404(id)
     task = Task.query.get_or_404(task_id)
 
-    form = TeamTaskFormEdit(team=team)
+    form = TeamTaskFormEdit(team=team, task=task)
 
     team_task = TeamTask.query.filter_by(task_id=task_id).first()
     print("Team task: ", team_task)
@@ -743,15 +743,17 @@ def edit_team_task(id):
     print("Team: ", team.id)
 
     print("request.endpoint ", request.endpoint)
-    form = TeamTaskFormEdit(team=team)
+    form = TeamTaskFormEdit(team=team, task=task)
 
     if request.method == "POST":
         print("request.args: ", request.args)
         print("form.data: ", form.data)
         print("form: ", form.assign_to_choices.data)
+        print("Board choices: ", form.data['board_choices'])
 
         task.title = form.title.data
         task.description = form.title.data
+        task.board = form.data['board_choices']
 
         # t = Task(
         #     title = form.title.data,
@@ -793,6 +795,7 @@ def team_tasks_static(id):
     #return send_file('templates/_team_tasks2.html')
     return render_template('_team_tasks2.html')
 
+
 @bp.route('/send_popup', methods=["GET", "POST"])
 @login_required
 def user_edit():
@@ -805,8 +808,6 @@ def user_edit():
 
 
     return render_template('_form_edit.html', form=form)
-
-
 
 
 @bp.route('/send/<username>/send', methods=["GET", "POST"])

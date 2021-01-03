@@ -535,6 +535,7 @@ class Permission:
     MODERATE_GROUP = 8
     ADMIN = 16
 
+# TODO: Keksittävä jotain näiden suhteen
 class Board:
     TODO = 1
     DOING = 2
@@ -580,6 +581,11 @@ class Task(db.Model):
             i.board = default_board
             db.session.add(i)
         db.session.commit()
+
+    @staticmethod
+    def boards():
+        boards = {'TODO': Board.TODO, 'DOING': Board.DOING, 'DONE': Board.DOING}
+        return boards
 
     def set_doing(self):
         """ Sets task state to doing """

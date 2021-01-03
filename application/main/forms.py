@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField, SelectField
 from wtforms.validators import ValidationError, DataRequired, Length, Email, Regexp
 # from flask_babel import _, lazy_gettext as _l
-from application.models import User, Role, TeamRole, Board
+from application.models import User, Role, TeamRole, Board, Task
 
 
 class EditProfileForm(FlaskForm):
@@ -166,15 +166,41 @@ class TeamTaskFormEdit(FlaskForm):
     description = TextAreaField('Description', validators=[DataRequired()])
     #board = SelectField('Team role', coerce=int)
     assign_to_choices = SelectField('Team member', coerce=int)
-    move_to_board_choices = SelectField('Move to board', coerce=int)
-
-    def __init__(self, team, *args, **kwargs):
+    # FIXME: Korjattava dynaamiseksi
+    board_choices = SelectField('Move to board', choices=[(1, "TODO"), (2, "DOING"), (4, "DONE")])
+    def __init__(self, team, task, *args, **kwargs):
         super(TeamTaskFormEdit, self).__init__(*args, **kwargs)
         #self.team_role_choices = 
         lista = []
         for member in team.team_members:
             lista.append((member.team_member_user.id, member.team_member_user.username))
         print("lista: ", lista)
+
+        lista2 = []
+
+        print(args)
+        #
+        #self.board_choices = choices#SelectField('Move to board', choices=[(1, "TODO"), (2, "DOING"), (4, "DONE")], default=task.board, coerce=int)
+
+        print("type boards: ", type(Task.boards()))
+
+        # for i in Task.boards():
+        #     print(i)
+
+        # for key, value in Task.boards().items():
+        #     print("key: ", key, " valu: ", value)
+        #     lista2.append((value, key))
+        lista2 = []
+        for item in Task.boards().items():
+            print("Item key: ", item[0])
+            print("item value: ", item[1])
+            lista2.append((item[1], item[0]))
+        
+        #self.board_choices = [("TODO": 1), ("DIONG"]#[(i.value, i.key) for i in Task.boards()]
+
+        #print("Task boards; ", task.boards())
+        print("Board choices: ", self.board_choices)
+        #self.board_choices = ([task.board, ])
         self.assign_to_choices.choices = lista
         print("self.assign_to_choices: ", self.assign_to_choices)
         
@@ -193,6 +219,11 @@ class TeamTaskFormEdit(FlaskForm):
     #     self.role.choices = [(role.id, role.role_name)
     #                         for role in Role.query.order_by(Role.role_name).all()]
     #     self.user = user
+
+class TeamTaskSendToBoard(FlaskForm):
+    """ Sends a task to another board """
+    submit = SubmitField('Send to board')
+
 
 
 class TestForm(FlaskForm):
