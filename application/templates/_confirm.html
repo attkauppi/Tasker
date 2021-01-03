@@ -8,7 +8,7 @@
 {% elif "main.team_remove_member" in endpoint %}
 <form id="ModalForm" name="stepForm" action="{{ url_for(endpoint, id=id, username=username) }}" class="form" method="post">
 {% elif "main.team_leave" in endpoint %}
-   <form id="ModalForm" name="stepForm" action="{{ url_for(endpoint, id=id, username=username) }}" class="form" method="post">
+   <form id="ModalForm" name="stepForm" action="{{ url_for('main.team_leave', id=id, username=current_user.username) }}" class="form" method="post">
 {% endif %}
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="close">
@@ -19,21 +19,24 @@
         <div class="modal-body">
             {{ text }}
 
-            {{ form.csrf_token }}
-            {% if form.csrf_token.errors %}
-                <div class="warning">You have submitted an invalid CSRF token</div>
-            {% endif %}
+            {{ form.hidden_tag() }}
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-            {{ form.hidden_tag() }}
+            
+            {% if "main.team_leave" in request.endpoint %}
+            <button id="submit_leave_team" type="submit" class="btn btn-danger">{{ value }}</button>
+            {% else %}
             <button id="submit" type="submit" class="btn btn-danger">{{ value }}</button>
-            {# {{ form.submit(value_= class_="btn btn-danger") }} #}
+            {% endif %}
+            {#{{ form.submit(value_= class_="btn btn-danger") }} #}
         </div>
+       
     </form>
 
-    {% if error %}
-        <p class="error"><strong>Error:</strong> {{ error }}
-      {% endif %}
+    {{ form.csrf_token }}
+    {% if form.csrf_token.errors %}
+        <div class="warning">You have submitted an invalid CSRF token</div>
+    {% endif %}
     
     {# Esimerkki modaalilomake #}

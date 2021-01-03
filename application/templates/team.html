@@ -2,9 +2,21 @@
 {# {% extends "base.html" %} #}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% from "_macros.html" import delete with context %}
+{% from "_macros.html" import modal_form3 with context %}
+{% from "_macros.html" import leave_team with context %}
 
 {% block app_content %}
-
+<p>
+{{ delete('main.team_leave', id=id, username=username, value='team_leave', text='Are you sure?') }}
+<p>
+    <p>
+        {{ modal_form3(current_user.username) }}
+    </p>
+    {% if get_user_team_role(current_user, team.id) is not none %}
+    <p>
+        {{ leave_team(id=id, username=username, teksti="leave team") }}
+    </p>
+    {% endif %}
 <table class="table table-hover">
     <tr>
         <td width="256px"><img src="{{ url_for('static', filename='teamlogo.png') }}"></td>

@@ -111,7 +111,7 @@
             </div>
         </div>
     </div>
-    {% else %}
+        {% else %}
     <div class="modal fade" id="Modal" tabindex="-1" role="dialog" aria-labelledby="FormModal" aria-hidden="true" style="width:750px;margin:auto">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -119,14 +119,14 @@
             </div>
         </div>
     </div>
-    {% endif %}
+        {% endif %}
     {% endif %}
     
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
-    {{ moment.include_moment() }}
+    {# {{ moment.include_moment() }} #}
     <script>
         // {# Esimerkki modaalilomake #}
         $(document).ready(function () {
@@ -140,14 +140,19 @@
                     $.post(url, data = $('#ModalForm').serialize(), function (
                         data) {
                         if (data.status == 'ok') {
+                            console.log("Data: ", data);
+                            console.log("data.status: ", data.status);
                             $('#Modal').modal('hide');
 
                             console.log("data: ", data);
                             location.reload();
                         } else {
+                            
                             console.log("Data: " + data);
                             var obj = JSON.parse(data);
+                            console.log("obj: " + obj);
                             for (var key in obj) {
+
                                 if (obj.hasOwnProperty(key)) {
                                     var value = obj[key];
                                 }
@@ -246,6 +251,49 @@
                     }
                 }
             );
+        });
+    </script>
+    <script>
+        
+        $(document).ready(function () {
+        $('.edit-modal-opener2').click(function () {
+            var url = $(this).data('whatever');
+            $.get(url, function (data) {
+                $('#Modal .modal-content').html(data);
+                $('#Modal').modal();
+                $('#submit').click(function (event) {
+                    event.preventDefault();
+                    $.post(url, data = $('#ModalForm').serialize(), function (
+                        data) {
+                        //if (data.status == 'ok') {
+                            $('#Modal').modal('hide');
+
+                            console.log("data: ", data);
+                            // location.href = "{{ url_for('main.index') }}";
+                            
+                        // } else {
+                        //     console.log("Skripti 2");
+                        //     console.log("Data status not ok?");
+                        //     console.log("Data: ", data);
+                        //     var obj = JSON.parse(data);
+                        //     for (var key in obj) {
+                        //         if (obj.hasOwnProperty(key)) {
+                        //             var value = obj[key];
+                        //         }
+                        //     }
+                        //     $('.help-block').remove()
+                        //     $('<p class="help-block">' + value + '</p>')
+                        //         .insertAfter('#' + key);
+                        //     $('.form-group').addClass('has-error')
+                            
+                        //     location.reload();
+                        // }
+                                
+                        
+                        })
+                    });
+                })
+            });
         });
     </script>
 

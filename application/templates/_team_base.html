@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% from "_macros.html" import modal_form33 with context %}
-{#{% from "_macros.html" import delete_link with context %} #} 
+{% from "_macros.html" import delete_link with context %} 
 
 
 {% block head %}
@@ -42,7 +42,8 @@
                     </a>
                     <ul class="dropdown-menu">
                         </li>
-                        <li><a href="{{ url_for('main.team_leave', id=team.id, username=current_user.username) }}">Leave team</a></li>
+                        {# <a href="{{ url_for('main.team_leave', id=team.id, username=current_user.username) }}"> </a> #}
+                        <li>{{ delete_link('main.team_leave', id=team.id, username=current_user.username, form=form, teksti='Leave team') }}</li>
                         {# {{ delete_link('main.team_leave', id=team.id, form=form, teksti='Leave team') }} #}
                     </ul>
                 </li>
@@ -77,4 +78,12 @@
     {{ super() }}
     {# <script src="/docs/5.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script> 
     <script src="offcanvas.js"></script> #}
+
+    // {# For some reason, I just couldn't get the modal form to redirect
+    anywhere despite it working with other forms. I solved it with this hacky#}
+    <script type="text/javascript">
+        document.getElementById("submit_to_leave").onclick = function () {
+            location.href = "{{ url_for('main.index') }}";
+        };
+    </script>
 {% endblock %}

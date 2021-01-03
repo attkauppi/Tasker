@@ -127,6 +127,11 @@
 </body>
 {% endmacro %}
 
+{% macro leave_team(id, username, teksti) %}
+    <button id="leave_team" class="edit-modal-opener2" data-toggle="modal" data-whatever="{{ url_for('main.team_leave', id=id, username=username) }}" style="background-color:indianred">{{ teksti }}</button>
+{% endmacro %}
+
+
 {% macro delete_link(endpoint, teksti) %}
 <button class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="background-color:indianred">{{ teksti }}</button>
 {% endmacro %}
