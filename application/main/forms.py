@@ -133,24 +133,9 @@ class TeamEditMemberForm(FlaskForm):
             if i.team_permissions <= current_role.team_permissions:
                 
                 team_role_choices.append((i.id, i.team_role_name))
-                print("rooli joka pitäisi olla tarjolla ", i, " ; roolin permissionit: ", i.team_permissions)
-                #team_roles.remove(i)
-                #self.team_role.choices.remove(i)
-            #if i[0] > max_role_id:
-            #    # print("poistaa: ")
-            #    self.team_role.choices.remove(i)
-            #
-        
-        #for i in team_roles:
-        #    team_role_choices.append((i.id, i.team_role_name))
+
         self.team_role.choices = team_role_choices
-        print(self.team_role.choices)
-        print("max role: ", max_role_id)
-        #for i in self.team_role.choices:
-        #    if i.team_permissions > max_role.permissions:
-        #        self.team_role.choices.remove(i)
-        #print("Team edit member formin roolit: ", self.team_role.choices)
-        #print("sovelluksen käyttäjän rooli: ", user)
+        
 
 class TeamTaskForm(FlaskForm):
     """ Form for creating team tasks """

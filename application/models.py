@@ -185,10 +185,10 @@ class User(UserMixin, db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     avatar_hash = db.Column(db.String(32))
     #tasks = db.relationship('Task', backref='author', lazy=True)
-    tasks = relationship("Task", back_populates='user')
+    tasks = relationship("Task", back_populates='user', cascade="all, delete-orphan")
     teams = relationship("Team", secondary="team_members")
     #team_memberships = relationship('TeamMember', back_populates='user')#lazy='dynamic')
-    team_memberships = relationship('TeamMember', back_populates='user')
+    team_memberships = relationship('TeamMember', back_populates='user', cascade="all, delete-orphan")#, ondelete='cascade')
     # tasks = db.relationship('Task', back_populates='users')
     #tasks = db.relationship('Task', backref='user', lazy='dynamic')
 

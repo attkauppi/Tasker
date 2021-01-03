@@ -127,23 +127,28 @@
 </body>
 {% endmacro %}
 
+{% macro delete_link(endpoint, teksti) %}
+<button class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="background-color:indianred">{{ teksti }}</button>
+{% endmacro %}
+
 {% macro delete(endpoint, teksti) %}
 <button class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="background-color:indianred">{{ teksti }}</button>
 {% endmacro %}
 
 {% macro modal_form33(endpoint, teksti) %}
-
-  {% if "Delete" in teksti %}
+<button class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="color:blue;background-color:rgb(235, 255, 233)">{{ teksti }}</button>
+{% endmacro %}  
+{#{% if "Delete" in teksti %}
     <button class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="background-color:indianred">{{ teksti }}</button>
   {% else %}
     <button class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="color:blue;background-color:rgb(235, 255, 233)">{{ teksti }}</button>
   {% endif %}
-{# {% if request.endpoint.endswith(endpoint) %} #}
+{% if request.endpoint.endswith(endpoint) %} 
             <button class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="color:blue;background-color:rgb(235, 255, 233)">{{ teksti }}</button>
-{# {% else %}
+{% else %}
         <button class="edit-modal-opener" style="background-color:indianred" disabled>Create Task</button>s
- #}
-{% endmacro %}
+ 
+{% endmacro %} #}
 
 {% macro modal_form34(endpoint, teksti) %}
 <a class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="color:blue;background-color:rgb(235, 255, 233)">Edit task</a>

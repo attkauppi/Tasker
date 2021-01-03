@@ -1,7 +1,7 @@
 {% from 'bootstrap/wtf.html' import form_field %}
 {% import 'bootstrap/wtf.html' as wtf %}
-
-<form id="ModalForm" name="stepForm" action="{{ url_for(endpoint, id=id) }}" class="form" method="post">
+<form id="ModalForm" name="stepForm" action="{{ url_for(endpoint, id=id, username=username) }}" class="form" method="post"></form>
+{# <form id="ModalForm" name="stepForm" action="{{ url_for(endpoint, id=id, username=current_user.username) }}" class="form" method="post"> #}
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="close">
             <span aria-hidden="true">&times;</span>
@@ -10,14 +10,6 @@
     </div>
     <div class="modal-body">
 
-    {% if "task" in request.endpoint %}
-        <p>You can create multiple tasks in this form. Click the x, when you're done.</p>
-        {% if "edit_team_task" in request.endpoint %}
-        <p>Currently this task is assigned to: <strong id="embed_name">{{ assigned_to.username }}</strong></p>
-        {% endif %}
-    {% endif %}
-    
-    
     {# {% for field in form if field.name != 'csrf_token' %} #}
 
     
@@ -32,8 +24,8 @@
                 {{ wtf.quick_form(form) }}
 
 
-                 {# {{ form.hidden_tag() }} #}
-               {# {{ form.submit(value=('Send') )}} #}
+                 {{ form.hidden_tag() }}
+               {{ form.submit(value=('Send') )}}
             </div>
         </div>
 

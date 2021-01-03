@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% from "_macros.html" import modal_form33 with context %}
+{#{% from "_macros.html" import delete_link with context %} #} 
+
 
 {% block head %}
     {{ super() }}
@@ -28,20 +30,32 @@
                 <li><a href="{{ url_for('.team_members', id=team.id) }}">Members</a></li>
                 <li><a href="{{ url_for('.team_tasks', id=team.id) }}">Team tasks</a></li>
                 <li><a href="{{ url_for('.team_tasks_uusi', id=team.id, team=team) }}">Team tasks2</a></li>
-                {##}
             </ul>
             <ul class="nav navbar-nav navbar-right">
+                {% if "main.team_tasks_uusi" in request.endpoint %}
+                <li>{{ modal_form33('main.create_team_task', id=team.id, form=form, team=team, teksti="Create task") }}</li>
+                {% endif %}
+                {# {% if "main.team_tasks_uusi" not in request.endpoint %} #}
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        team options<b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        </li>
+                        <li><a href="{{ url_for('main.team_leave', id=team.id, username=current_user.username) }}">Leave team</a></li>
+                        {# {{ delete_link('main.team_leave', id=team.id, form=form, teksti='Leave team') }} #}
+                    </ul>
+                </li>
+            </ul>
+                {# {% endif %} #}
                 <!-- <li>
                     <a href=
                 </li> -->
                 
                 {#<li><a href="/auth/login">Log In</a></li>#}
-
-                    {#<li>{{ modal_form33('main.create_team_task', id=id, form=form) }}</li>#}
-                    {% if "team_tasks_uusi" in request.endpoint %}
-                    <li>{{ modal_form33('main.create_team_task', id=team.id, form=form, team=team) }}</li>
-                    {% endif %}
-            </ul>
+                
+                
+               
         </div>
     </div>
 </div>
@@ -49,6 +63,8 @@
 {% endblock %}
 
 {% block app_content %}
+
+
 <p>
 <ul>
 </ul>
@@ -59,6 +75,6 @@
 
 {% block scripts %}
     {{ super() }}
-    <script src="/docs/5.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
-    <script src="offcanvas.js"></script>
+    {# <script src="/docs/5.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script> 
+    <script src="offcanvas.js"></script> #}
 {% endblock %}

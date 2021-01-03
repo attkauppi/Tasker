@@ -83,8 +83,8 @@ def server_shutdown():
     shutdown()
     return('Shutting down')
 
+#@bp.route('/index', methods=['GET', 'POST'])
 @bp.route('/', methods=['GET', 'POST'])
-@bp.route('/index', methods=['GET', 'POST'])
 def index():
     print("Index metodi")
     # import logging
@@ -686,7 +686,7 @@ def create_team_task(id):
     #     #return redirect(url_for('main.team_tasks_uusi', id=team.id, team=team), code=307)
         
     
-    return render_template('_modal.html', id=team.id, form=form, endpoint="main.create_team_task", title="Create task", team=team)
+    return render_template('_modal.html', id=team.id, form=form, endpoint="main.create_team_task", title="Create task", team=team, teksti="Create task")
     
 
 @bp.route('/teams/<int:id>/team_tasks', methods=["GET", "POST"])
@@ -786,7 +786,8 @@ def team_tasks_uusi(id):
         team=team,
         todos=todos,
         doings=doings,
-        dones=dones)
+        dones=dones,
+        teksti="Create task")
         #assigned_to=assigned_to)
 
 # @bp.route('/teams/tasks_static', methods=["GET", "POST"])
@@ -814,6 +815,7 @@ def edit_team_task(id):
 
     print("Task.boards()[DONE]: ", Task.boards()['DONE'])
 
+    #FIXME: Jotain vikaa lomakkeessa täälläkin
     if request.method == "POST":
         task.title = form.title.data
         task.description = form.title.data
@@ -848,6 +850,107 @@ def team_tasks_static(id):
     team = Team.query.get_or_404(id)
     #return send_file('templates/_team_tasks2.html')
     return render_template('_team_tasks2.html')
+
+@bp.route('/team/leave2', methods=["GET", "POST"])
+@login_required
+#@team_role_required(id)
+def team_remove_member_self():
+    """ For removing a member from team """
+    team = Team.query.get_or_404(request.view_args.get('id'))
+    print("team: ", team)
+    ##team = Team.query.get_or_404(id)
+    user = current_user# User.query.filter_by(username=username).first()
+    
+    form = EmptyForm(value="Delete")
+    
+    if form.validate_on_submit():
+
+        user_team_member_object = user.get_team_member_object(id)
+        
+        db.session.delete(user_team_member_object)
+        db.session.commit()
+        flash('Successfully deleted')
+
+        return redirect(url_for('main.index'))
+
+    text = """Are you sure you want to do this?
+    If you carry this out, your team member can't finish the tasks assigned to him/her and they can no longer access the team pages. """
+    
+    return render_template(
+        '_confirm.html',
+        id=team.id,
+        username=current_user.username,
+        form=form, value="leave team",
+        endpoint='main.team_remove_member_self',
+        title="Are you sure?",
+        text=text
+    )
+
+@bp.route('/team/<int:id>/leave', methods=["GET", "POST"])
+@login_required
+def team_leave(id):
+    """ Allows team member to leave team """
+    print("request.args: ", request.args)
+    print("view args: ", request.view_args)
+    team = Team.query.get_or_404(id)
+
+    username = request.args.get('username')
+    print("saatu username: ", username)
+    user = User.query.filter_by(username=username).first()
+    team = Team.query.get_or_404(request.args.get('id'))
+    
+    #user = User.query.get_or_404(username)
+    user = User.query.filter_by(username=current_user.username).first()
+    print("team", team)
+    form = EmptyForm(value="Delete")
+    print("User: current_user", user)
+
+    
+    # if request.method == "POST":
+    #     print("request.args: ", request.args)
+
+    #if form.validate_on_submit():
+    if request.method == "POST":
+
+        print("form.data: ", form.data)
+        print("request.args: ", request.args)
+        print("view args: ", request.view_args)
+        if form.validate_on_submit():
+            print("**********************")
+            print("Lomake meni läpi")
+            print("validated")
+            tm = user.get_team_member_object(id)
+            print("tm: ", tm)
+            db.session.delete(tm)
+            db.session.commit()
+            flash('Successfully left team')
+
+            return redirect(url_for('main.index'))
+        
+        flash('something went wrong')
+
+    text = """Are you sure you want to do this?
+    If you carry this out, you can't access the team pages nor team tasks again without being invited back and you'll lose your team role """
+
+
+    return render_template(
+        '_confirm.html',
+        username=user.username,
+        form=form, value="Delete",
+        endpoint='main.leave_team',
+        title="Are you sure?",
+        text=text
+    )
+    # return render_template(
+    #     '_confirm.html',
+    #     id=team.id,
+    #     username=user.username,
+    #     form=form, value="Leave team",
+    #     endpoint='main.team_leave',
+    #     title="Are you sure?",
+    #     text=text
+    # )
+
 
 
 @bp.route('/send_popup', methods=["GET", "POST"])

@@ -145,6 +145,7 @@
                             console.log("data: ", data);
                             location.reload();
                         } else {
+                            console.log("Data: " + data);
                             var obj = JSON.parse(data);
                             for (var key in obj) {
                                 if (obj.hasOwnProperty(key)) {

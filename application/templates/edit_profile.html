@@ -14,4 +14,19 @@
     <div>
         {{ delete('main.delete_profile', username=current_user.username, teksti="Delete profile") }}
     </div>
+    <br>
+    
+    <ul>
+        {% for team_member in current_user.team_memberships %}
+        <li>
+            {{ team_member.team }} -- {{ team_member.team.id }}
+            <ul>
+                <li>
+                    {{ delete('main.team_leave', id=team_member.team.id, username=current_user.username) }}
+                </li>
+            </ul>
+        </li>
+        {% endfor %}
+    </ul>
+
 {% endblock %}
