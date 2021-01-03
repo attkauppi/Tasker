@@ -305,6 +305,23 @@ class SeleniumTestCase(unittest.TestCase):
     
     def test_can_invite_to_team(self):
         """ Tests that it's possible to invite users to team """
+        try:
+            self.client = self.login()
+
+            time.sleep(2)
+            self.client.get('http://localhost:5000/user/testaaja25')
+            time.sleep(2)
+
+            self.client.find_element_by_xpath('/html/body/div[1]/table/tbody/tr/td[3]/ul/li[1]/a').click()
+            time.sleep(2)
+            print("Current url: ", self.client.current_url)
+            self.client.find_element_by_link_text('Members').click()
+            time.sleep(10)
+
+            self.client.find_element_by_link_text('testaaja25:sen tiimi').click()
+            time.sleep(3)
+        except Exception:
+            pass
 
     ########### UTILITY METHODS ######
     def login(self):

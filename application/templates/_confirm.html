@@ -5,6 +5,8 @@
     <form id="ModalForm" name="stepForm" action="{{ url_for(endpoint, id=id) }}" class="form" method="post">
 {% elif "main.delete_profile" in endpoint %}
     <form id="ModalForm" name="stepForm" action="{{ url_for(endpoint, username=username) }}" class="form" method="post">
+{% elif "main.team_remove_member" in endpoint %}
+<form id="ModalForm" name="stepForm" action="{{ url_for(endpoint, id=id, username=username) }}" class="form" method="post">
 {% endif %}
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="close">

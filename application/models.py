@@ -365,11 +365,27 @@ class User(UserMixin, db.Model):
         # tm = TeamMember object
         tm = self.get_team_member_object(team_id)
         #print("get_team_role() tm: ", tm)
-        teamrole = TeamRole.get_role_by_id(tm.team_role_id)
+        teamrole = TeamRole.query.filter_by(id=tm.team_role_id).first() #TeamRole.get_role_by_id(tm.team_role_id)
         # print("Tuloksena saatu team role: ", teamrole)
         return teamrole
         
+    def can_moderate_team(self, id):
+        """ Checks that user can moderate team """
+        #print("get team role: ", self.get_team_role(id))
+        tm = self.get_team_member_object(id)
 
+        print("tm: ", tm)
+        teamrole = self.get_team_role(id) #TeamRole.query.filter_by(id=tm.team_role_id).first()
+        print("team role can moderate: ", teamrole)
+        
+        if teamrole is None:
+            print("TEAM ROLE OLI MUKAMAS NONE")
+            return False
+
+        if teamrole is not None and teamrole.has_permission(TeamPermission.MODERATE_TEAM):
+            return True
+        print("Kaatui has_permission kohtaan!!!")
+        return False
 
     def can_team(self, id, team_perm):
         """ Checks if the user has the required

@@ -365,6 +365,7 @@ def team_invite(id):
     return render_template('team_members.html', team=team, users=us, form=form, team_id=team.id)
 
 
+
 @bp.route('/teams/<int:id>/invite', methods=["GET", "POST"])
 @login_required
 def invite_to_team(id):
@@ -586,7 +587,51 @@ def edit_team_member(id, username):
     print("team: ", team)
     print("user: ", username)
 
-    return render_template('edit_team_member.html', title=("Edit {{user.username}}'s team role"), form=form, user=user, team=team, max_role_id = max_role_id)
+    return render_template(
+        'edit_team_member.html',
+        title=("Edit {{user.username}}'s team role"),
+        form=form,
+        user=user,
+        user_edited=user,
+        team=team,
+        max_role_id = max_role_id,
+        id=team.id,
+        username=username
+    )
+
+@bp.route('/team/<int:id>/members/edit/<username>/delete', methods=["GET", "POST"])
+@login_required
+@team_moderator_required(id)
+def team_remove_member(id, username):
+    """ For removing a member from team """
+    team = Team.query.get_or_404(id)
+    user = User.query.filter_by(username=username).first()
+    
+    form = EmptyForm(value="Delete")
+    
+    if form.validate_on_submit():
+
+        user_team_member_object = user.get_team_member_object(id)
+        
+        db.session.delete(user_team_member_object)
+        db.session.commit()
+        flash('Successfully deleted')
+
+        return redirect(url_for('main.team_members', id=team.id))
+
+    text = """Are you sure you want to do this?
+    If you carry this out, your team member can't finish the tasks assigned to him/her and they can no longer access the team pages. """
+    
+    return render_template(
+        '_confirm.html',
+        id=team.id,
+        username=username,
+        form=form, value="Remove team member",
+        endpoint='main.team_remove_member',
+        title="Are you sure?",
+        text=text
+    )
+
 
 @bp.route('/teams/<int:id>/tasks', methods=["GET", "POST"])
 @login_required

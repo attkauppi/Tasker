@@ -1,13 +1,23 @@
-{% extends "base.html" %}
+{% extends "_team_base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
+{% from "_macros.html" import delete with context %}
 
 {% block app_content %}
     <h1>{{ ('Edit team member') }}</h1>
-{% include '_users.html' %}
+{% with user=user_edited, username=username %}
+    {% include '_users.html' %}
+{% endwith %}
 {#{% endif %}#}
 <div class="row">
     <div class="col-md-4">
         {{ wtf.quick_form(form) }}
     </div>
 </div>
+
+<br>
+ {% if current_user.can_moderate_team(id) %}
+<div>
+    {{ delete('main.team_remove_member', id=id, username=username, teksti="Remove team member") }}
+</div>
+{% endif %}
 {% endblock %}

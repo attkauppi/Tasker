@@ -120,13 +120,30 @@ class TeamEditMemberForm(FlaskForm):
     def __init__(self, max_role_id, *args, **kwargs):
         super(TeamEditMemberForm, self).__init__(*args, **kwargs)
         #self.team_role_choices = 
-        self.team_role.choices = [(team_role.id, team_role.team_role_name)
-            for team_role in TeamRole.query.order_by(TeamRole.id).all()]
+        #self.team_role.choices = [(team_role.id, team_role.team_role_name)
+        #    for team_role in TeamRole.query.order_by(TeamRole.id).all()]
+        team_roles = TeamRole.query.all()
+        current_role = TeamRole.query.filter_by(id=max_role_id).first()
+        #choices = []
+        #for i in self.team_role.choices:
+        team_role_choices = []
+        for i in team_roles:
+            #print("Maksimiroolin määrittelyn kummallinen merkintä; ", i[0])
+            print("team roles: ", i)
+            if i.team_permissions <= current_role.team_permissions:
+                
+                team_role_choices.append((i.id, i.team_role_name))
+                print("rooli joka pitäisi olla tarjolla ", i, " ; roolin permissionit: ", i.team_permissions)
+                #team_roles.remove(i)
+                #self.team_role.choices.remove(i)
+            #if i[0] > max_role_id:
+            #    # print("poistaa: ")
+            #    self.team_role.choices.remove(i)
+            #
         
-        for i in self.team_role.choices:
-            if i[0] > max_role_id:
-                self.team_role.choices.remove(i)
-        
+        #for i in team_roles:
+        #    team_role_choices.append((i.id, i.team_role_name))
+        self.team_role.choices = team_role_choices
         print(self.team_role.choices)
         print("max role: ", max_role_id)
         #for i in self.team_role.choices:
