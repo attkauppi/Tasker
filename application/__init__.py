@@ -71,19 +71,40 @@ def create_app(config_class=Config):
     app.register_blueprint(auth_bp, url_prefix="/auth")
     from application.main import bp as main_bp
     app.register_blueprint(main_bp)
+    #FIXME Tämä voi aiheuttaa 
     from application.api import bp as api_blueprint
     app.register_blueprint(api_blueprint, url_prefix='/api_blueprint/v1')
 
-    from application.api import api_bp_restful
+    # Esimerkki: https://stackoverflow.com/questions/60549530/pytest-assertionerror-view-function-mapping-is-overwriting-an-existing-endpoin
+    
+    from application.api import get_blueprint
+
+    api_bp_restful = get_blueprint()
     api = Api(api_bp_restful)
 
-    from application.api.resources import AuthAPI, TaskListAPI, TaskCheckAPI, TaskAPI
-    api.add_resource(AuthAPI, '/api/v1/tokens', endpoint='tokens')
-    api.add_resource(TaskListAPI, '/api/v1/tasks', endpoint='tasks')
-    api.add_resource(TaskCheckAPI, '/api/v1/task_check/<int:id>', endpoint='task_check')
-    api.add_resource(TaskAPI, '/api/v1/task/<int:id>', endpoint='task')
+    # from application.api import api_bp_restful
+    # api = Api(api_bp_restful)
 
-    app.register_blueprint(api_bp_restful)
+    
+
+    from application.api.resources import AuthAPI, TaskListAPI, TaskCheckAPI, TaskAPI
+    api.add_resource(AuthAPI, '/auth/tokens', endpoint='tokens')
+    api.add_resource(TaskListAPI, '/tasks', endpoint='tasks')
+    api.add_resource(TaskCheckAPI, '/task_check/<int:id>', endpoint='task_check')
+    api.add_resource(TaskAPI, '/task/<int:id>', endpoint='task')
+    # api.add_resource(AuthAPI, '/api/v1/tokens', endpoint='tokens')
+    # api.add_resource(TaskListAPI, '/api/v1/tasks', endpoint='tasks')
+    # api.add_resource(TaskCheckAPI, '/api/v1/task_check/<int:id>', endpoint='task_check')
+    # api.add_resource(TaskAPI, '/api/v1/task/<int:id>', endpoint='task')
+
+    app.register_blueprint(api_bp_restful, url_prefix="/api/v1")
+
+    # api.add_resource(AuthAPI, '/tokens', endpoint='tokens')
+    # api.add_resource(TaskListAPI, '/tasks', endpoint='tasks')
+    # api.add_resource(TaskCheckAPI, '/task_check/<int:id>', endpoint='task_check')
+    # api.add_resource(TaskAPI, '/task/<int:id>', endpoint='task')
+    
+    # app.register_blueprint(api_bp_restful)
 
 
 

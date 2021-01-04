@@ -48,7 +48,7 @@ sys.path.insert(0, parentdir)
 import testing.postgresql
 
 from application import create_app, db
-from application.models import User, Task, Permission, Role, AnonymousUser, Team, TeamMember, TeamPermission, TeamRole
+from application.models import User, Task, Permission, Role, AnonymousUser, Team, TeamMember, TeamPermission, TeamRole, Message, Notification, TeamTask
 
 # create initial data on create as fixtures into the database
 def handler(postgresql):
