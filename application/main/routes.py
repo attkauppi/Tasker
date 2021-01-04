@@ -9,12 +9,13 @@ from application.main.forms import (
     TeamEditMemberForm,
     EmptyForm,
     TeamTaskForm,
-    TeamTaskFormEdit
+    TeamTaskFormEdit,
+    MessageForm
 )#, EmptyForm, PostForm
 # from application.main.forms import TestForm
 from application.models import (
     User, Task, Role, Team, TeamMember, TeamRole, TeamPermission,
-    TeamTask, Board
+    TeamTask, Board, Message, Notification
 )
 from application.main import bp
 from utils.decorators import (
@@ -261,13 +262,18 @@ def create_team():
             description = form.description.data
         )
         db.session.add(team)
+        db.session.flush()
+        team_id = team.id
+        
         db.session.commit()
 
         # Get the current team's id now that it has
         # been assigned
-        t = Team.query.filter_by(title=team.title).first()
+        t = Team.query.filter_by(id=team_id).first()
+        print("team: ", team)
 
-        tr = TeamRole.query.filter_by(id=4).first()
+        tr = TeamRole.query.filter_by(team_role_name="Team owner").first()
+        print("Team role: ", tr)
 
         # Create team_member association table record
         team_member = TeamMember(
@@ -968,12 +974,92 @@ def receive_edit(username):
     flash('Lomake ei validoinut itseään')
     redirect(url_for('.user', username=user.username))
 
+#### Messages #####
+@bp.route("/send_message/<recipient>", methods=["GET", "POST"])
+@login_required
+def send_message(recipient):
+    """ Route for sending messages """
+    # TODO: UUsi message-luokka käytössä
+    user = User.query.filter_by(username=recipient).first_or_404()
+    form = MessageForm()
+
+    if form.validate_on_submit():
+        msg = Message(
+            author=current_user,
+            recipient=user,
+            body=form.message.data
+        )
+        # Adds a notification of type 'unread_message_count' to
+        # receiver, so the variable can be changed in navbar
+        user.add_notification('unread_message_count', user.new_messages())
+        
+        db.session.add(msg)
+        db.session.commit()
+
+        flash('Message sent')
+        return redirect(url_for('main.user', username=recipient))
+    return render_template(
+        '_send_message.html',
+        title='Send Message',
+        form=form,
+        recipient=recipient
+    )
+
+@bp.route("/messages")
+@login_required
+def messages():
+    """ Method for viewing messages """
+    current_user.last_message_read_time = datetime.utcnow()
+    # Sets unread_message_notifications number to 0
+    current_user.add_notification('unread_message_count', 0)
+    db.session.commit()
+    #page = request.args.get('page', 1, type=int)
+    
+    messages = current_user.messages_received.order_by(
+        Message.timestamp.desc())
+    print("Messages: ", messages)
+    #print("Messages items: ", messages)
+
+    #TODO: jos lisää paginoinnin ota tämä mukaan:
+            #.paginate(
+                #page, current_app.config['POSTS_PER_PAGE'], False)
+    # next_url = url_for('main.messages', page=messages.next_num) \
+    #     if messages.has_next else None
+    # prev_url = url_for('main.messages', page=messages.prev_num) \
+    #     if messages.has_prev else None
+    return render_template('_messages.html', messages=messages)
+    #return render_template('messages.html', messages=messages.items)#, next_url=next_url, prev_url=prev_url)
 
 
+###----- generic notifications route -------#######
+@bp.route("/notifications")
+@login_required
+def notifications():
+    """ Generic route used to retrieve notifications for
+    the logged in user 
+    
+    Returns a JSON payload with a list of notifications for
+    the user. Each given as dictionary with 3 elements. Delivered
+    in the same order as created, oldest to newest. 
+    
+    Can be queried since a given time by including the 'since' option.
+    Since can be included in the query string of the request URL with
+    the UNIX timestamp of the starting time as a floating point number.
+    Only notifications, which occurred after this time, will be returned,
+    if argument included.
+    """
+    since = request.args.get('since', 0.0, type=float)
+    notifications = current_user.notifications.filter(
+        Notification.timestamp > since
+    ).order_by(Notification.timestamp.asc())
 
-
-
-
+    return jsonify(
+        [{
+                'name': n.name,
+                'data': n.get_data(),
+                'timestamp': n.timestamp
+        } for n in notifications]
+    )
 
 
 

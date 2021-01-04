@@ -229,3 +229,10 @@ class TestForm(FlaskForm):
     vastaanottaja = TextAreaField('Vastaanottaja', validators=[DataRequired()])
     viesti = TextAreaField('Viesti', validators=[DataRequired()])
     submit = SubmitField('Tee jotain')
+
+# TODO: Uusi message-luokka käytössä
+class MessageForm(FlaskForm):
+    """ Form for sending messages - new message class"""
+    message = TextAreaField(('Message'), validators=[
+        DataRequired(), Length(min=0, max=140)])
+    submit = SubmitField('Submit')

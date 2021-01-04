@@ -88,8 +88,8 @@ class UserModelCase(unittest.TestCase):
 
         self.app = self._app.test_client()
         db.create_all()
-        # Role.insert_roles()
-        # TeamRole.insert_roles()
+        Role.insert_roles()
+        TeamRole.insert_roles()
         
         # Yksi ohje taalta
         # https://stackoverflow.com/questions/16117094/flask-unit-tests-with-sqlalchemy-and-postgresql-exhausts-db-connections

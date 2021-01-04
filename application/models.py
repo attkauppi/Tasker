@@ -191,6 +191,25 @@ class User(UserMixin, db.Model):
     team_memberships = relationship('TeamMember', back_populates='user', cascade="all, delete-orphan")#, ondelete='cascade')
     # tasks = db.relationship('Task', back_populates='users')
     #tasks = db.relationship('Task', backref='user', lazy='dynamic')
+    #TODO Messages liittyvää
+    messages_sent = relationship(
+        'Message',
+        foreign_keys = 'Message.sender_id',
+        backref='author',
+        lazy='dynamic'
+    )
+    messages_received = relationship(
+        'Message',
+        foreign_keys = 'Message.recipient_id',
+        backref='recipient',
+        lazy='dynamic'
+    )
+    last_message_read_time = db.Column(db.DateTime)
+
+    # Notifications relationship, not just related to Message-class
+    # necessarily
+    notifications = db.relationship('Notification', backref='user',
+                                    lazy='dynamic')
 
     def __init__(self, **kwargs): # Initializes user roles
         """ Sets user roles. Sets Admin if email matches """
@@ -456,6 +475,31 @@ class User(UserMixin, db.Model):
         #    if tm.team_id == team_id:
         #        return tm
         #return None
+    
+    # TODO: messages liittyvä
+    def new_messages(self):
+        """ Helper method uses the last_message_read_time
+        to determine whether there are unread messages and
+        returns the number of unread messages """
+        last_read_time = self.last_message_read_time or datetime(1900,1,1)
+        return Message.query.filter_by(recipient=self).filter(
+            Message.timestamp > last_read_time).count()
+    
+    # TODO: messages/notifications liittyvä
+    def add_notification(self, name, data):
+        """ Helper method to make it easier to work with notification objects 
+        
+        Adds user notifications. Also ensures that if a notification with the
+        same name already exists, it gets removed first. For messages, the main
+        notification is 'unread_message_count'
+
+        Called wherever, for example, the unread_message_count changes. Here, when
+        receiving a message (send_message() route and message viewing route messages())
+        """
+        self.notifications.filter_by(name=name).delete()
+        n = Notification(name=name, payload_json=json.dumps(data), user=self)
+        db.session.add(n)
+        return n
 
         
 
@@ -556,12 +600,42 @@ class Role(db.Model):
         db.session.commit()
 
 class Messages(db.Model):
+    """ Class for fancier messages """
     """ A Model of messages table """
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text)
 
     def __repr__(self):
         return f"Message saved: {self.message}"
+
+
+##### New message class
+class Message(db.Model):
+    __tablename__ = 'message'
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    recipient_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    body = db.Column(db.String(140))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<Message {}>'.format(self.body)
+
+class Notification(db.Model):
+    """ Class for notifications """
+    __tablename__ = "notifications"
+    
+    id = db.Column(Integer, primary_key=True)
+    name = db.Column(db.String(128), index=True)
+    user_id = db.Column(Integer, db.ForeignKey('users.id'))
+    timestamp = db.Column(db.Float, index=True, default=time)
+    payload_json = db.Column(Text)
+
+    def get_data(self):
+        """ Convenience method so caller doesn't need
+        to deserialize json """
+        return json.loads(str(self.payload_json))
+
 
 class Permission:
     CREATE_TASKS = 1
