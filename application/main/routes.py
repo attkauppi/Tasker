@@ -547,7 +547,7 @@ def team_members(id):
     team = Team.query.get_or_404(id)
 
     print("Team users")
-    return render_template('team_members.html', team=team, users=team.users)
+    return render_template('team_members.html', id=team.id, team=team, users=team.users)
 
 # TODO: Korjaa team_permission_required-dekoraattori
 @bp.route('/team/<int:id>/members/edit/<username>', methods=["GET", "POST"])

@@ -2,6 +2,7 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 {% from "_macros.html" import modal_form33 with context %}
 {% from "_macros.html" import delete_link with context %} 
+{% from "_macros.html" import leave_team with context %} 
 
 
 {% block head %}
@@ -43,7 +44,8 @@
                     <ul class="dropdown-menu">
                         </li>
                         {# <a href="{{ url_for('main.team_leave', id=team.id, username=current_user.username) }}"> </a> #}
-                        <li>{{ delete_link('main.team_leave', id=team.id, username=current_user.username, form=form, teksti='Leave team') }}</li>
+                        {#<li>{{ delete_link('main.team_leave', id=team.id, username=current_user.username, form=form, teksti='Leave team') }}</li>#}
+                        <li>{{ leave_team(id=id, username=username, teksti="leave team") }}</li>
                         {# {{ delete_link('main.team_leave', id=team.id, form=form, teksti='Leave team') }} #}
                     </ul>
                 </li>
