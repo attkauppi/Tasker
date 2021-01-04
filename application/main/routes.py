@@ -664,7 +664,34 @@ def create_team_task(id):
     print("request.endpoint ", request.endpoint)
     form = TeamTaskForm()
 
-    if request.method == "POST":
+    #if request.method == "POST":
+    if form.validate_on_submit() and request.method=="POST":
+        print("request.args: ", request.args)
+
+        t = Task(
+            title = form.title.data,
+            description = form.description.data,
+            #priority = form.description,
+            done=False,
+            creator_id=current_user.id,
+            position="yellow",
+            priority=False,
+            board=1,
+            is_team_task=True
+        )
+        db.session.add(t)
+        db.session.commit()
+        team_task = team.create_team_task(t)
+
+        print("Team task: ", team_task)
+
+        #db.session.add(t)
+        db.session.add(team_task)
+        db.session.commit()
+
+        flash('Created a new task for your team!')
+
+
         
         return redirect(url_for('main.team_tasks_uusi', id=team.id, team=team), code=307)
     # if form.validate_on_submit():
@@ -730,31 +757,33 @@ def team_tasks_uusi(id):
     #print("Assigned to: ", assigned_to)
 
     form = TeamTaskForm()
-    if form.validate_on_submit() and request.method=="POST":
-        print("request.args: ", request.args)
+    # if form.validate_on_submit() and request.method=="POST":
+    #     print("request.args: ", request.args)
 
-        t = Task(
-            title = form.title.data,
-            description = form.description.data,
-            #priority = form.description,
-            done=False,
-            creator_id=current_user.id,
-            position="yellow",
-            priority=False,
-            board=1,
-            is_team_task=True
-        )
-        db.session.add(t)
-        db.session.commit()
-        team_task = team.create_team_task(t)
+    #     t = Task(
+    #         title = form.title.data,
+    #         description = form.description.data,
+    #         #priority = form.description,
+    #         done=False,
+    #         creator_id=current_user.id,
+    #         position="yellow",
+    #         priority=False,
+    #         board=1,
+    #         is_team_task=True
+    #     )
+    #     db.session.add(t)
+    #     db.session.commit()
+    #     team_task = team.create_team_task(t)
 
-        print("Team task: ", team_task)
+    #     print("Team task: ", team_task)
 
-        #db.session.add(t)
-        db.session.add(team_task)
-        db.session.commit()
+    #     #db.session.add(t)
+    #     db.session.add(team_task)
+    #     db.session.commit()
 
-        flash('Created a new task for your team!')
+    #     flash('Created a new task for your team!')
+
+        ###############
         # task = Task(
         #     title=form.title.data,
         #     description = form.description.data,
@@ -782,9 +811,9 @@ def team_tasks_uusi(id):
         # db.session.flush()
         # flash("Created a new task!")
 
-        return render_template('team_tasksU.html', id=team.id, team=team, todos=todos,
-        doings=doings,
-        dones=dones)
+        # return render_template('team_tasksU.html', id=team.id, team=team, todos=todos,
+        # doings=doings,
+        # dones=dones)
         
 
     #request = request.args.get('user')
@@ -832,40 +861,61 @@ def edit_team_task(id):
         print("Form.data: ", form.data)
 
         if form.validate_on_submit():
-            print("Validated")
-            task.title = form.title.data
-            task.description = form.title.data
-            task.board = form.data['board_choices']
+
+            if task.description != form.description.data:
+                task.description = form.description.data
+            if task.title != form.title.data:
+                task.title = form.title.data
+            
+            if int(task.board) != int(form.data['board_choices']):
+                task.board = int(form.data['board_choices'])
+
+                if int(task.board) == int(Board.DONE):
+                    task.done = True
+                elif (int(task.board != int(Board.DONE))):
+                    task.done = False
+            form_data = form.data
+            team_task = TeamTask.edit_team_task(task, team.id, form_data)
+            print("saatu team task: ", team_task)
+
+            db.session.commit()
+
+            flash('Saved task changes')
+            return redirect(url_for('main.team_tasks_uusi', id=team.id), 307)
+
+            # print("Validated")
+            # task.title = form.title.data
+            # task.description = form.title.data
+            # task.board = form.data['board_choices']
 
 
 
-            if int(task.board) == int(Board.DONE):
-                print("Oli true")
-                task.done = True
-            elif (int(task.board != int(Board.DONE))):
-                task.done = False
+            # if int(task.board) == int(Board.DONE):
+            #     print("Oli true")
+            #     task.done = True
+            # elif (int(task.board != int(Board.DONE))):
+            #     task.done = False
 
         
 
-            print("samat? ", (int(task.board) == int(Board.DONE)))
-
-        
-
+            # print("samat? ", (int(task.board) == int(Board.DONE)))
 
             #db.session.commit()
 
-            team_task = TeamTask.query.filter_by(task_id=task.id).first()
-            team_task = team.create_team_task(task, form_data=form.data)
+            # team_task = TeamTask.query.filter_by(task_id=task.id).first()
 
-            db.session.commit()
+            # if team_task is None:
+            #     team_task = team.create_team_task(task, form_data=form.data)
+
+            # db.session.commit()
             
-            flash('Saved task changes')
-            return redirect(url_for('main.team_tasks_uusi', id=team.id), 307)
+            # flash('Saved task changes')
+            # return redirect(url_for('main.team_tasks_uusi', id=team.id), 307)
 
 
         #db.session.commit()
         
-        return redirect(url_for('main.edit_team_task', id=team.id, form=form, title="Edit task", team=team, task=task, assigned_to=assigned_to))
+        #return redirect(url_for('main.edit_team_task', id=team.id, form=form, title="Edit task", team=team, task=task, assigned_to=assigned_to))
     form.title.data = task.title
     form.description.data = task.description
     
@@ -915,9 +965,18 @@ def team_task_delete(id, task_id):
         text=text
     )
 
+# @bp.route("/teams/<int:id>/task/<int:task_id>/move_left", methods=["POST"])
+# @login_required
+# @team_role_required(id)
+# def team_task_move_left(id, task_id):
+#     """ Moves a team task to the board on the left """
+#     team = Team.query.get_or_404(id)
+#     task = Task.query.get_or_404(task_id)
 
+#     form = EmptyForm()
 
-
+#     if form.validate_on_submit():
+        
 
 
 @bp.route('/teams/<int:id>/tasks_frame', methods=["GET", "POST"])

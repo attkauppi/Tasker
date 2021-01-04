@@ -173,6 +173,20 @@
 <a class="edit-modal-opener34" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" title="Delete task">{{ utils.icon('glyphicon glyphicon-remove', ['small']) }}</a>
 {% endmacro %}
 
+{# {% macro modal_form34_image_move_task_left(endpoint, teksti, title form) %}
+  {{ utils.icon("glyphicon glyphicon-arrow-left", ["small"]) }}
+{% endmacro %} #}
+
+{% macro modal_form34_image_edit_task(endpoint, teksti, title) %}
+{% import "bootstrap/utils.html" as utils %}
+<a class="edit-modal-opener34" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" title="{{ title }}">{{ utils.icon("pencil", ["small"]) }}</a>
+{% endmacro %}
+
+{# generic modal, where you can assign image as parameter #}
+{% macro modal_form34_image(endpoint, title, image) %}
+<a class="edit-modal-opener34" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" title="{{ title }}">{{ image }}</a>
+{% endmacro %}
+
 {# TOIMII #}
 {% macro modal_form3(teksti) %}
             <button class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for('main.user_edit') }}" style="background-color:indianred">{{ teksti }}</button>

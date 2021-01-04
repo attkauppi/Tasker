@@ -45,6 +45,33 @@ class TeamTask(db.Model):
 
     def get_doing(self):
         return self.doing
+    
+    @staticmethod
+    def edit_team_task(task, team_id, form_data):
+        """ Edits team task """
+        
+        team_task = TeamTask.query.filter_by(task_id=task.id).filter_by(team_id=team_id).first()
+        print("Edit team taskin löytämä team task: ", team_task)
+
+
+        
+            #form_data = kwargs.get('form_data')
+        print("Form data: ", form_data)
+        if "assign_to_choices" in form_data:
+            if form_data['assign_to_choices'] == 0:
+                team_task.doing = None
+                team_task.assigned = False
+                print("assign to choices oli nolla!")
+            else:
+                print("assign_to_choices: ", form_data['assign_to_choices'])
+                team_task.doing = form_data['assign_to_choices']
+                team_task.assigned = True
+
+        print("Edit team taskin löytämä team task: ", team_task)
+        
+        return team_task
+
+
 
 class TeamPermission:
     CREATE_TASKS = 1
@@ -650,6 +677,8 @@ class Board:
     DOING = 2
     DONE = 4
 
+
+
 class Task(db.Model):
     """ A model of tasks """
     __tablename__ = "tasks"
@@ -721,7 +750,7 @@ class Task(db.Model):
         return json_task
 
     def __repr__(self):
-        return "<Task priority: {}, title: {}, self.description: {}, position: {}>".format(self.priority, self.title, self.description, self.position)
+        return "<Task priority: {}, title: {}, self.description: {}, position: {}, board: {}>".format(self.priority, self.title, self.description, self.position, self.board)
     
     def __hash__(self, other):
         return hash(self.__repr__())
@@ -729,7 +758,7 @@ class Task(db.Model):
     def __eq__(self, other):
         """ Checks equals """
         if isinstance(other, Task):
-            return ((self.id == other.id) and (self.title == other.title) and (self.description == other.description))
+            return ((self.id == other.id) and (self.title == other.title) and (self.description == other.description) and (self.creator_id == other.creator_id))
     # Lähde: https://stackoverflow.com/a/63901556
     # def serializers(self):
     #    dict_val={"id":self.id,"title":self.title,"description":self.description}#,"done":self.done,"updated_at":self.updated_at}
