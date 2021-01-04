@@ -9,6 +9,8 @@
 <form id="ModalForm" name="stepForm" action="{{ url_for(endpoint, id=id, username=username) }}" class="form" method="post">
 {% elif "main.team_leave" in endpoint %}
    <form id="ModalForm" name="stepForm" action="{{ url_for('main.team_leave', id=id, username=current_user.username) }}" class="form" method="post">
+{% elif "main.team_task_delete" in endpoint %}
+<form id="ModalForm" name="stepForm" action="{{ url_for('main.team_task_delete', id=id, task_id=task_id) }}" class="form" method="post">
 {% endif %}
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="close">

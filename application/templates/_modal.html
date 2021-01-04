@@ -1,6 +1,7 @@
 {% from 'bootstrap/wtf.html' import form_field %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
+
 <form id="ModalForm" name="stepForm" action="{{ url_for(endpoint, id=id) }}" class="form" method="post">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="close">
@@ -68,3 +69,10 @@
     </div>
 </form>
 </div>
+{#
+{% if "edit_team_task" in request.endpoint %}
+<p>
+    {{ delete('main.team_task_delete', id=team.id, task_id=task.id, teksti="Delete task") }}
+</p>
+{% endif %}
+#}

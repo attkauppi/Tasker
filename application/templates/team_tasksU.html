@@ -32,11 +32,22 @@
           </div>
         </div>
         <!-- kortti -->
+        <span id="task_span">
         {% for task in todos %}
         {% with task_id=task.id %}
         {% if get_task_assigned(task.team_tasks) is not none %}
           {% with user=get_user_from_id(get_task_assigned(task.team_tasks)) %}
-              {% include '_task2.html' %}
+          
+          {% include '_task2.html' %}
+          {# {% set new_tasks = current_user.new_tasks() %} #}
+            {#<span id="todo_tasks"
+              style="visibility: {% if new_messages %}visible
+                {% else %}hidden {% endif %};">
+
+                  {{ new_messages }}
+            </span> #}
+                            {# {% endset %} #}
+              
             {% endwith %}
         {% else %}
           {% include '_task2.html' %}
@@ -44,7 +55,7 @@
           {% endwith %}
           <br>
         {% endfor %}
-         
+      </span>
       </div> 
       <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 green text-center">
         <!-- Kolumni 2-->
@@ -96,6 +107,7 @@
     </div>
   </div>
 </div>
+
 
 {% endblock %}
 

@@ -881,8 +881,42 @@ def edit_team_task(id):
 @bp.route('/teams/<int:id>/team_tasks/edit_task/<int:task_id>/delete', methods=["GET", "POST"])
 @login_required
 @team_role_required(id)
-def team_task_delete(id):
+def team_task_delete(id, task_id):
     """ Method for deleting team tasks """
+    team = Team.query.get_or_404(id)
+    task = Task.query.filter_by(id=task_id).first()
+
+    if task is None:
+        abort(404)
+
+    form = EmptyForm()
+
+    #form = EmptyForm(value="Delete")
+
+    if form.validate_on_submit():
+        team_task = TeamTask.query.filter_by(task_id=task.id).first()
+
+        db.session.delete(task)
+        db.session.delete(team_task)
+        db.session.commit()
+        flash('The task was removed!')
+        return redirect(url_for('main.team_tasks_uusi', id=team.id))
+    
+    text = """Are you sure you want to do this?
+    If you carry this out, the task and its state will be deleted permanently. """
+
+    return render_template(
+        '_confirm.html',
+        id=team.id,
+        task_id=task.id,
+        form=form, value="Delete team task",
+        endpoint='main.team_task_delete',
+        title="Are you sure?",
+        text=text
+    )
+
+
+
 
 
 
