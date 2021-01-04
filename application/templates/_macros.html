@@ -131,6 +131,9 @@
     <button id="leave_team" class="edit-modal-opener2" data-toggle="modal" data-whatever="{{ url_for('main.team_leave', id=id, username=username) }}" style="background-color:indianred">{{ teksti }}</button>
 {% endmacro %}
 
+{% macro modal_form33_edit_task(endpoint, teksti) %}
+<button class="edit-modal-opener_edit_task" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="color:blue;background-color:rgb(235, 255, 233)">{{ teksti }}</button>
+{% endmacro %}  
 
 {% macro delete_link(endpoint, teksti) %}
 <button class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="background-color:indianred">{{ teksti }}</button>
@@ -139,6 +142,8 @@
 {% macro delete(endpoint, teksti) %}
 <button class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="background-color:indianred">{{ teksti }}</button>
 {% endmacro %}
+
+
 
 {% macro modal_form33(endpoint, teksti) %}
 <button class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="color:blue;background-color:rgb(235, 255, 233)">{{ teksti }}</button>
@@ -155,8 +160,9 @@
  
 {% endmacro %} #}
 
+{# 34 käytössä tehtävien muokkaamisessa #}
 {% macro modal_form34(endpoint, teksti) %}
-<a class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="color:blue;background-color:rgb(235, 255, 233)">Edit task</a>
+<a class="edit-modal-opener34" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="color:blue;background-color:rgb(235, 255, 233)">Edit task</a>
 {% endmacro %}
 
 {# TOIMII #}

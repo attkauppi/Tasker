@@ -817,39 +817,65 @@ def edit_team_task(id):
     form = TeamTaskFormEdit(team=team, task=task)
 
     team_task = TeamTask.query.filter_by(task_id=task_id).first()
-    
-    assigned_to = None
-    #if team_task.doing is not None:   
-    assigned_to = User.query.filter_by(id=team_task.doing).first()
+
     form = TeamTaskFormEdit(team=team, task=task)
+    assigned_to = None
 
     print("Task.boards()[DONE]: ", Task.boards()['DONE'])
 
     #FIXME: Jotain vikaa lomakkeessa täälläkin
     if request.method == "POST":
-        task.title = form.title.data
-        task.description = form.title.data
-        task.board = form.data['board_choices']
-
-        print("samat? ", (int(task.board) == int(Board.DONE)))
-
-        if int(task.board) == int(Board.DONE):
-            print("Oli true")
-            task.done = True
-        elif (int(task.board != int(Board.DONE))):
-            task.done = False
 
 
-        db.session.commit()
+        print("Request args: ", request.args)
+        print("request.view_args: ", request.view_args)
+        print("Form.data: ", form.data)
 
-        team_task = TeamTask.query.filter_by(task_id=task.id).first()
-        team_task = team.create_team_task(task, form_data=form.data)
+        if form.validate_on_submit():
+            print("Validated")
+            task.title = form.title.data
+            task.description = form.title.data
+            task.board = form.data['board_choices']
 
-        db.session.commit()
+
+
+            if int(task.board) == int(Board.DONE):
+                print("Oli true")
+                task.done = True
+            elif (int(task.board != int(Board.DONE))):
+                task.done = False
+
+        
+
+            print("samat? ", (int(task.board) == int(Board.DONE)))
+
+        
+
+
+            #db.session.commit()
+
+            team_task = TeamTask.query.filter_by(task_id=task.id).first()
+            team_task = team.create_team_task(task, form_data=form.data)
+
+            db.session.commit()
+            
+            flash('Saved task changes')
+            return redirect(url_for('main.team_tasks_uusi', id=team.id), 307)
+
+
+        #db.session.commit()
         
         return redirect(url_for('main.edit_team_task', id=team.id, form=form, title="Edit task", team=team, task=task, assigned_to=assigned_to))
     form.title.data = task.title
     form.description.data = task.description
+    
+    
+    #if team_task.doing is not None:   
+    
+    if team_task.doing is not None:
+        team_member_assigned_to = User.query.filter_by(id=team_task.doing).first()
+        form.assign_to_choices.data = team_member_assigned_to.id#.get_team_member_object(team.id).
+    
     return render_template('_modal.html', id=team.id, form=form, endpoint="main.edit_team_task", title="Edit task", team=team, task=task, assigned_to=assigned_to)
 
 @bp.route('/teams/<int:id>/team_tasks/edit_task/<int:task_id>/delete', methods=["GET", "POST"])

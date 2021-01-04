@@ -57,7 +57,14 @@
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
         {#{{ form.submit(value='Create') }} #}
-        <button id="submit" type="submit" value="Create" class="btn btn-success">Submit</button>
+        {% if "main.edit_team_task" in request.endpoint %}
+       
+            <button id="submit_edit_team_task" type="submit" value="Create" class="btn btn-success">Submit</button>
+       
+        {% else %}
+            <button id="submit" type="submit" value="Create" class="btn btn-success">Submit</button>
+        {% endif %}
+       
     </div>
 </form>
 </div>

@@ -817,6 +817,7 @@ class Team(db.Model):
         writing to database """
         team_task = TeamTask.query.filter_by(task_id=task.id).first()
 
+        # Create if None
         if team_task == None:
             team_task = TeamTask(
                 team_id = self.id,
@@ -829,9 +830,14 @@ class Team(db.Model):
         if 'form_data' in kwargs:
             form_data = kwargs.get('form_data')
             if "assign_to_choices" in form_data:
-                print("assign_to_choices: ", form_data['assign_to_choices'])
-                team_task.doing = form_data['assign_to_choices']
-                team_task.assigned = True
+                if form_data['assign_to_choices'] == 0:
+                    team_task.doing = None
+                    team_task.assigned = False
+                    print("assign to choices oli nolla!")
+                else:
+                    print("assign_to_choices: ", form_data['assign_to_choices'])
+                    team_task.doing = form_data['assign_to_choices']
+                    team_task.assigned = True
         else:
             print("ei löytynyt")
 

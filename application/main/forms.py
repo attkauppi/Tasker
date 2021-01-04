@@ -167,7 +167,7 @@ class TeamTaskFormEdit(FlaskForm):
     title = TextAreaField('Title', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
     #board = SelectField('Team role', coerce=int)
-    assign_to_choices = SelectField('Team member', coerce=int)
+    assign_to_choices = SelectField('Team member', coerce=int, default=0)
     # FIXME: Korjattava dynaamiseksi
     board_choices = SelectField('Move to board', choices=[(1, "TODO"), (2, "DOING"), (4, "DONE")])
     
@@ -178,6 +178,7 @@ class TeamTaskFormEdit(FlaskForm):
         lista = []
         for member in team.team_members:
             lista.append((member.team_member_user.id, member.team_member_user.username))
+            lista.append((0, "None"))
         print("lista: ", lista)
 
         lista2 = []
