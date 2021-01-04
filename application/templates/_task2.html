@@ -2,6 +2,7 @@
 {% from "_macros.html" import modal_form34 with context %}
 {% from "_macros.html" import modal_form33_edit_task with context %}
 {% from "_macros.html" import modal_form34 with context %}
+{% from "_macros.html" import modal_form34_image_delete with context %}
 
 <div class="card text-center">
     <div class="card-header">{{ task.title }}</div>
@@ -15,8 +16,10 @@
       {# toimiva #}
       {# <img src="{{ url_for('static', filename='person-bounding-box.svg') }}" href="#" class="card-link" alt="Assign">{{ modal_form34('main.edit_team_task', id=team.id,form=form, team=team, task_id=task.id) }}</a> #}
       <img src="{{ url_for('static', filename='person-bounding-box.svg') }}" href="#" class="card-link" alt="Assign">{{ modal_form33_edit_task('main.edit_team_task', id=team.id, form=form, team=team, task_id=task.id) }}</a>
-      <img href="#" class="card_link">{{ utils.icon("glyphicon glyphicon-remove", ["small"]) }}</a>
-      {{ modal_form34('main.team_task_delete', id=team.id, task_id=task.id, teksti='delete', value='delete') }}
+      {# <img href="#" class="card_link">{{ utils.icon("glyphicon glyphicon-remove", ["small"]) }}</a> #}
+      
+      {# {{ modal_form34('main.team_task_delete', id=team.id, task_id=task.id, teksti='delete', value='delete') }} #}
+      {{ modal_form34_image_delete('main.team_task_delete', id=team.id, task_id=task.id, teksti='delete', value='delete') }}
       {% if user %}
     
     <div class="card-footer">

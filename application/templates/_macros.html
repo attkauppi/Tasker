@@ -1,3 +1,4 @@
+{% import "bootstrap/utils.html" as utils %}
 
 {% macro modal_form(endpoint, linkki) %}
 <div class="modal fade" id="Modal" tabindex="-1" role="dialog" aria-labelledby="FormModal" aria-hidden="true">
@@ -163,6 +164,10 @@
 {# 34 käytössä tehtävien muokkaamisessa #}
 {% macro modal_form34(endpoint, teksti) %}
 <a class="edit-modal-opener34" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="color:blue;background-color:rgb(235, 255, 233)">Edit task</a>
+{% endmacro %}
+
+{% macro modal_form34_image_delete(endpoint, teksti) %}
+<a class="edit-modal-opener34" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" title="Delete task">{{ utils.icon('glyphicon glyphicon-remove', ['small']) }}</a>
 {% endmacro %}
 
 {# TOIMII #}
