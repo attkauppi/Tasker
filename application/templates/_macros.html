@@ -144,7 +144,10 @@
 <button class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="background-color:indianred">{{ teksti }}</button>
 {% endmacro %}
 
-
+{# Modal form for creating task and redirecting back to tasks page #}
+{% macro modal_form33_create_task(endpoint, teksti) %}
+<button class="edit-modal-opener_create_task" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="color:blue;background-color:rgb(235, 255, 233)">{{ teksti }}</button>
+{% endmacro %}
 
 {% macro modal_form33(endpoint, teksti) %}
 <button class="edit-modal-opener" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="color:blue;background-color:rgb(235, 255, 233)">{{ teksti }}</button>

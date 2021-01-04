@@ -61,7 +61,8 @@
         {% if "main.edit_team_task" in request.endpoint %}
        
             <button id="submit_edit_team_task" type="submit" value="Create" class="btn btn-success">Submit</button>
-       
+        {% elif "main.create_team_task" in request.endpoint %}
+            <button id="submit_new_task" type="submit" value="Create" class="btn btn-success">Submit</button>
         {% else %}
             <button id="submit" type="submit" value="Create" class="btn btn-success">Submit</button>
         {% endif %}

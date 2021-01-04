@@ -88,9 +88,38 @@
             location.href = "{{ url_for('main.index') }}";
         };
     </script>
+    
+    <script>
+        // {# seuraava #}
+        $(document).ready(function () {
+        $('.edit-modal-opener_create_task').click(function () {
+            var url = $(this).data('whatever');
+            $.get(url, function (data) {
+                $('#Modal .modal-content').html(data);
+                $('#Modal').modal();
+                $('#submit_new_task').click(function (event) {
+                    event.preventDefault();
+                    $.post(url, data = $('#ModalForm').serialize(), function (
+                        data) {
+                        //if (data.status == 'ok') {
+                            console.log("Data: ", data);
+                            console.log("data.status: ", data.status);
+                            $('#Modal').modal('hide');
+
+                            $('#')
+                            location.reload();
+                        })
+                    });
+                })
+            });
+        });
+    </script>
+    
     <!-- <script type="text/javascript">
         document.getElementById("submit_edit_team_task").onclick = function () {
             location.href = "{{ url_for('main.team_tasks_uusi', id=team.id) }}";
         };
     </script> -->
+
+    
 {% endblock %}

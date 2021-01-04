@@ -3,6 +3,7 @@
 {% from 'bootstrap/wtf.html' import form_field %}
 {% from "_macros.html" import taskscards with context %}
 {% from "_macros.html" import modal_form33_edit_task with context %}
+{% from "_macros.html" import modal_form33_create_task with context %}
 
 {% block head %}
 {{ super() }}
@@ -17,8 +18,8 @@
 {% endwith %} #}
 
 <p style="text-align:center">
-  {{ modal_form33('main.create_team_task', id=team.id, form=form, team=team, teksti="Create task") }}
-  
+  {# {{ modal_form33('main.create_team_task', id=team.id, form=form, team=team, teksti="Create task") }} #}
+  {{ modal_form33_create_task('main.create_team_task', id=team.id, form=form, team=team, teksti="Create task") }}
 </p>
 
   <div class="container">
