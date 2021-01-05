@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField, SelectField
 from wtforms.validators import ValidationError, DataRequired, Length, Email, Regexp
 # from flask_babel import _, lazy_gettext as _l
-from application.models import User, Role, TeamRole, Board, Task
+from application.models import User, Role, TeamRole, Board, Task, TeamPermission, TeamMember
 
 
 class EditProfileForm(FlaskForm):
@@ -172,13 +172,22 @@ class TeamTaskFormEdit(FlaskForm):
     board_choices = SelectField('Move to board', choices=[(1, "TODO"), (2, "DOING"), (4, "DONE")])
     
     
-    def __init__(self, team, task, *args, **kwargs):
+    def __init__(self, team, task, user, *args, **kwargs):
         super(TeamTaskFormEdit, self).__init__(*args, **kwargs)
         #self.team_role_choices = 
         lista = []
-        for member in team.team_members:
-            lista.append((member.team_member_user.id, member.team_member_user.username))
-            lista.append((0, "None"))
+        if user.can_team(team.id, TeamPermission.ASSIGN_TASKS):
+            # If user can assign tasks, we give them the list of 
+            # team members they can assign the task to.
+            for member in team.team_members:
+                lista.append((member.team_member_user.id, member.team_member_user.username))
+        else:
+            lista.append((user.get_team_member_object(team.id).id, user.username))
+        # lista = []
+        # for member in team.team_members:
+        #     lista.append((member.team_member_user.id, member.team_member_user.username))
+            
+        lista.append((0, "None"))
         print("lista: ", lista)
 
         lista2 = []

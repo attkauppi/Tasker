@@ -368,7 +368,7 @@ def team_invite(id):
     if form.validate_on_submit():
         return redirect(url_for('main.invite_user_to_team', team_id=id, username=form.username.data))
     
-    return render_template('team_members.html', team=team, users=us, form=form, team_id=team.id)
+    return render_template('team_members.html', team=team, users=us, form=form, team_id=team.id, id=team.id)
 
 
 
@@ -843,11 +843,11 @@ def edit_team_task(id):
     team = Team.query.get_or_404(id)
     task = Task.query.get_or_404(task_id)
 
-    form = TeamTaskFormEdit(team=team, task=task)
+    form = TeamTaskFormEdit(team=team, task=task, user=current_user)
 
     team_task = TeamTask.query.filter_by(task_id=task_id).first()
 
-    form = TeamTaskFormEdit(team=team, task=task)
+    form = TeamTaskFormEdit(team=team, task=task, user=current_user)
     assigned_to = None
     print("Task boards: ", Task.boards())
     print("Task.boards()['TODO'] == task.board: ", (task.board == Task.boards()['TODO']))
@@ -919,7 +919,7 @@ def edit_team_task(id):
         #return redirect(url_for('main.edit_team_task', id=team.id, form=form, title="Edit task", team=team, task=task, assigned_to=assigned_to))
     form.title.data = task.title
     form.description.data = task.description
-    form.board_choices.data = task.board
+    #form.board_choices.data = task.board
     
     
     #if team_task.doing is not None:   
@@ -928,7 +928,7 @@ def edit_team_task(id):
         team_member_assigned_to = User.query.filter_by(id=team_task.doing).first()
         form.assign_to_choices.data = team_member_assigned_to.id#.get_team_member_object(team.id).
     
-    return render_template('_modal.html', id=team.id, form=form, endpoint="main.edit_team_task", title="Edit task", team=team, task=task, assigned_to=assigned_to)
+    return render_template('_modal.html', id=team.id, form=form, endpoint="main.edit_team_task", title="Edit task", team=team, task=task, assigned_to=assigned_to, board=task.board)
 
 @bp.route('/teams/<int:id>/team_tasks/edit_task/<int:task_id>/delete', methods=["GET", "POST"])
 @login_required
