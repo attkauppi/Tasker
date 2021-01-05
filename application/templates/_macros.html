@@ -164,6 +164,8 @@
  
 {% endmacro %} #}
 
+
+
 {# 34 käytössä tehtävien muokkaamisessa #}
 {% macro modal_form34(endpoint, teksti) %}
 <a class="edit-modal-opener34" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" style="color:blue;background-color:rgb(235, 255, 233)">Edit task</a>
@@ -173,8 +175,54 @@
 <a class="edit-modal-opener34" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" title="Delete task">{{ utils.icon('glyphicon glyphicon-remove', ['small']) }}</a>
 {% endmacro %}
 
-{# {% macro modal_form34_image_move_task_left(endpoint, teksti, title form) %}
-  {{ utils.icon("glyphicon glyphicon-arrow-left", ["small"]) }}
+{% macro modal_form34_image_move_task_left(endpoint, teksti, title, form) %}
+  <a class="edit-modal-opener34" data-toggle="modal" data-whatever="{{ url_for(endpoint, **kwargs) }}" title="Move left">{{ utils.icon("glyphicon glyphicon-arrow-left", ["small"]) }}</a>
+{% endmacro %} #}
+
+{% macro modal_form34_image_move_task_right(endpoint, teksti, title, form) %}
+  <a class="edit-modal-opener34" id="task_move_right" data-toggle="modal" type="submit" data-whatever="{{ url_for(endpoint, **kwargs) }}" title="Move right">{{ utils.icon("glyphicon glyphicon-arrow-right", ["small"]) }}</a>
+{% endmacro %}
+
+{# Arrows to move tasks between boards on the less fancy task management page #}
+{% macro move_arrow(endpoint, id, task_id, direction, task) %}
+
+  {% if "left" in direction %}
+    {# {% if can_modify_team_task(task, current_user) %} #}
+      <form method="post" action="{{ url_for('main.team_task_move', id=team.id, task_id=task.id) }}">
+        <button type="submit" name="submit_left" class="btn btn-default">
+          <span class="glyphicon glyphicon-arrow-left"></span>
+        </button>
+      </form>
+    {# {% else %}
+      <button type="submit" name="submit_left" class="btn btn-default">
+        <span class="glyphicon glyphicon-arrow-left"></span>
+      </button>
+    {% endif %} #}
+  {% else %}
+    {# {% if can_modify_team_task(task, current_user) %} #}
+      <form method="post" action="{{ url_for('main.team_task_move', id=team.id, task_id=task.id) }}">
+        <button type="submit" name="submit_right" class="btn btn-default">
+          <span class="glyphicon glyphicon-arrow-right"></span>
+        </button>
+      </form>
+    {# {% else %}
+      <button type="submit" name="submit_right" class="btn btn-default">
+        <span class="glyphicon glyphicon-arrow-right"></span>
+      </button>
+    {% endif %} #}
+  {% endif %}
+{% endmacro %}
+
+{% macro left_arrow_button(endpoint, id, task_id) %}
+<form method="post" action="{{ url_for('main.team_task_move_right', id=team.id, task_id=task.id) }}">
+  <button type="submit" name="submit_left" class="btn btn-default">
+    <span class="glyphicon glyphicon-arrow-left"></span>
+  </button>
+</form>
+{% endmacro %}
+
+{# {% macro modal_form34_image_move_task_left(endpoint, teksti, title, form) %}
+  <a class="edit-modal-opener34" id="task_move_left" data-toggle="modal"  type="submit" data-whatever="{{ url_for(endpoint, **kwargs) }}" title="Move left">{{ utils.icon("glyphicon glyphicon-arrow-left", ["small"]) }}</a>
 {% endmacro %} #}
 
 {% macro modal_form34_image_edit_task(endpoint, teksti, title) %}

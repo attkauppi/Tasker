@@ -1,0 +1,7 @@
+{% from 'bootstrap/wtf.html' import form_field %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+<form id="ModalForm" name="stepForm" action="{{ url_for('main.team_task_move_left', id=team.id, task_id=task.id) }}" class="form" method="post"></form>
+{{ form.hidden_tag() }}
+<button id="submit" type="submit" class="btn btn-primary btn-arrow-left"></button>
+</form>

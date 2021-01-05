@@ -114,12 +114,13 @@
             });
         });
     </script>
-    
-    <!-- <script type="text/javascript">
-        document.getElementById("submit_edit_team_task").onclick = function () {
-            location.href = "{{ url_for('main.team_tasks_uusi', id=team.id) }}";
+
+
+    {#<script type="text/javascript">
+        document.getElementById(".task_move_right").onclick = function () {
+            location.href = "{{ url_for('main.team_task_move_right', id=team.id, task_id=task_id) }}";
         };
-    </script> -->
+    </script> #}
 
     
 {% endblock %}

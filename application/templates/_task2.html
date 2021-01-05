@@ -4,6 +4,9 @@
 {% from "_macros.html" import modal_form34 with context %}
 {% from "_macros.html" import modal_form34_image_delete with context %}
 {% from "_macros.html" import modal_form34_image_edit_task with context %}
+{% from "_macros.html" import modal_form34_image_move_task_left with context %}
+{% from "_macros.html" import modal_form34_image_move_task_right with context %}
+{% from "_macros.html" import move_arrow with context %}
 
 <div class="card text-center">
     <div class="card-header">{{ task.title }}</div>
@@ -12,10 +15,44 @@
       <p class="card-text">{{ task.description }}</p>
       
       {#<a href="#" class="card-link">Still Gone</a>#}
-      <img href="#" class="card_link">{{ utils.icon("glyphicon glyphicon-arrow-left", ["small"]) }}</a>
+      {#<img href="#" class="card_link">{{ utils.icon("glyphicon glyphicon-arrow-left", ["small"]) }}</a>
+      <div class='container'>
+        <div class="align-left"s>
+          <img href="#" class="card_link">{{ utils.icon("glyphicon glyphicon-arrow-left", ["small"]) }}</a>
+        </div>
+        <div class="align-right" style="float:right">right
+          <img href="#" class="card_link">{{ utils.icon("glyphicon glyphicon-arrow-right", ["small"]) }}</a>
+        </div>
+      </div>#}
+      <table style="width:100%;margin:0 auto">
+        <tr>
+          <td>
+            {# {% if task.board != 1 %} #}
+            {{  move_arrow('main.task_move_left', id=team.id, task_id=task.id, direction="left", task=task) }}
+            {# {% include "_button_form.html" %} #}
+            {# {{ modal_form34_image_move_task_left('main.team_task_move_left', id=team.id, form=form, task_id=task.id, title="Move left") }} #}
+            {# {% else %}
+            {{ utils.icon("glyphicon glyphicon-arrow-left", ["small"]) }}
+            {% endif %} #}
+          </td>
+          <td>
+            {{ modal_form34_image_edit_task('main.edit_team_task', id=team.id, form=form, team=team, task_id=task.id, title='Edit task') }}
+          </td>
+          <td>
+            {{ modal_form34_image_delete('main.team_task_delete', id=team.id, task_id=task.id, teksti='delete', value='delete') }}
+          </td>
+          <td>
+            {{ move_arrow('main.task_move', id=team.id, task_id=task.id, direction="right", task=task) }}
+            {# <a href="{{ url_for('main.team_task_move_right', id=team.id, task_id = task.id) }}">{{ utils.icon("glyphicon glyphicon-arrow-right", ["small"]) }}</a>
+            {{ modal_form34_image_move_task_right('main.team_task_move_right', id=team.id, form=form, task_id=task.id, title="Move right") }} #}
+            {# <img href="#" class="card_link">{{ utils.icon("glyphicon glyphicon-arrow-right", ["small"]) }}</a> #}
+          </td>
+        </tr>
+      </table>
+      
       {# <img href="#" class="card-link">{{ utils.icon("pencil", ["small"]) }}edit{{ modal_form34('main.edit_team_task', id=team.id, form=form, team=team, task_id=task.id) }}</a> #}
-      {% set modal_form34_image_edit_task = modal_form34_image_edit_task %}
-      {{ modal_form34_image_edit_task('main.edit_team_task', id=team.id, form=form, team=team, task_id=task.id, title='Edit task') }}
+      {# {% set modal_form34_image_edit_task = modal_form34_image_edit_task %}
+      {{ modal_form34_image_edit_task('main.edit_team_task', id=team.id, form=form, team=team, task_id=task.id, title='Edit task') }} #}
       
       {# toimiva #}
       {# <img src="{{ url_for('static', filename='person-bounding-box.svg') }}" href="#" class="card-link" alt="Assign">{{ modal_form34('main.edit_team_task', id=team.id,form=form, team=team, task_id=task.id) }}</a> #}
@@ -24,8 +61,9 @@
       {# <img href="#" class="card_link">{{ utils.icon("glyphicon glyphicon-remove", ["small"]) }}</a> #}
       {# modal_form34_image('main.edit_team_task', id=team.id, form=form, team=team, task_id=task.id) image=) #}
       {# {{ modal_form34('main.team_task_delete', id=team.id, task_id=task.id, teksti='delete', value='delete') }} #}
-      {{ modal_form34('main.edit_team_task', id=team.id, form=form, team=team, task_id=task.id) }}
-      {{ modal_form34_image_delete('main.team_task_delete', id=team.id, task_id=task.id, teksti='delete', value='delete') }}
+      {# {{ modal_form34('main.edit_team_task', id=team.id, form=form, team=team, task_id=task.id) }} #}
+      {# {{ modal_form34_image_delete('main.team_task_delete', id=team.id, task_id=task.id, teksti='delete', value='delete') }} #}
+      
       {% if user %}
     
     <div class="card-footer">

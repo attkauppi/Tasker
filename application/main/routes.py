@@ -849,7 +849,8 @@ def edit_team_task(id):
 
     form = TeamTaskFormEdit(team=team, task=task)
     assigned_to = None
-
+    print("Task boards: ", Task.boards())
+    print("Task.boards()['TODO'] == task.board: ", (task.board == Task.boards()['TODO']))
     print("Task.boards()[DONE]: ", Task.boards()['DONE'])
 
     #FIXME: Jotain vikaa lomakkeessa täälläkin
@@ -918,6 +919,7 @@ def edit_team_task(id):
         #return redirect(url_for('main.edit_team_task', id=team.id, form=form, title="Edit task", team=team, task=task, assigned_to=assigned_to))
     form.title.data = task.title
     form.description.data = task.description
+    form.board_choices.data = task.board
     
     
     #if team_task.doing is not None:   
@@ -965,19 +967,90 @@ def team_task_delete(id, task_id):
         text=text
     )
 
-# @bp.route("/teams/<int:id>/task/<int:task_id>/move_left", methods=["POST"])
-# @login_required
-# @team_role_required(id)
-# def team_task_move_left(id, task_id):
-#     """ Moves a team task to the board on the left """
-#     team = Team.query.get_or_404(id)
-#     task = Task.query.get_or_404(task_id)
+@bp.route("/teams/<int:id>/task/<int:task_id>/move", methods=["POST"])
+@login_required
+@team_role_required(id)
+def team_task_move(id, task_id):
+    """ Moves a team task to the board on the left """
+    team = Team.query.get_or_404(id)
+    task = Task.query.get_or_404(task_id)
 
-#     form = EmptyForm()
+    #form = EmptyForm()
 
-#     if form.validate_on_submit():
+    #if form.validate_on_submit():
+    if request.method == "POST":
+        moved = False
+        print("request.form: ", request.form)
+        print("submit.form.get('submit_left'): ", ("submit_left" in request.form.keys()))#.get('submit_left')))
+        if ("submit_left" in request.form.keys()):
+            task_board_orig = task.board
+            moved = True
+            task.move_left()
+            if task.board != task_board_orig:
+                db.session.commit()
+                flash('Moved left')
+            else:
+                flash("In the leftmost board already!")
+        if ("submit_right" in request.form.keys()):
+            task_board_orig = task.board
+            task.move_right()
+            #db.session.commit()
+            #flash('Moved right')
+            moved = True
+
+            if task.board != task_board_orig:
+                db.session.commit()
+                flash('Moved right')
+            else:
+                flash("In the rightmost board already!")
+
+        if not moved:
+            flash("Didn't move for some reason")
+        
+        return redirect(url_for('main.team_tasks_uusi', id=id))
+
+        
         
 
+        #return redirect(url_for('main.team_tasks_uusi', id=id))
+    #return render_template('_button_form.html', id=team.id, task_id=task.id)
+
+
+@bp.route("/teams/<int:id>/task/<int:task_id>/move_left", methods=["GET", "POST"])
+@login_required
+@team_role_required(id)
+def team_task_move_left(id, task_id):
+    """ Moves a team task to the board on the left """
+    team = Team.query.get_or_404(id)
+    task = Task.query.get_or_404(task_id)
+
+    #form = EmptyForm()
+
+    #if form.validate_on_submit():
+    if request.method == "POST":
+        
+        task.move_left()
+        db.session.commit()
+
+        return redirect(url_for('main.team_tasks_uusi', id=id))
+    return render_template('_button_form.html', id=team.id, task_id=task.id)
+
+@bp.route("/teams/<int:id>/task/<int:task_id>/move_right", methods=["GET", "POST"])
+@login_required
+@team_role_required(id)
+def team_task_move_right(id, task_id):
+    """ Moves a team task to the board on the left """
+    team = Team.query.get_or_404(id)
+    task = Task.query.get_or_404(task_id)
+
+    form = EmptyForm()
+
+    if form.validate_on_submit():
+
+        task.move_right()
+        db.session.commit()
+
+        return redirect(url_for('main.team_tasks_uusi', id=id))
 
 @bp.route('/teams/<int:id>/tasks_frame', methods=["GET", "POST"])
 @login_required

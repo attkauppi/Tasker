@@ -52,6 +52,17 @@ def utility_functions():
         """ Returns user from id """
         u = User.query.filter_by(id=id).first()
         return u
+
+    def can_modify_team_task(task, user):
+        """ Returns whether a user can modify a particular
+        task """
+        return TeamTask.can_modify(task, user)
+        # team_task = TeamTask.query.filter_by(task_id=task.id).first()
+        # team_member = user.get_team_member_object(team_task.team_id)
+
+        # if team_member.id == team_task.doing:
+        #     return True
+        # return False
     
     def get_task_assigned(team_task):
         """ Returns a boolean value depending on 
@@ -71,4 +82,4 @@ def utility_functions():
        print("Käyttää context_processorin_menetelmää")
        return user.get_team_role(team_id)
     
-    return dict(get_user_team_role=get_user_team_role, get_task_assigned=get_task_assigned, get_user_from_id=get_user_from_id)
+    return dict(get_user_team_role=get_user_team_role, get_task_assigned=get_task_assigned, get_user_from_id=get_user_from_id, can_modify_team_task=can_modify_team_task)

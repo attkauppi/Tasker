@@ -43,6 +43,24 @@ class TeamTask(db.Model):
     assigned = db.Column(db.Boolean, default=False)
     team_tasks = db.relationship('Task', backref='team')#, cascade="all, delete-orphan")#, lazy='dynamic')
 
+    @staticmethod
+    def can_modify(task, user):
+        """ Checks whether team member is allowed to modify task """
+        team_task = TeamTask.query.filter_by(task_id=task.id).first()
+        print("Team task: ", team_task)
+        # If task is not a team task, it's a personal task and anyone
+        # can modify those. They also only access them themselves
+        if team_task is None:
+            return True
+
+        team_member = user.get_team_member_object(team_task.team_id)
+        print("Team task doing: ", team_task.doing)
+        print("Team member id: ", team_member.id)
+        if team_member.id == team_task.doing:
+            
+            return True
+        return False
+    
     def get_doing(self):
         return self.doing
     
@@ -722,10 +740,27 @@ class Task(db.Model):
     def boards():
         boards = {'TODO': Board.TODO, 'DOING': Board.DOING, 'DONE': Board.DONE}
         return boards
+    
+    def move_left(self):
+        if self.board == Board.DONE:
+            self.set_doing()
+        elif self.board == Board.DOING:
+            self.set_todo()
+        else:
+            pass
+
+    def move_right(self):
+        if self.board == Board.TODO:
+            self.set_doing()
+        elif self.board == Board.DOING:
+            self.set_done()
+        else:
+            pass
 
     def set_doing(self):
         """ Sets task state to doing """
         self.board = Board.DOING
+        self.done = False
     
     def set_done(self):
         """ Sets task to done  """
@@ -734,6 +769,7 @@ class Task(db.Model):
 
     def set_todo(self):
         self.board = Board.TODO
+        self.done = False
 
     #user = db.relationship('User')
 
