@@ -2,7 +2,7 @@ from functools import wraps
 from threading import Thread
 from flask import abort
 from flask_login import current_user
-from application.models import Permission, TeamPermission, Team
+from application.models import Permission, TeamPermission, Team, TeamTask, User
 from flask import request
 
 #TODO: Teit tähän muutoksen ottamalla team_id:n mukaan.
@@ -24,6 +24,35 @@ def team_role_required(team_id):
             return f(*args, **kwargs)
         return decorated_function
     return decorator
+
+# FIXME: päästää käyttäjän muokkaamaan, mikäli on tehtävän 
+# tekijä, mutta muokattessaan samalla poistaa itsensä
+# tehtävän tekijämäärittelystä
+def team_task_assigned_or_team_moderator_required(team_id):
+    """ Decorator for ensuring team members can't edit
+    tasks not assigned to them. """
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            print("request.view_args ", request.view_args)
+            team_id = request.view_args.get('id')
+            task_id = request.view_args.get('task_id')
+            user_id = request.view_args.get('user_id')
+
+            user_team_member = current_user.get_team_member_object(team_id)
+
+            team_task = TeamTask.query.filter_by(task_id=task_id).first()
+            
+            if team_task.doing == None:
+                return f(*args, **kwargs)
+
+            if team_task.doing != user_team_member.id and not current_user.can_moderate_team(team_id):
+                return abort(403)
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+
 
 
 def team_permission_required2(id, permission):

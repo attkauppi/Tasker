@@ -24,7 +24,8 @@ from utils.decorators import (
     team_moderator_required,
     team_permission_required,
     team_permission_required2,
-    team_role_required
+    team_role_required,
+    team_task_assigned_or_team_moderator_required
 )
 from sqlalchemy.orm import session
 from sqlalchemy import and_, or_, not_, MetaData
