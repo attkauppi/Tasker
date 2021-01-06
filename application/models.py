@@ -47,7 +47,7 @@ class TeamTask(db.Model):
     def can_modify(task, user):
         """ Checks whether team member is allowed to modify task """
         team_task = TeamTask.query.filter_by(task_id=task.id).first()
-        print("Team task: ", team_task)
+        #print("Team task: ", team_task)
         # If task is not a team task, it's a personal task and anyone
         # can modify those. They also only access them themselves
         if team_task is None:
@@ -74,19 +74,19 @@ class TeamTask(db.Model):
         
         
         #form_data = kwargs.get('form_data')
-        print("Form data: ", form_data)
+        # print("Form data: ", form_data)
         if "assign_to_choices" in form_data:
             if form_data['assign_to_choices'] == 0:
                 team_task.doing = None
                 team_task.assigned = False
-                print("assign to choices oli nolla!")
+                # print("assign to choices oli nolla!")
             else:
-                print("assign_to_choices: ", form_data['assign_to_choices'])
+                # print("assign_to_choices: ", form_data['assign_to_choices'])
                 team_task.doing = form_data['assign_to_choices']
                 team_task.assigned = True
             #if form_data['board_choices'] != 
 
-        print("Edit team taskin löytämä team task: ", team_task)
+        # print("Edit team taskin löytämä team task: ", team_task)
         
         return team_task
 
@@ -265,8 +265,7 @@ class User(UserMixin, db.Model):
         # self.password = password
         print(self.role)
         if self.role is None:
-            print("self email: ", self.email)
-            print("os.getenv(admin): ", os.getenv('ADMIN'))
+            
             #if self.email == os.getenv('ADMIN'):
             # This will not work, if in the registration form
             # the user is not instantiated with at least the
@@ -487,8 +486,7 @@ class User(UserMixin, db.Model):
 
         teamrole_user = TeamRole.query.filter_by(id=tm.team_role_id).first()
         if teamrole_user is not None and teamrole_user.team_role_name == team_role_name:
-            print("Käyttäjän team role: ", teamrole_user)
-            print("Haettava team role: ", team_role_name)
+           
             return True
 
         return False
@@ -520,11 +518,7 @@ class User(UserMixin, db.Model):
                 #print("Tämän pitäisi olla oikea tm: ", i)
                 return i
         return None
-        #for tm in self.team_memberships:
-        #    if tm.team_id == team_id:
-        #        return tm
-        #return None
-    
+       
     # TODO: messages liittyvä
     def new_messages(self):
         """ Helper method uses the last_message_read_time
@@ -832,11 +826,8 @@ class Team(db.Model):
 
     def invite_user(self, username):
         u = User.query.filter_by(username=username).first()
-        print("Team users: ")
-        print(self.users)
-
+        
         if u in self.users:
-            print("Oli käyttäjissä, ei anneta mennä läpi")
             return None
         #if u in self.users:
         #    print("Kuuluu jo tiimiin")

@@ -572,10 +572,6 @@ def edit_team_member(id, username):
 
     if form.validate_on_submit():
         user_team_member_object = user.get_team_member_object(id)
-        print("Team member alussa: ", user_team_member_object)
-        #user_teamrole = user.get_team_role(id)
-        #Team role check
-        print("Lomakkeessta saatu team_role_id: ", form.team_role.data)
         
         tr = TeamRole.query.filter_by(id=form.team_role.data).first()
         if tr is None:
@@ -583,15 +579,11 @@ def edit_team_member(id, username):
             return redirect(url_for('.team_members', id=team.id))
         
         user_team_member_object.team_role_id = form.team_role.data
-        print("Lomakkeessta saatu team_role_id: ", form.team_role.data)
         
         db.session.add(user_team_member_object)
         db.session.commit()
         
         tm = TeamMember.query.filter_by(id=user_team_member_object.id).first()
-        print("Team member lopussa: ", tm)
-
-
         flash("Member permissions updated!")
         return redirect(url_for('.team_members', id=team.id))
 
@@ -651,9 +643,6 @@ def team_tasks(id):
     """ For team tasks """
     team = Team.query.get_or_404(id)
 
-    #form = Team
-
-
     return render_template('team_tasks.html', team=team, team_id=team.id)
 
 @bp.route('/teams/<int:id>/team_tasks/create_task', methods=["GET", "POST"])
@@ -661,12 +650,8 @@ def team_tasks(id):
 @team_role_required(id)
 def create_team_task(id):
     team = Team.query.get_or_404(id)
-    print("saatiin jotain")
-    print("Team: ", team.id)
 
-    print("request.endpoint ", request.endpoint)
     form = TeamTaskForm()
-
     #if request.method == "POST":
     if form.validate_on_submit() and request.method=="POST":
         print("request.args: ", request.args)
@@ -674,7 +659,6 @@ def create_team_task(id):
         t = Task(
             title = form.title.data,
             description = form.description.data,
-            #priority = form.description,
             done=False,
             creator_id=current_user.id,
             position="yellow",
@@ -693,36 +677,7 @@ def create_team_task(id):
         db.session.commit()
 
         flash('Created a new task for your team!')
-
-
-        
         return redirect(url_for('main.team_tasks_uusi', id=team.id, team=team), code=307)
-    # if form.validate_on_submit():
-    
-    #     t = Task(
-    #         title = form.title.data,
-    #         description = form.description.data,
-    #         #priority = form.description,
-    #         done=False,
-    #         creator_id=current_user.id,
-    #         position="yellow",
-    #         priority=False,
-    #         board=1,
-    #         is_team_task=True
-    #     )
-    #     db.session.add(t)
-    #     db.session.commit()
-    #     team_task = team.create_team_task(t)
-
-    #     print("Team task: ", team_task)
-
-    #     #db.session.add(t)
-    #     db.session.add(team_task)
-    #     db.session.commit()
-
-    #     flash('Created a new task for your team!')
-    #     #return redirect(url_for('main.team_tasks_uusi', id=team.id, team=team), code=307)
-        
     
     return render_template('_modal.html', id=team.id, form=form, endpoint="main.create_team_task", title="Create task", team=team, teksti="Create task")
     
@@ -732,12 +687,9 @@ def create_team_task(id):
 @team_role_required(id)
 def team_tasks_uusi(id):
     team = Team.query.get_or_404(id)
-    print("Team: ", team)
-    print("Team id: ", team.id)
+
     args = request.args.to_dict()
-    print(request.path)
-    print("request.endpoint ", request.endpoint)
-    print("args: ", args)
+
 
     #print("team.team_tasks")
     #print(team.team_tasks)
@@ -750,73 +702,6 @@ def team_tasks_uusi(id):
 
     dones = team.get_done_tasks()
     #print("Dones: ", dones)
-
-    # team_task = TeamTask.query.filter_by(task_id=task_id).first()
-    # print("Team task: ", team_task)
-    # assigned_to = None
-    #if team_task.doing is not None:   
-    
-
-    #print("Assigned to: ", assigned_to)
-
-    form = TeamTaskForm()
-    # if form.validate_on_submit() and request.method=="POST":
-    #     print("request.args: ", request.args)
-
-    #     t = Task(
-    #         title = form.title.data,
-    #         description = form.description.data,
-    #         #priority = form.description,
-    #         done=False,
-    #         creator_id=current_user.id,
-    #         position="yellow",
-    #         priority=False,
-    #         board=1,
-    #         is_team_task=True
-    #     )
-    #     db.session.add(t)
-    #     db.session.commit()
-    #     team_task = team.create_team_task(t)
-
-    #     print("Team task: ", team_task)
-
-    #     #db.session.add(t)
-    #     db.session.add(team_task)
-    #     db.session.commit()
-
-    #     flash('Created a new task for your team!')
-
-        ###############
-        # task = Task(
-        #     title=form.title.data,
-        #     description = form.description.data,
-        #     priority = False,#form.priority.data,
-        #     creator_id = current_user.id,
-        #     is_team_task = True
-        # )
-
-        # db.session.add(task)
-        # #db.session.flush()
-        # db.session.commit()
-
-        # #db.session.flush()
-        # task_id = task.id
-        # print("Task id: ", task_id)
-        # #db.session.commit()
-
-        # task = Task.query.filter_by(id=task_id).first()
-        # print("Tietokannan task: ", task)
-
-        # team_task = team.create_team_task(task)
-        # print("Team task: ", team_task)
-        # db.session.add(team_task)
-
-        # db.session.flush()
-        # flash("Created a new task!")
-
-        # return render_template('team_tasksU.html', id=team.id, team=team, todos=todos,
-        # doings=doings,
-        # dones=dones)
         
 
     #request = request.args.get('user')

@@ -47,7 +47,6 @@ def utility_functions():
     required in the jinja template"""
 
     
-    
     def get_user_from_id(id):
         """ Returns user from id """
         u = User.query.filter_by(id=id).first()
