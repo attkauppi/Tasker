@@ -192,6 +192,8 @@ class TeamTaskFormEdit(FlaskForm):
         # Find the team_task that corresponds to the task object
         team_task = TeamTask.query.filter_by(task_id=task.id).first()
 
+        
+
 
         # lista = []
         # for member in team.team_members:
