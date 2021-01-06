@@ -864,6 +864,9 @@ def edit_team_task(id):
         print("request.view_args: ", request.view_args)
         print("Form.data: ", form.data)
 
+        # Tällä voisi varmaan tarkistaa, voiko
+        # henkilö tehdä muokkauksia tehtävään: 
+        # if user.can_team(team.id, TeamPermission.ASSIGN_TASKS):
         if form.validate_on_submit():
 
             if task.description != form.description.data:

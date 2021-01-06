@@ -469,8 +469,11 @@ class User(UserMixin, db.Model):
             print("TEAM ROLE OLI MUKAMAS NONE")
             return False
 
+        print("Team role has permission: ", teamrole.has_permission(team_perm))
         if teamrole is not None and teamrole.has_permission(team_perm):
+            print("tiimi rooli oli ja oikeus tehdä pyydettyä asiaa")
             return True
+            
         print("Kaatui has_permission kohtaan!!!")
         return False
     
