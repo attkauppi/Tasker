@@ -68,12 +68,12 @@ class TeamTask(db.Model):
     def edit_team_task(task, team_id, form_data):
         """ Edits team task """
         
-        team_task = TeamTask.query.filter_by(task_id=task.id).filter_by(team_id=team_id).first()
+        team_task = TeamTask.query.filter_by(task_id=task.id).first()
         print("Edit team taskin löytämä team task: ", team_task)
 
-
         
-            #form_data = kwargs.get('form_data')
+        
+        #form_data = kwargs.get('form_data')
         print("Form data: ", form_data)
         if "assign_to_choices" in form_data:
             if form_data['assign_to_choices'] == 0:
@@ -84,6 +84,7 @@ class TeamTask(db.Model):
                 print("assign_to_choices: ", form_data['assign_to_choices'])
                 team_task.doing = form_data['assign_to_choices']
                 team_task.assigned = True
+            #if form_data['board_choices'] != 
 
         print("Edit team taskin löytämä team task: ", team_task)
         

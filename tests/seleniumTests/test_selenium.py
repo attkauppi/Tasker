@@ -320,6 +320,9 @@ class SeleniumTestCase(unittest.TestCase):
 
             self.client.find_element_by_link_text('testaaja25:sen tiimi').click()
             time.sleep(3)
+
+            self.client.find_element_by_id('invite_to_team').click()
+            self.client.sleep(10)
         except Exception:
             pass
 

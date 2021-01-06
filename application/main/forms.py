@@ -169,7 +169,7 @@ class TeamTaskFormEdit(FlaskForm):
     #board = SelectField('Team role', coerce=int)
     assign_to_choices = SelectField('Team member', coerce=int, default=0)
     # FIXME: Korjattava dynaamiseksi
-    board_choices = SelectField('Move to board', choices=[(1, "TODO"), (2, "DOING"), (4, "DONE")])
+    board_choices = SelectField('Move to board', coerce=int, default=0, choices=[(1, "TODO"), (2, "DOING"), (4, "DONE")])
     
     
     def __init__(self, team, task, user, *args, **kwargs):
@@ -187,6 +187,28 @@ class TeamTaskFormEdit(FlaskForm):
         # for member in team.team_members:
         #     lista.append((member.team_member_user.id, member.team_member_user.username))
             
+        # boards_dict = {y:x for x,y in Task.boards().items()}
+        # print("Boards dict: ", boards_dict)
+
+        # # Now we can generate a list of choices for the selectfield
+        # # and have the current board as the default choice
+        # list = [(k, v) for k, v in boards_dict.items()]
+
+        # #list2 = [(item.value, item.key) for item in Task.boards().items()]
+
+        # print("List of choices", list)
+        # #print("List of choices2", list2)
+        # board_choices = SelectField(
+        #     "Move to board",
+        #     default=task.board,
+        #     choices=list
+        # )
+
+
+        # self.board_choices=board_choices
+
+        
+        
         lista.append((0, "None"))
         print("lista: ", lista)
 
@@ -210,6 +232,71 @@ class TeamTaskFormEdit(FlaskForm):
         #self.board_choices = ([task.board, ])
         self.assign_to_choices.choices = lista
         print("self.assign_to_choices: ", self.assign_to_choices)
+
+        # Board choices
+        boards_dict = {y:x for x,y in Task.boards().items()}
+        print("Boards dict: ", boards_dict)
+
+        # Now we can generate a list of choices for the selectfield
+        # and have the current board as the default choice
+        list = [(k, v) for k, v in boards_dict.items()]
+
+        default_value = None
+
+        for i in list:
+            if i[0] == task.board:
+                default_value = i
+        #form.board_choices.default = default_value
+
+        #print(form.data)
+
+        # Setting a default value in a selectfield is exceedingly difficult
+        # for some reason. To get around the problem, I'm creating a new list of
+        # choices, setting the value I want to default to as the first item on the list
+        # and then adding the other values into the list
+        list2 = []
+
+        default_added = False
+        
+        while len(list) > 0:
+            for i in list:
+                print("List for loopissa: ", list)
+                if not default_added:
+                    if i[0] == default_value[0] and i[1] == default_value[1]:
+                        list2.append(i)
+                        default_added = True
+                        list.remove(i)
+                        break
+                    continue
+                list2.append(i)
+                list.remove(i)
+                print("list 2", list2)
+            
+        # for i in list:
+        #     if i[0] == default_value[0] and i[1] == default_value[1]:
+        #         list2.append(i)
+        
+        self.board_choices.choices = list2
+        
+
+        #list2 = [(item.value, item.key) for item in Task.boards().items()]
+
+        # print("List of choices", list)
+        # #print("List of choices2", list2)
+        # board_choices = SelectField(
+        #     "Move to board",
+        #     coerce=int,
+        #     default=default_value,
+        #     choices=list
+        # )
+
+
+        # self.board_choices.choices = list
+        # self.board_choices = board_choices
+        # #self.board_choices.default = default_value
+
+        # print("assign to choices: ", self.assign_to_choices.choices)
+        # print("Board choices: ", self.board_choices)
         
         #self.move_to_board_choices = [(1, "todo"), (2, "doing"), (3, "done")]
 

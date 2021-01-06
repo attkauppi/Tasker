@@ -3,6 +3,8 @@ from flask import render_template, flash, redirect, url_for, request, g, \
     jsonify, current_app, send_from_directory, send_file
 from flask_login import current_user, login_required
 from application import db, login_manager
+from wtforms import SelectField
+from wtforms.form import BaseForm
 from application.main.forms import (
     TaskForm, EditProfileForm, EditProfileAdmin, TeamCreateForm, TeamEditForm,
     TeamInviteForm,
@@ -871,6 +873,8 @@ def edit_team_task(id):
             
             if int(task.board) != int(form.data['board_choices']):
                 task.board = int(form.data['board_choices'])
+                print("form_data: board_choices: ", int(form.data['board_choices']))
+
 
                 if int(task.board) == int(Board.DONE):
                     task.done = True
@@ -921,13 +925,73 @@ def edit_team_task(id):
     form.title.data = task.title
     form.description.data = task.description
     #form.board_choices.data = task.board
+
+    form.board_choices.default = task.board
+    
+
+    #print("form.board_choices data: ", form.board_choices.data)
+
+    # board_choices = SelectField('Move to board', choices=[(1, "TODO"), (2, "DOING"), (4, "DONE")])
+
+
+
+    # # List of choices for boards
+
+    # # Task.boards gives us the values we need, but in the wrong
+    # # (board name, board id), we want them as (board id, board name)
+    # boards_dict = {y:x for x,y in Task.boards().items()}
+    # print("Boards dict: ", boards_dict)
+
+    # # Now we can generate a list of choices for the selectfield
+    # # and have the current board as the default choice
+    # list = [(k, v) for k, v in boards_dict.items()]
+
+    # default_value = None
+
+    # for i in list:
+    #     if i[0] == task.board:
+    #         default_value = i
+    # form.board_choices.default = default_value
+
+    # print(form.data)
+    
+
+    # #list2 = [(item.value, item.key) for item in Task.boards().items()]
+
+    # print("List of choices", list)
+    # #print("List of choices2", list2)
+    # board_choices = SelectField(
+    #     "Move to board",
+    #     default=default_value,
+    #     choices=list
+    # )
+
+    # form.board_choices.data = board_choices
+
+    # print(form.data)
+    ##############
+
+    
+    # print("Task.boards(): ", Task.boards())
+    # print("form.board_choices data: ", form.board_choices.data)
+
+    # form.board_choices.default = task.board
+    # #form.board_choices.process()
+    # print("form.board_choices uudelleen: ", form.board_choices.data)
+
+    # #board_choices = SelectField('Move to board', choices=[(1, "TODO"), (2, "DOING"), (4, "DONE")])
+    # form.board_choices = SelectField('Move to board', choices=list, default=task.board, coerce=int)
+
+    # form.board_choices.data = task.board
+
+
     
     
     #if team_task.doing is not None:   
     
-    if team_task.doing is not None:
-        team_member_assigned_to = User.query.filter_by(id=team_task.doing).first()
-        form.assign_to_choices.data = team_member_assigned_to.id#.get_team_member_object(team.id).
+    #if team_task.doing is not None:
+    #    team_member_assigned_to = User.query.filter_by(id=team_task.doing).first()
+    #    form.assign_to_choices.data = team_member_assigned_to.id#.get_team_member_object(team.id).
     
     return render_template('_modal.html', id=team.id, form=form, endpoint="main.edit_team_task", title="Edit task", team=team, task=task, assigned_to=assigned_to, board=task.board)
 
