@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField, SelectField
 from wtforms.validators import ValidationError, DataRequired, Length, Email, Regexp
 # from flask_babel import _, lazy_gettext as _l
-from application.models import User, Role, TeamRole, Board, Task, TeamPermission, TeamMember
+from application.models import User, Role, TeamRole, Board, Task, TeamPermission, TeamMember, TeamTask
 
 
 class EditProfileForm(FlaskForm):
@@ -183,6 +183,16 @@ class TeamTaskFormEdit(FlaskForm):
                 lista.append((member.team_member_user.id, member.team_member_user.username))
         else:
             lista.append((user.get_team_member_object(team.id).id, user.username))
+
+        lista.append((0, "None"))
+        print("lista: ", lista)
+        self.assign_to_choices.choices = lista
+        print("self.assign_to_choices: ", self.assign_to_choices)
+
+        # Find the team_task that corresponds to the task object
+        team_task = TeamTask.query.filter_by(task_id=task.id).first()
+
+
         # lista = []
         # for member in team.team_members:
         #     lista.append((member.team_member_user.id, member.team_member_user.username))
@@ -209,8 +219,7 @@ class TeamTaskFormEdit(FlaskForm):
 
         
         
-        lista.append((0, "None"))
-        print("lista: ", lista)
+        
 
         lista2 = []
 
@@ -230,53 +239,51 @@ class TeamTaskFormEdit(FlaskForm):
         #print("Task boards; ", task.boards())
         print("Board choices: ", self.board_choices)
         #self.board_choices = ([task.board, ])
-        self.assign_to_choices.choices = lista
-        print("self.assign_to_choices: ", self.assign_to_choices)
+        
 
         # Board choices
-        boards_dict = {y:x for x,y in Task.boards().items()}
-        print("Boards dict: ", boards_dict)
+        # boards_dict = {y:x for x,y in Task.boards().items()}
+        # print("Boards dict: ", boards_dict)
 
-        # Now we can generate a list of choices for the selectfield
-        # and have the current board as the default choice
-        list = [(k, v) for k, v in boards_dict.items()]
+        # # Now we can generate a list of choices for the selectfield
+        # # and have the current board as the default choice
+        # list = [(k, v) for k, v in boards_dict.items()]
 
-        default_value = None
+        # default_value = None
 
-        for i in list:
-            if i[0] == task.board:
-                default_value = i
-        #form.board_choices.default = default_value
-
-        #print(form.data)
+        # for i in list:
+        #     if i[0] == task.board:
+        #         default_value = i
 
         # Setting a default value in a selectfield is exceedingly difficult
         # for some reason. To get around the problem, I'm creating a new list of
         # choices, setting the value I want to default to as the first item on the list
         # and then adding the other values into the list
-        list2 = []
+        # list2 = []
 
-        default_added = False
+        # default_added = False
         
-        while len(list) > 0:
-            for i in list:
-                print("List for loopissa: ", list)
-                if not default_added:
-                    if i[0] == default_value[0] and i[1] == default_value[1]:
-                        list2.append(i)
-                        default_added = True
-                        list.remove(i)
-                        break
-                    continue
-                list2.append(i)
-                list.remove(i)
-                print("list 2", list2)
-            
-        # for i in list:
-        #     if i[0] == default_value[0] and i[1] == default_value[1]:
+        # while len(list) > 0:
+        #     for i in list:
+        #         print("List for loopissa: ", list)
+        #         if not default_added:
+        #             if i[0] == default_value[0] and i[1] == default_value[1]:
+        #                 list2.append(i)
+        #                 default_added = True
+        #                 list.remove(i)
+        #                 break
+        #             continue
         #         list2.append(i)
-        
-        self.board_choices.choices = list2
+        #         list.remove(i)
+        #         print("list 2", list2)
+            
+
+        board_choices = self.get_board_choices()
+        default_value = self.get_default_value_for_board_choices(task, board_choices)
+        board_choices_default_first = self.get_board_choices_with_default_first(default_value, board_choices)
+
+        #self.board_choices.choices = list2
+        self.board_choices.choices = board_choices_default_first
         
 
         #list2 = [(item.value, item.key) for item in Task.boards().items()]
@@ -314,6 +321,51 @@ class TeamTaskFormEdit(FlaskForm):
     #                         for role in Role.query.order_by(Role.role_name).all()]
     #     self.user = user
 
+    def get_board_choices(self):
+        """ Generates a list of tuples for board choices """
+        # Task.boards() gives us the values we need, but in the wrong
+        # order (board name, board id), we want them as (board id, board name)
+        boards_dict = {y:x for x,y in Task.boards().items()}
+        # print("Boards dict: ", boards_dict)
+
+        # Now we can generate a list of choices for the selectfield
+        # and have the current board as the default choice
+        list = [(k, v) for k, v in boards_dict.items()]
+        return list
+    
+    def get_default_value_for_board_choices(self, task, list):
+        """ Finds out which board the task is currently set to
+        and gets us that item from the list """
+        default_value = None
+
+        for i in list:
+            if i[0] == task.board:
+                default_value = i
+        
+        return default_value
+    
+    def get_board_choices_with_default_first(self, default_value, list):
+        """ Generates a new list of choices, where the default value is
+        the first item and returns the list """
+        list2 = []
+
+        default_added = False
+        
+        while len(list) > 0:
+            for i in list:
+                # print("List for loopissa: ", list)
+                if not default_added:
+                    if i[0] == default_value[0] and i[1] == default_value[1]:
+                        list2.append(i)
+                        default_added = True
+                        list.remove(i)
+                        break
+                    continue
+                list2.append(i)
+                list.remove(i)
+                # print("list 2", list2)
+        
+        return list2
 
 class TeamTaskSendToBoard(FlaskForm):
     """ Sends a task to another board """
