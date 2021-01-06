@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField, SelectField
 from wtforms.validators import ValidationError, DataRequired, Length, Email, Regexp
 # from flask_babel import _, lazy_gettext as _l
-from application.models import User, Role, TeamRole, Board, Task, TeamPermission, TeamMember, TeamTask
+from application.models import User, Team, Role, TeamRole, Board, Task, TeamPermission, TeamMember, TeamTask
 
 
 class EditProfileForm(FlaskForm):
@@ -173,11 +173,13 @@ class TeamTaskFormEdit(FlaskForm):
     board_choices = SelectField('Move to board', coerce=int, default=0, choices=[(1, "TODO"), (2, "DOING"), (4, "DONE")])
     
     
-    def __init__(self, team, task, user, *args, **kwargs):
+    def __init__(self, team_id, task, user, *args, **kwargs):
         super(TeamTaskFormEdit, self).__init__(*args, **kwargs)
         #self.team_role_choices = 
         print("*********************************************************************============")
         lista = []
+
+        team = Team.query.filter_by(id=team_id).first()
 
         team_members = team.team_members
         team_task = TeamTask.query.filter_by(task_id=task.id).first()
@@ -206,84 +208,106 @@ class TeamTaskFormEdit(FlaskForm):
             lista3.append((0, "None"))
 
         print("Lista3: ", lista3)
+
         
-        if not user.can_team(team.id, TeamPermission.ASSIGN_TASKS):
-            for i in lista3:
-                print(i[0])
-                if i[0] != 0 or i[0] != user.id:
-                    lista3.remove(i)
+
+        
+        if not user.can_team(team_id, TeamPermission.ASSIGN_TASKS):
+
+            if team_task.doing is None:
+                lista3 = [(0, "None"), (user.id, user.username)]
+            else:
+                if team_task.doing != user.id:
+                    # Ei tee tehtävää, mutta joku muu on määritelty tekemään
+                    team_member = TeamMember.query.filter_by(team_member_id=team_task.doing).first()
+                    lista3 = [(team_member.team_member_id, team_member.team_member_user.username)]
+                else:
+                    # tekee tehtävää
+                    lista3 = [(user.id, user.username), (0, "None")]
+            # If the person can't assign tasks and isn't the one the task is assigned to
+
+                
+                
+            #if team_task.doing != user.id:
+            #    team_member = TeamMember.query.filter_by(id=team_task.doing).first()
+
+            # for i in lista3:
+            #     print(i[0])
+            #     if i[0] != 0 or i[0] != user.id:
+            #         lista3.remove(i)
 
         print("Lista3 filtteröinnin jälkeen: ", lista3)
 
 
-        print("can I? ", user.can_team(team.id, TeamPermission.ASSIGN_TASKS))
-        lista22 = []
-        if user.can_team(team.id, TeamPermission.ASSIGN_TASKS):
-            # If user can assign tasks, we give them the list of 
-            # team members they can assign the task to.
+        # print("can I? ", user.can_team(team.id, TeamPermission.ASSIGN_TASKS))
+        # lista22 = []
+        # if user.can_team(team.id, TeamPermission.ASSIGN_TASKS):
+        #     # If user can assign tasks, we give them the list of 
+        #     # team members they can assign the task to.
 
-            # If no one has been assigned the task, add every member no default
-            print("Team task doing: ", team_task.doing)
-            #if team_task.doing is None:
+        #     # If no one has been assigned the task, add every member no default
+        #     print("Team task doing: ", team_task.doing)
+        #     #if team_task.doing is None:
             
-            if team_task.doing is not None:
-                #print("metodin palauttama: ", self.get_assign_to_choices_with_default_first(task, team))
-                lista = self.get_assign_to_choices_with_default_first(task, team)
-                print("lista22: ", lista)
-                #list_help = self.get_assign_to_choices_with_default_first(task, team)
-                #print("list help: ", list_help)
-                # for i in list_help:
-                #     lista22.append(i)
-                print("saatu lista: ", lista)
-                lista.append((0, "None"))
+        #     if team_task.doing is not None:
+        #         #print("metodin palauttama: ", self.get_assign_to_choices_with_default_first(task, team))
+        #         lista = self.get_assign_to_choices_with_default_first(task, team)
+        #         print("lista22: ", lista)
+        #         #list_help = self.get_assign_to_choices_with_default_first(task, team)
+        #         #print("list help: ", list_help)
+        #         # for i in list_help:
+        #         #     lista22.append(i)
+        #         print("saatu lista: ", lista)
+        #         lista.append((0, "None"))
                 
-                print("team task doingin jälkeen: ", lista22)
-            else:
-                lista.append((0, "None"))
-                for member in team.team_members:
-                    lista.append((member.team_member_id, member.team_member_user.username))
+        #         print("team task doingin jälkeen: ", lista22)
+        #     else:
+        #         lista.append((0, "None"))
+        #         for member in team.team_members:
+        #             lista.append((member.team_member_id, member.team_member_user.username))
 
-            print("*******Lista1 iffin ja lesen jälkeen: ", lista)
-            print("***********'lista2 iffin ja elsen jälkeen: ", lista22)
-            # else:
-            #     print("Oltiin elsessa")
-            #     # if assigned, set the person assigned to as default
-            #     lista = self.get_assign_to_choices_with_default_first(task, team)
-            #     print("Elsen lista: ", lista)
-            #lista.append((0, "None"))
-        else:
-            print("Meni ekan tason elseen")
-            # If user can't assign tasks, the only choice they have is to assign the task
-            # themselves, if they want to, if the task is still not assigned to anyone else.
-            # If it assigned to someone already, the task can't be assigned to anyone
-            # by users with this team_member role.
-            if team_task.doing is None:
-                lista.append((user.get_team_member_object(team.id).team_member_id, user.username))
-                lista.append((0, "None"))
-            else:
-                # If the task is assigned to someone, the only option is the person
-                # the task is already assigned to and no other choices (for a user
-                # without assigning permissions in the team)
-                team_member = TeamMember.query.filter_by(team_member_id=team_task.doing).first()
-                print("team member: ", team_member)
-                lista.append((team_member.team_member_id, team_member.team_member_user.username))
+        #     print("*******Lista1 iffin ja lesen jälkeen: ", lista)
+        #     print("***********'lista2 iffin ja elsen jälkeen: ", lista22)
+        #     # else:
+        #     #     print("Oltiin elsessa")
+        #     #     # if assigned, set the person assigned to as default
+        #     #     lista = self.get_assign_to_choices_with_default_first(task, team)
+        #     #     print("Elsen lista: ", lista)
+        #     #lista.append((0, "None"))
+        # else:
+        #     print("Meni ekan tason elseen")
+        #     # If user can't assign tasks, the only choice they have is to assign the task
+        #     # themselves, if they want to, if the task is still not assigned to anyone else.
+        #     # If it assigned to someone already, the task can't be assigned to anyone
+        #     # by users with this team_member role.
+        #     if team_task.doing is None:
+        #         lista.append((user.get_team_member_object(team.id).team_member_id, user.username))
+        #         lista.append((0, "None"))
+        #     else:
+        #         # If the task is assigned to someone, the only option is the person
+        #         # the task is already assigned to and no other choices (for a user
+        #         # without assigning permissions in the team)
+        #         team_member = TeamMember.query.filter_by(team_member_id=team_task.doing).first()
+        #         print("team member: ", team_member)
+        #         lista.append((team_member.team_member_id, team_member.team_member_user.username))
 
-                if team_task.doing == user.id:
-                    lista.append((0, "None"))
+        #         if team_task.doing == user.id:
+        #             lista.append((0, "None"))
                 
 
-        print("lista: ", lista)
-        print("Lista2: ", lista22)
-        #lista.append((0, "None"))
+        # print("lista: ", lista)
+        # print("Lista2: ", lista22)
+        # #lista.append((0, "None"))
 
-        print("lista: ", lista)
-        print("Lista22 lopussa kun päätetään kumpaa käytetään: ", lista22, " listan pituus: ", len(lista22))
-        #if len(lista22) > 0:
-        #    self.assign_to_choices.choices = lista22
-        #    print("assign_to_choices asetettiin: ", self.assign_to_choices)
-        #else:
-        print("-----------lista: ", lista)
-        self.assign_to_choices.choices = lista
+        # print("lista: ", lista)
+        # print("Lista22 lopussa kun päätetään kumpaa käytetään: ", lista22, " listan pituus: ", len(lista22))
+        # #if len(lista22) > 0:
+        # #    self.assign_to_choices.choices = lista22
+        # #    print("assign_to_choices asetettiin: ", self.assign_to_choices)
+        # #else:
+        # print("-----------lista: ", lista)
+        #self.assign_to_choices.choices = lista
+        self.assign_to_choices.choices = lista3
         print("self.assign_to_choices: ", self.assign_to_choices)
 
         # Find the team_task that corresponds to the task object

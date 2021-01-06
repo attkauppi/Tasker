@@ -846,7 +846,7 @@ def edit_team_task(id):
     team = Team.query.get_or_404(id)
     task = Task.query.get_or_404(task_id)
 
-    form = TeamTaskFormEdit(team=team, task=task, user=current_user)
+    form = TeamTaskFormEdit(team_id=team.id, task=task, user=current_user)
 
     team_task = TeamTask.query.filter_by(task_id=task_id).first()
 
