@@ -167,7 +167,8 @@ class TeamTaskFormEdit(FlaskForm):
     title = TextAreaField('Title', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
     #board = SelectField('Team role', coerce=int)
-    assign_to_choices = SelectField('Team member', coerce=int, choices=[(13, "Roy")])
+    #assign_to_choices = SelectField('Team member', coerce=int, default=0, choices=[(13, "Roy")])
+    assign_to_choices = SelectField('Team member', coerce=int, choices=[(1, "TODO"), (2, "DOING"), (4, "DONE")])
     # FIXME: Korjattava dynaamiseksi
     board_choices = SelectField('Move to board', coerce=int, default=0, choices=[(1, "TODO"), (2, "DOING"), (4, "DONE")])
     
@@ -175,6 +176,7 @@ class TeamTaskFormEdit(FlaskForm):
     def __init__(self, team, task, user, *args, **kwargs):
         super(TeamTaskFormEdit, self).__init__(*args, **kwargs)
         #self.team_role_choices = 
+        print("*********************************************************************============")
         lista = []
 
         team_members = team.team_members
@@ -182,6 +184,37 @@ class TeamTaskFormEdit(FlaskForm):
         print("Team task: ", team_task)
 
         print("Team: ", team)
+
+        # Lista pohjana muille osuuksille
+        lista3 = []
+        
+
+        for i in team_members:
+            print("\tlista3: ", lista3)
+            if team_task.doing is not None and team_task.doing == i.team_member_id:
+                #lista3.append((i.team_member_id, i.team_member_user.username))
+                lista3.insert(0, (i.team_member_id, i.team_member_user.username))
+                print("\tLöytyi tekijä lisätään: ", lista3)
+
+            else:
+                lista3.append((i.team_member_id, i.team_member_user.username))
+
+        # If task not assigned to anyone, set None as default in the field
+        if team_task.doing is None:
+            lista3.insert(0, (0, "None"))
+        else:
+            lista3.append((0, "None"))
+
+        print("Lista3: ", lista3)
+        
+        if not user.can_team(team.id, TeamPermission.ASSIGN_TASKS):
+            for i in lista3:
+                print(i[0])
+                if i[0] != 0 or i[0] != user.id:
+                    lista3.remove(i)
+
+        print("Lista3 filtteröinnin jälkeen: ", lista3)
+
 
         print("can I? ", user.can_team(team.id, TeamPermission.ASSIGN_TASKS))
         lista22 = []
@@ -194,21 +227,24 @@ class TeamTaskFormEdit(FlaskForm):
             #if team_task.doing is None:
             
             if team_task.doing is not None:
-                print("metodin palauttama: ", self.get_assign_to_choices_with_default_first(task, team))
-                list_help = self.get_assign_to_choices_with_default_first(task, team)
-                print("list help: ", list_help)
-                for i in list_help:
-                    lista22.append(i)
-                print("saatu lista: ", lista22)
+                #print("metodin palauttama: ", self.get_assign_to_choices_with_default_first(task, team))
+                lista = self.get_assign_to_choices_with_default_first(task, team)
+                print("lista22: ", lista)
+                #list_help = self.get_assign_to_choices_with_default_first(task, team)
+                #print("list help: ", list_help)
+                # for i in list_help:
+                #     lista22.append(i)
+                print("saatu lista: ", lista)
+                lista.append((0, "None"))
                 
                 print("team task doingin jälkeen: ", lista22)
             else:
                 lista.append((0, "None"))
                 for member in team.team_members:
-                    lista.append((member.team_member_user.id, member.team_member_user.username))
+                    lista.append((member.team_member_id, member.team_member_user.username))
 
-            print("Lista1 iffin ja lesen jälkeen: ", lista)
-            print("lista2 iffin ja elsen jälkeen: ", lista22)
+            print("*******Lista1 iffin ja lesen jälkeen: ", lista)
+            print("***********'lista2 iffin ja elsen jälkeen: ", lista22)
             # else:
             #     print("Oltiin elsessa")
             #     # if assigned, set the person assigned to as default
@@ -222,14 +258,18 @@ class TeamTaskFormEdit(FlaskForm):
             # If it assigned to someone already, the task can't be assigned to anyone
             # by users with this team_member role.
             if team_task.doing is None:
-                lista.append((user.get_team_member_object(team.id).id, user.username))
+                lista.append((user.get_team_member_object(team.id).team_member_id, user.username))
                 lista.append((0, "None"))
             else:
                 # If the task is assigned to someone, the only option is the person
                 # the task is already assigned to and no other choices (for a user
                 # without assigning permissions in the team)
                 team_member = TeamMember.query.filter_by(team_member_id=team_task.doing).first()
-                lista.append((team_member.id, team_member.team_member_user.username))
+                print("team member: ", team_member)
+                lista.append((team_member.team_member_id, team_member.team_member_user.username))
+
+                if team_task.doing == user.id:
+                    lista.append((0, "None"))
                 
 
         print("lista: ", lista)
@@ -238,10 +278,12 @@ class TeamTaskFormEdit(FlaskForm):
 
         print("lista: ", lista)
         print("Lista22 lopussa kun päätetään kumpaa käytetään: ", lista22, " listan pituus: ", len(lista22))
-        if len(lista22) > 0:
-            self.assign_to_choices.choices = lista22
-        else:
-            self.assign_to_choices.choices = lista
+        #if len(lista22) > 0:
+        #    self.assign_to_choices.choices = lista22
+        #    print("assign_to_choices asetettiin: ", self.assign_to_choices)
+        #else:
+        print("-----------lista: ", lista)
+        self.assign_to_choices.choices = lista
         print("self.assign_to_choices: ", self.assign_to_choices)
 
         # Find the team_task that corresponds to the task object
@@ -291,15 +333,15 @@ class TeamTaskFormEdit(FlaskForm):
 
         lista2 = []
 
-        print(args)
+        #print(args)
        
-        print("type boards: ", type(Task.boards()))
+        #print("type boards: ", type(Task.boards()))
 
         
         lista2 = []
         for item in Task.boards().items():
-            print("Item key: ", item[0])
-            print("item value: ", item[1])
+            #print("Item key: ", item[0])
+            #print("item value: ", item[1])
             lista2.append((item[1], item[0]))
         
         #self.board_choices = [("TODO": 1), ("DIONG"]#[(i.value, i.key) for i in Task.boards()]
@@ -453,8 +495,11 @@ class TeamTaskFormEdit(FlaskForm):
 
         default_added = False
 
+        
+
         if len(list) == 1:
-            list2.append((list[0].team_member_user.id, list[0].team_member_user.username))
+            list2.append((list[0].team_member_id, list[0].team_member_user.username))
+            print("list2 metodin lopussa?: ", list2)
             return list2
         
         while len(list) > 0:
@@ -468,20 +513,20 @@ class TeamTaskFormEdit(FlaskForm):
                         #list2.append(i)
                         print("Löyty tehtävän suorittaja: ", i)
 
-                        list2.append((i.team_member_user.id, i.team_member_user.username))
+                        list2.append((i.team_member_id, i.team_member_user.username))
                         print("lisättiin listaan? ", list2)
                         default_added = True
                         list.remove(i)
                         break
                     continue
-                list2.append(i)
+                list2.append((i.team_member_id, i.team_member_user.username))
                 list.remove(i)
                 print("list 2", list2)
                 print("List: ", list)
         
         #list2.append((0, "None"))
         print("Listan palautus tapahtui mukamas?")
-        print("List2 lopussa: ", list2)
+        print("=====================List2 lopussa: ", list2)
         return list2
 
 

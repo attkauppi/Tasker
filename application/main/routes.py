@@ -850,7 +850,7 @@ def edit_team_task(id):
 
     team_task = TeamTask.query.filter_by(task_id=task_id).first()
 
-    form = TeamTaskFormEdit(team=team, task=task, user=current_user)
+    #form = TeamTaskFormEdit(team=team, task=task, user=current_user)
     assigned_to = None
     print("Task boards: ", Task.boards())
     print("Task.boards()['TODO'] == task.board: ", (task.board == Task.boards()['TODO']))
