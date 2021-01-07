@@ -27,3 +27,4 @@ volumes:
       - POSTGRES_USER=tasker_docker
       - POSTGRES_PASSWORD=tasker_docker
       - POSTGRES_DB=tasker_dev
+      
