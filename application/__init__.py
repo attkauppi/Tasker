@@ -37,6 +37,7 @@ def create_app(config_class=Config):
     app.config['DEBUG'] = True
     app.debug = True
     # Tämä toimii
+
     # app.config.from_object(os.environ.get('APP_SETTINGS'))
 
     #app.config.from_object('config.DevConfig')
@@ -68,6 +69,10 @@ def create_app(config_class=Config):
     # if app.config['SSL_REDIRECT']:
     #     from flask_sslify import SSLify
     #     sllify = SSLify(app)
+
+    if os.environ.get('DYNO'):
+        app.config['SERVER_NAME'] = "https://tsohatasker.herokuapp.com/"
+
 
     from application.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
