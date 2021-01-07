@@ -27,7 +27,7 @@ class Config(object):
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_USERNAME')
     MAIL_DEBUG = True
-    SSL_REDIRECT = False
+    #SSL_REDIRECT = False
     # Static assets
     # TEMPLATES_FOLDER = 'templates'
 
@@ -51,6 +51,14 @@ class ProductionConfig(Config):
 class HerokuConfig(ProductionConfig):
     """ Production config for heroku """
     #SSL_REDIRECT = True if os.environ.get('DYNO') else False
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 465
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = os.getenv('MAIL_USERNAME')
+    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.getenv('MAIL_USERNAME')
+    MAIL_DEBUG = True
+    ADMINS=os.getenv('MAIL_USERNAME')
 
     @classmethod
     def init_app(cls, app):
