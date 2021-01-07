@@ -71,7 +71,7 @@ def create_app(config_class=Config):
     #     sllify = SSLify(app)
 
     if os.environ.get('DYNO'):
-        app.config['SERVER_NAME'] = "https://tsohatasker.herokuapp.com"
+        app.config['SERVER_NAME'] = "tsohatasker.herokuapp.com"
 
 
     from application.errors import bp as errors_bp
