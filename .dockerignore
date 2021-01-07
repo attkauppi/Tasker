@@ -9,7 +9,6 @@ __pycache__/
 *.pyc
 *.egg-info
 venv
-.env
 .pytest_cache/
 api.log
 .vscode/
@@ -17,6 +16,10 @@ api.log
 .vscode/*
 chromedriver
 node_modules
+.git
+.git/
+.env
+.env.db
 .env.dev
 .env.prod
 .env.prod.db

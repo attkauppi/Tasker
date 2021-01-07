@@ -7,3 +7,5 @@ Tasker on sovellus, jonka on tarkoitus auttaa tehtävien hallinassa ja projektie
 * Projektit näkyvät vain niille henkilöille, joille on annettu niihin pääsy.
 * Myös sivulle luodut on käyttäjät jakautuvat joko ylläpitäjiin tai käyttäjiin.
 * Tehtäviä voi luoda ja muokata. Lisäksi tehtäviä voi määritellä muiden projektiin kuuluvien henkilöiden tehtäväksi.
+
+

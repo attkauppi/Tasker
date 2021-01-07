@@ -34,9 +34,11 @@ class Config(object):
 class ProductionConfig(Config):
     print("Production config")
     FLASK_ENV = 'production'
-    DEBUG = True
+    DEBUG = False
     TESTING = False
     DATABASE_URI = os.environ.get('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465
     MAIL_USE_SSL = True
