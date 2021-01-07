@@ -31,10 +31,6 @@ class Config(object):
     # Static assets
     # TEMPLATES_FOLDER = 'templates'
 
-    @staticmethod
-    def init_app(app):
-        pass
-
 
 class ProductionConfig(Config):
     print("Production config")
@@ -52,15 +48,15 @@ class ProductionConfig(Config):
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_USERNAME')
     MAIL_DEBUG = True
 
-class HerokuConfig(ProductionConfig):
-    """ Production config for heroku """
-    SSL_REDIRECT = True if os.environ.get('DYNO') else False
+# class HerokuConfig(ProductionConfig):
+#     """ Production config for heroku """
+#     SSL_REDIRECT = True if os.environ.get('DYNO') else False
 
-    @classmethod
-    def init_app(cls, app):
-        # Handle proxy server headers
-        from werkzeug.contrib.fixers import ProxyFix
-        app.wsgi_app = ProxyFix(app.wsgi_app)
+#     @classmethod
+#     def init_app(cls, app):
+#         # Handle proxy server headers
+#         from werkzeug.contrib.fixers import ProxyFix
+#         app.wsgi_app = ProxyFix(app.wsgi_app)
 
 
 class DevConfig(Config):
