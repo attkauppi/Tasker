@@ -27,8 +27,13 @@ class Config(object):
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_USERNAME')
     MAIL_DEBUG = True
+    SSL_REDIRECT = False
     # Static assets
     # TEMPLATES_FOLDER = 'templates'
+
+    @staticmethod
+    def init_app(app):
+        pass
 
 
 class ProductionConfig(Config):
