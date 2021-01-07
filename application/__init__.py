@@ -33,10 +33,17 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     # app.config.from_object('config.DevConfig')
     #app.config.from_object(os.environ['APP_SETTINGS'])
-    print(os.environ.get('SECRET_KEY'))
+    #print(os.environ.get('SECRET_KEY'))
     app.config['DEBUG'] = True
     app.debug = True
     # Tämä toimii
+
+    if os.environ.get('DYNO'):
+        app.config.from_object('config.HerokuConfig')
+    # if app.config['SSL_REDIRECT']:
+    #     from flask_sslify import SSLify
+    #     sllify = SSLify(app)
+
 
     # app.config.from_object(os.environ.get('APP_SETTINGS'))
 
