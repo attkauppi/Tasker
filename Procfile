@@ -1,1 +1,1 @@
-web: python manage.py create_db; gunicorn wsgi:app
+web: gunicorn wsgi:app

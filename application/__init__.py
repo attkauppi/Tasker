@@ -65,6 +65,10 @@ def create_app(config_class=Config):
     moment.init_app(app)
     mail.init_app(app)
 
+    if app.config['SSL_REDIRECT']:
+        from flask_sslify import SSLify
+        sllify = SSLify(app)
+
     from application.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
     from application.auth import bp as auth_bp
