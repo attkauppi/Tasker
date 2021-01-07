@@ -48,15 +48,17 @@ class ProductionConfig(Config):
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_USERNAME')
     MAIL_DEBUG = True
 
-# class HerokuConfig(ProductionConfig):
-#     """ Production config for heroku """
-#     SSL_REDIRECT = True if os.environ.get('DYNO') else False
+class HerokuConfig(ProductionConfig):
+    """ Production config for heroku """
+    SSL_REDIRECT = True if os.environ.get('DYNO') else False
 
-#     @classmethod
-#     def init_app(cls, app):
-#         # Handle proxy server headers
-#         from werkzeug.contrib.fixers import ProxyFix
-#         app.wsgi_app = ProxyFix(app.wsgi_app)
+    @classmethod
+    def init_app(cls, app):
+        # Handle proxy server headers
+        #from werkzeug.contrib.fixers import ProxyFix
+        from werkzeug.middleware.proxy_fix import ProxyFix
+        #app.wsgi_app = ProxyFix(app.wsgi_app)
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
 
 class DevConfig(Config):

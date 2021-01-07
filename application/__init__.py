@@ -70,8 +70,8 @@ def create_app(config_class=Config):
     #     from flask_sslify import SSLify
     #     sllify = SSLify(app)
 
-    if os.environ.get('DYNO'):
-        app.config['SERVER_NAME'] = "tsohatasker.herokuapp.com"
+    #if os.environ.get('DYNO'):
+    #    app.config['SERVER_NAME'] = 'example.com'
 
 
     from application.errors import bp as errors_bp
