@@ -49,6 +49,11 @@ import testing.postgresql
 
 from application import create_app, db
 from application.models import User, Task, Permission, Role, AnonymousUser, Team, TeamMember, TeamPermission, TeamRole, Message, Notification, TeamTask
+from application import faker
+
+from sqlalchemy.orm import sessionmaker
+
+from sqlalchemy import create_engine
 
 # create initial data on create as fixtures into the database
 def handler(postgresql):
@@ -90,6 +95,9 @@ class UserModelCase(unittest.TestCase):
         db.create_all()
         Role.insert_roles()
         TeamRole.insert_roles()
+        # engine = create_engine(str(db_url), encoding=b'utf-8', echo=echo, convert_unicode=True)
+        #Session = sessionmaker(bind=engine)
+
         
         # Yksi ohje taalta
         # https://stackoverflow.com/questions/16117094/flask-unit-tests-with-sqlalchemy-and-postgresql-exhausts-db-connections
@@ -293,8 +301,169 @@ class UserModelCase(unittest.TestCase):
         team_role_u = u.get_team_role(t.id)
         self.assertTrue(team_role_u.has_permission(TeamPermission.MODERATE_TEAM))
 
+    def test_can_moderate(self):
+        """ Tests can_moderate_team method """
+        faker.users(10)
+        users = fake_users = faker.get_fake_users()
+        #users = self.create_users()
+        
+        t1 = self.create_team()
+
+        u1_owner = users[1]
+        u1_tm = self.create_team_member(u1_owner, t1, 'Team owner')
+
+        u2_member = users[2]
+        u2_tm = self.create_team_member(u2_member, t1, 'Team member')
+
+        u3_member = users[3]
+        u3_tm = self.create_team_member(u3_member, t1, 'Team moderator')
+        u4_member = users[4]
+        u4_tm = self.create_team_member(u4_member, t1, 'Administrator')
+
+        u5_member = users[5]
+        u5_tm = self.create_team_member(u5_member, t1, 'Team member with assign')
+
+        # owner
+        self.assertTrue(u1_owner.can_moderate_team(t1.id))
+        # member
+        self.assertFalse(u2_member.can_moderate_team(t1.id))
+        # member with assign
+        self.assertFalse(u5_member.can_moderate_team(t1.id))
+        # moderator
+        self.assertTrue(u3_member.can_moderate_team(t1.id))
+        # admin
+        self.assertTrue(u4_member.can_moderate_team(t1.id))
+
+    def test_can(self):
+        """ Tests can method in User model """
+        users = self.create_users()
+        
+        t1 = self.create_team()
+
+        u1_owner = users[1]
+        u1_tm = self.create_team_member(u1_owner, t1, 'Team owner')
+
+        u2_member = users[2]
+        u2_tm = self.create_team_member(u2_member, t1, 'Team member')
+
+        u3_member = users[3]
+        u3_tm = self.create_team_member(u3_member, t1, 'Team moderator')
+        u4_member = users[4]
+        u4_tm = self.create_team_member(u4_member, t1, 'Administrator')
+
+        u5_member = users[5]
+        u5_tm = self.create_team_member(u5_member, t1, 'Team member with assign')
+
+        self.assertTrue(u1_owner.can_team(t1.id, TeamPermission.CREATE_TASKS))
+    
+    # roles = {
+    #             'Team member': [
+    #                 TeamPermission.CREATE_TASKS,
+    #                 TeamPermission.CLAIM_TASKS
+    #             ],
+    #             'Team member with assign': [
+    #                 TeamPermission.CREATE_TASKS,
+    #                 TeamPermission.CLAIM_TASKS,
+    #                 TeamPermission.ASSIGN_TASKS
+    #             ],
+    #             'Team moderator': [
+    #                 TeamPermission.CREATE_TASKS,
+    #                 TeamPermission.CLAIM_TASKS,
+    #                 TeamPermission.ASSIGN_TASKS,
+    #                 TeamPermission.MODERATE_TEAM
+    #             ],
+    #             'Team owner': [
+    #                 TeamPermission.CREATE_TASKS,
+    #                 TeamPermission.CLAIM_TASKS,
+    #                 TeamPermission.ASSIGN_TASKS,
+    #                 TeamPermission.MODERATE_TEAM,
+    #                 TeamPermission.TEAM_OWNER
+    #             ],
+    #             'Administrator': [
+    #                 TeamPermission.CREATE_TASKS,
+    #                 TeamPermission.CLAIM_TASKS,
+    #                 TeamPermission.ASSIGN_TASKS,
+    #                 TeamPermission.MODERATE_TEAM,
+    #                 TeamPermission.TEAM_OWNER,
+    #                 TeamPermission.ADMIN
+    #             ]
+    #         }
+
+    #### Helper methods ####
+    @classmethod
+    def create_users(self):
+        """ Creates a user """
+        faker.users(10)
+        fake_users = faker.get_fake_users()
+        print("Fake users: ", fake_users)
+        #for i in fake_users:
+        #    session.add(user)
+        #    session.refresh()
+        return fake_users
+    
+        #create_team_members(self, )
+    # 'Team member'
+    # 'Team member with assign'
+    # 'Team moderator'
+    #  'Team owner'
+    #  'Administrator'
+
+    def create_team_member(self, user, team, team_role_string):
+        """ Creates a team member object """
+        tr = TeamRole.query.filter_by(team_role_name=team_role_string).first()
+        tm = TeamMember(team_id=team.id, team_member_id=user.id, team_role_id=tr.id)
+        tm.team_role_id = tr.id
+        #tm.team_id=team.id
+        #tm.team_member_id=user.id
+        db.session.add(tm)
+        #db.session.flush()
+        db.session.commit()
+        return tm
 
 
+
+    def create_team(self):
+        """ Creates a team """
+        t = Team(title='Testi tiimi', description='Tämä on testi tiimi')
+        db.session.add(t)
+        db.session.flush()
+        db.session.commit()
+        return t
+    
+    def get_team_member_of_every_type(self):
+        """ Creates a team member of all types """
+        users = self.create_users()
+        dict_members = {}
+
+        t1 = self.create_team()
+
+        # First person added to team always
+        # made team member, so it wouldn't
+        # matter which role is assigned here.
+        u1_owner = users[1]
+        u1_tm = self.create_team_member(u1_owner, t1, 'Team owner')
+        dict_members['owner'] = (u1_owner, u1_tm)
+
+
+        u2_member = users[2]
+        u2_tm = self.create_team_member(u2_member, t1, 'Team member')
+        dict_members['member'] = (u2_member, u2_tm)
+
+        u3_member = users[3]
+        u3_tm = self.create_team_member(u3_member, t1, 'Team moderator')
+        dict_members['moderator'] = (u3_member, u3_tm)
+
+        u4_member = users[4]
+        u4_tm = self.create_team_member(u4_member, t1, 'Administrator')
+        dict_members['admin'] = (u4_member, u4_tm)
+
+        u5_member = users[5]
+        u5_tm = self.create_team_member(u5_member, t1, 'Team member with assign')
+        dict_members['admin'] = (u5_member, u5_tm)
+
+        dict_members['team'] = t1
+
+        return dict_members
 
     
 
