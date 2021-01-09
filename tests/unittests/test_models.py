@@ -33,7 +33,6 @@ class UserModelCase(unittest.TestCase):
         self.app = self._app.test_client()
     
     def tearDown(self):
-        self.postgresql.stop()
 """
 import unittest
 import psycopg2

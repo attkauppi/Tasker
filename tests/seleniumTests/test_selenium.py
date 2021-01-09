@@ -250,6 +250,8 @@ class SeleniumTestCase(unittest.TestCase):
             time.sleep(2)
             self.client.find_element_by_link_text('Create team').click()
             time.sleep(3)
+
+            
             
             #time.sleep(3)
 
@@ -265,6 +267,10 @@ class SeleniumTestCase(unittest.TestCase):
 
             # Finds the submit button
             self.client.find_element_by_id('submit').click()
+            #self.client.find_element_by_xpath('//*[@id="submit"]').click()
+            time.sleep(2)
+            #self.client.get()
+            self.client.get('http://localhost:5000/team/1')
 
             #time.sleep(3)
         except Exception:
@@ -398,7 +404,8 @@ class SeleniumTestCase(unittest.TestCase):
             #time.sleep(3)
 
             # Finds the submit button
-            self.client.find_element_by_id('submit').click()
+           
+            time.sleep(2)
 
             #time.sleep(3)
         except Exception:

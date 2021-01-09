@@ -20,16 +20,23 @@ import json
 
 # TODO Lisää mukaan lopuksi, ettei hajota jotain 
 # kesken kaiken
-# class Base(db.Model):
-#     __abstract__ = True
+class Base(db.Model):
+    __abstract__ = True
 
-#     id = db.Column(db.Integer, primary_key=True)
-#     created_on = db.Column(DateTime, default=datetime.utcnow())
-#     modified_on = db.Column(
-#         DateTime,
-#         default=datetime.utcnow(),
-#         onupdate=datetime.utcnow()
-#     )
+    id = db.Column(db.Integer, primary_key=True)
+    created_on = db.Column(DateTime, default=datetime.utcnow())
+    modified_on = db.Column(
+        DateTime,
+        default=datetime.utcnow(),
+        onupdate=datetime.utcnow()
+    )
+
+# class Comment(Base):
+#     body = db.Column(db.Text())
+#     body_html = db.Column(db.Text())
+#     created_on = db.Column(db.DateTime, index=True, datetime=datetime.utcnow())
+
+
 
 class TeamTask(db.Model):
     """ A table for team tasks """
@@ -443,22 +450,16 @@ class User(UserMixin, db.Model):
          - id=team id
          - team_perm = team permission
          """
-        print("saatu team_id: ", id)
         tm = self.get_team_member_object(id)
-        print("SAATU TEAM PERM: ", team_perm)
         if tm is None:
-            print("TEAMMEMBER OLIO OLI MUKAMAS NONE")
-            return False
-        print("can_team käsiteltävänä oleva tm: ", tm)
-        teamrole = TeamRole.query.filter_by(id=tm.team_role_id).first()
-        print("=======team role: ", teamrole)
-        if teamrole is None:
-            print("TEAM ROLE OLI MUKAMAS NONE")
             return False
 
-        print("Team role has permission: ", teamrole.has_permission(team_perm))
+        teamrole = TeamRole.query.filter_by(id=tm.team_role_id).first()
+
+        if teamrole is None:
+            return False
+
         if teamrole is not None and teamrole.has_permission(team_perm):
-            print("tiimi rooli oli ja oikeus tehdä pyydettyä asiaa")
             return True
             
         print("Kaatui has_permission kohtaan!!!")
