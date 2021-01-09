@@ -54,6 +54,7 @@ from application import faker
 from sqlalchemy.orm import sessionmaker
 
 from sqlalchemy import create_engine
+from flask_sqlalchemy import SQLAlchemy
 
 # create initial data on create as fixtures into the database
 def handler(postgresql):
@@ -77,6 +78,11 @@ class TestConfig(object):
     ENV = 'test'
     TESTING = True
 
+
+from contextlib import contextmanager
+
+
+
 class UserModelCase(unittest.TestCase):
     def setUp(self):
         # Use the generated Postgresql class instead of testing.postgresql.Postgresql
@@ -86,15 +92,55 @@ class UserModelCase(unittest.TestCase):
         self._app.config['TESTING'] = True
         #self._app.update_config
         self._app.config['SQLALCHEMY_DATABASE_URI'] = self.postgresql.url()
+        #db = SQLAlchemy(self._app, session_options={"expire_on_commit": False})
         # self._app
         self.ctx = self._app.test_request_context()
         self.ctx.push()
         self.client = self._app.test_client()
 
         self.app = self._app.test_client()
+
+        
         db.create_all()
         Role.insert_roles()
         TeamRole.insert_roles()
+
+        # db = SQLAlchemy(app, session_options={
+
+        #     'expire_on_commit': False
+
+        # })
+
+        # faker.users(10)
+        # self.users = faker.get_fake_users()
+        # self.team = Team(title='Testi tiimi', description='Tämä on testi tiimi')
+
+        # db.session.add(self.team)
+        # db.session.flush()
+        # db.session.commit()
+
+        # self.faker_team_members = []
+        # roles = TeamRole.query.all()
+
+        # # for i in self.users:
+        # #     print("i: ", i)
+        # #     db.session.add(i)
+        # #     db.session.commit()
+        # with self.client as c:
+        #     for i in range(5):
+        #         tm = self.create_team_member(self.users[i].id, self.team.id, roles[i].team_role_name)
+                
+        #         tm.team_role_id = roles[i].id
+        #         # db.session.add(tm)
+        #         # db.session.flush()
+        #         self.faker_team_members.append(tm)
+        #     # db.session.commit()
+
+        
+
+       
+        
+        
         # engine = create_engine(str(db_url), encoding=b'utf-8', echo=echo, convert_unicode=True)
         #Session = sessionmaker(bind=engine)
 
@@ -111,6 +157,20 @@ class UserModelCase(unittest.TestCase):
         if self.ctx is not None:
             self.ctx.pop()
         self.postgresql.stop()
+    
+    @contextmanager
+    def no_expire(self):
+        """ A very clever trick that keeps the
+        sqlalchemy session from expiring even though
+        utility functions are used
+        sauce: https://stackoverflow.com/questions/51446322/flask-sqlalchemy-set-expire-on-commit-false-only-for-current-session
+        """
+        s = db.session()
+        s.expire_on_commit = False
+        try:
+            yield
+        finally:
+            s.expire_on_commit = True
 
 
     # def setUp(self):
@@ -301,123 +361,138 @@ class UserModelCase(unittest.TestCase):
         team_role_u = u.get_team_role(t.id)
         self.assertTrue(team_role_u.has_permission(TeamPermission.MODERATE_TEAM))
 
-    def test_can_moderate(self):
-        """ Tests can_moderate_team method """
-        faker.users(10)
-        users = fake_users = faker.get_fake_users()
-        #users = self.create_users()
-        
-        t1 = self.create_team()
+    # def test_can_moderate(self):
+    #     """ Tests can_moderate_team method """
+    #     #db.session
+    #     with self.no_expire():
+    #         def create_teammember(user, team, team_role_string):
+    #             """ Creates a team member object """
+    #             tr = TeamRole.query.filter_by(team_role_name=team_role_string).first()
+    #             tm = TeamMember(team_id=team.id, team_member_id=user.id, team_role_id=tr.id)
+    #             tm.team_role_id = tr.id
+    #             #tm.team_id=team.id
+    #             #tm.team_member_id=user.id
+    #             db.session.add(tm)
+    #             db.session.commit()
+    #             #db.session.query(TeamMember).update(tm, synchronize_session=False)
+                
+    #             return tm
 
-        u1_owner = users[1]
-        u1_tm = self.create_team_member(u1_owner, t1, 'Team owner')
+    #         faker.users(10)
+    #         #users = fake_users = faker.get_fake_users()
+    #         users = self.create_users()
+            
+    #         #users = self.users
+    #         t1 = self.create_team()
 
-        u2_member = users[2]
-        u2_tm = self.create_team_member(u2_member, t1, 'Team member')
+    #         u1_owner = users[0]
+    #         u1_tm = create_teammember(u1_owner, t1, 'Team owner')
+    #         # db.session.add(u1_tm)
+    #         # db.session.commit()
 
-        u3_member = users[3]
-        u3_tm = self.create_team_member(u3_member, t1, 'Team moderator')
-        u4_member = users[4]
-        u4_tm = self.create_team_member(u4_member, t1, 'Administrator')
+    #         u2_member = users[1]
+    #         u2_tm = create_teammember(u2_member, t1, 'Team member')
+    #         # db.session.add(u2_tm)
+    #         # db.session.commit()
 
-        u5_member = users[5]
-        u5_tm = self.create_team_member(u5_member, t1, 'Team member with assign')
+    #         u3_member = users[2]
+    #         u3_tm = create_teammember(u3_member, t1, 'Team moderator')
+    #         # db.session.add(u3_tm)
+    #         # db.session.commit()
 
-        # owner
-        self.assertTrue(u1_owner.can_moderate_team(t1.id))
-        # member
-        self.assertFalse(u2_member.can_moderate_team(t1.id))
-        # member with assign
-        self.assertFalse(u5_member.can_moderate_team(t1.id))
-        # moderator
-        self.assertTrue(u3_member.can_moderate_team(t1.id))
-        # admin
-        self.assertTrue(u4_member.can_moderate_team(t1.id))
+    #         u4_member = users[3]
+    #         u4_tm = create_teammember(u4_member, t1, 'Administrator')
+
+    #         u5_member = users[4]
+
+    #         u5_tm = create_teammember(u5_member, t1, 'Team member with assign')
+
+    #         # owner
+    #         #self.assertTrue(u1_owner.can_moderate_team(t1.id))
+    #         # member
+    #         self.assertFalse(u2_member.can_moderate_team(t1.id))
+    #         # member with assign
+    #         self.assertFalse(u5_member.can_moderate_team(t1.id))
+    #         # moderator
+    #         self.assertTrue(u3_member.can_moderate_team(t1.id))
+    #         # admin
+    #         self.assertTrue(u4_member.can_moderate_team(t1.id))
+    #     #db.session.rollback()
 
     def test_can(self):
         """ Tests can method in User model """
-        users = self.create_users()
-        
-        t1 = self.create_team()
+        with self.no_expire():
+            faker.users(10)
+            #users = fake_users = faker.get_fake_users()
+            users = self.create_users()
+            
+            #users = self.users
+            t1 = self.create_team()
 
-        u1_owner = users[1]
-        u1_tm = self.create_team_member(u1_owner, t1, 'Team owner')
+            u1_owner = users[0]
+            u1_tm = self.create_team_member(u1_owner, t1, 'Team owner')
+            # db.session.add(u1_tm)
+            # db.session.commit()
 
-        u2_member = users[2]
-        u2_tm = self.create_team_member(u2_member, t1, 'Team member')
+            u2_member = users[1]
+            u2_tm = self.create_team_member(u2_member, t1, 'Team member')
+            # db.session.add(u2_tm)
+            # db.session.commit()
 
-        u3_member = users[3]
-        u3_tm = self.create_team_member(u3_member, t1, 'Team moderator')
-        u4_member = users[4]
-        u4_tm = self.create_team_member(u4_member, t1, 'Administrator')
+            u3_member = users[2]
+            u3_tm = self.create_team_member(u3_member, t1, 'Team moderator')
+            # db.session.add(u3_tm)
+            # db.session.commit()
 
-        u5_member = users[5]
-        u5_tm = self.create_team_member(u5_member, t1, 'Team member with assign')
+            u4_member = users[3]
+            u4_tm = self.create_team_member(u4_member, t1, 'Administrator')
 
-        self.assertTrue(u1_owner.can_team(t1.id, TeamPermission.CREATE_TASKS))
-    
-    # roles = {
-    #             'Team member': [
-    #                 TeamPermission.CREATE_TASKS,
-    #                 TeamPermission.CLAIM_TASKS
-    #             ],
-    #             'Team member with assign': [
-    #                 TeamPermission.CREATE_TASKS,
-    #                 TeamPermission.CLAIM_TASKS,
-    #                 TeamPermission.ASSIGN_TASKS
-    #             ],
-    #             'Team moderator': [
-    #                 TeamPermission.CREATE_TASKS,
-    #                 TeamPermission.CLAIM_TASKS,
-    #                 TeamPermission.ASSIGN_TASKS,
-    #                 TeamPermission.MODERATE_TEAM
-    #             ],
-    #             'Team owner': [
-    #                 TeamPermission.CREATE_TASKS,
-    #                 TeamPermission.CLAIM_TASKS,
-    #                 TeamPermission.ASSIGN_TASKS,
-    #                 TeamPermission.MODERATE_TEAM,
-    #                 TeamPermission.TEAM_OWNER
-    #             ],
-    #             'Administrator': [
-    #                 TeamPermission.CREATE_TASKS,
-    #                 TeamPermission.CLAIM_TASKS,
-    #                 TeamPermission.ASSIGN_TASKS,
-    #                 TeamPermission.MODERATE_TEAM,
-    #                 TeamPermission.TEAM_OWNER,
-    #                 TeamPermission.ADMIN
-    #             ]
-    #         }
+            u5_member = users[4]
+
+            u5_tm = self.create_team_member(u5_member, t1, 'Team member with assign')
+
+            # Owner
+            self.assertTrue(u1_owner.can_team(t1.id, TeamPermission.CREATE_TASKS))
+            self.assertTrue(u1_owner.can_team(t1.id, TeamPermission.CLAIM_TASKS))
+            self.assertTrue(u1_owner.can_team(t1.id, TeamPermission.ASSIGN_TASKS))
+            self.assertTrue(u1_owner.can_team(t1.id, TeamPermission.MODERATE_TEAM))
+            self.assertTrue(u1_owner.can_team(t1.id, TeamPermission.TEAM_OWNER))
+            self.assertFalse(u1_owner.can_team(t1.id, TeamPermission.ADMIN))
+
+            # Team member
+            self.assertTrue(u2_member.can_team(t1.id, TeamPermission.CREATE_TASKS))
+            self.assertTrue(u2_member.can_team(t1.id, TeamPermission.CLAIM_TASKS))
+            self.assertFalse(u2_member.can_team(t1.id, TeamPermission.ASSIGN_TASKS))
+            
+            # Team member with assign
+            self.assertTrue(u5_member.can_team(t1.id, TeamPermission.CREATE_TASKS))
+            self.assertTrue(u5_member.can_team(t1.id, TeamPermission.CLAIM_TASKS))
+            self.assertTrue(u5_member.can_team(t1.id, TeamPermission.ASSIGN_TASKS))
+
+            # Moderator
+            self.assertTrue(u3_member.can_team(t1.id, TeamPermission.CREATE_TASKS))
+            self.assertTrue(u3_member.can_team(t1.id, TeamPermission.CLAIM_TASKS))
+            self.assertTrue(u3_member.can_team(t1.id, TeamPermission.ASSIGN_TASKS))
+            self.assertTrue(u3_member.can_team(t1.id, TeamPermission.MODERATE_TEAM))
+            self.assertFalse(u3_member.can_team(t1.id, TeamPermission.TEAM_OWNER))
+            self.assertFalse(u3_member.can_team(t1.id, TeamPermission.ADMIN))
+
 
     #### Helper methods ####
-    @classmethod
     def create_users(self):
         """ Creates a user """
         faker.users(10)
         fake_users = faker.get_fake_users()
-        print("Fake users: ", fake_users)
-        #for i in fake_users:
-        #    session.add(user)
-        #    session.refresh()
         return fake_users
     
-        #create_team_members(self, )
-    # 'Team member'
-    # 'Team member with assign'
-    # 'Team moderator'
-    #  'Team owner'
-    #  'Administrator'
-
     def create_team_member(self, user, team, team_role_string):
         """ Creates a team member object """
         tr = TeamRole.query.filter_by(team_role_name=team_role_string).first()
         tm = TeamMember(team_id=team.id, team_member_id=user.id, team_role_id=tr.id)
         tm.team_role_id = tr.id
-        #tm.team_id=team.id
-        #tm.team_member_id=user.id
         db.session.add(tm)
-        #db.session.flush()
         db.session.commit()
+        
         return tm
 
 
@@ -426,7 +501,6 @@ class UserModelCase(unittest.TestCase):
         """ Creates a team """
         t = Team(title='Testi tiimi', description='Tämä on testi tiimi')
         db.session.add(t)
-        db.session.flush()
         db.session.commit()
         return t
     
