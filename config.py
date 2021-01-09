@@ -94,8 +94,8 @@ class TestConfig(Config):
     
 #     import psycopg2
 #     import testing.postgresql
-#     from testing.postgresql import Postgresql    
-     
+#     from testing.postgresql import Postgresql
+    
     
     # def handler(postgresql):
     #     conn = psycopg2.connect(**postgresql.dsn())
