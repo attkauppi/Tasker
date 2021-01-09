@@ -6,7 +6,7 @@ Tiimejä voi luoda mihin tarkoitukseen tahansa - esimerkiksi projektikohtaisesti
 
 ## Käyttötapauksista
 
-### [Käyttötapauksista tarkemmin]('docs/käyttötapaukset.md')
+### [Käyttötapauksista tarkemmin](docs/käyttötapaukset.md)
 
 Kaikki tiimin jäsenet voivat luoda tiimin Kanban-tauluihin tehtäviä sekä ottaa tehtävän hoidettavakseen ('claim task'). Tiimin omistaja voi kuitenkin antaa tiimiläisilleen erilaisia "tiimirooleja" ('TeamRole' tietokannassa) riippuen tarpeistaan. Muut roolit sallivat esimerkiksi tehtävien delegoinnin jonkun muun tiimiläisen hoidettavaksi ('Team member with assign') ja esimerkiksi tiimin moderaattorit ovat tiimin jäseniä, joiden oikeudet lähentelevät tiimin omistajan omia oikeuksia; he voivat kutsua tiimiin jäseniä, määrittää tehtävien tekijän uudelleen sekä poistaa tiimistä jäseniä.
 
