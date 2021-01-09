@@ -8,7 +8,9 @@
                 {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
                 {# If request path is in an url associated with inviting users, show the popup #}
                     {% if request.referrer %}
-                        {% if "team" in request.referrer and "invite" in request.referrer and "invites" not in request.endpoint %}
+                        
+                        {% if "main.team" not in request.endpoint %}
+                            {% if "team" in request.referrer and "invite" in request.referrer and "invites" not in request.endpoint %}
                             <!-- Lisaa toiminto, joka tarkistaa, onko kayttaja jo tiimissa -->
                             <p>
                                 <form action="{{ url_for('main.invite_user_to_team',username=user.username, team_id=team_id) }}" method="post">
@@ -17,6 +19,7 @@
                                     {{ form.submit(value=('invite_user_to_team'), class_='btn btn-default btn-sm') }}
                                 </form>
                             </p>
+                            {% endif %}
                         {% endif %}
                     {% endif %}
                     {% if "team" in request.path and "invites" not in request.endpoint and "invite" not in request.endpoint %}
@@ -29,7 +32,7 @@
             <div class="post-footer">
             {% if current_user.is_team_moderator(team.id) or current_user.is_team_administrator(team.id) %}
                 {% if "invite" in request.endpoint and "team" in request.endpoint %}
-                    <form action="{{ url_for('main.invite_user_to_team',username=user.username, team_id=team_id) }}" method="post">
+                    <form action="{{ url_for('main.team_invite', id=team.id, username=user.username, team_id=team_id) }}" method="post">
                         {# {{ form.team_role.label }}{{ form.team_role }} #}
                         {{ form.hidden_tag() }}
                         {{ form.submit(value=('invite_user_to_team'), class_='btn btn-default btn-sm') }}

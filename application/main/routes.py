@@ -354,8 +354,8 @@ def team_invite(id):
     team = Team.query.get_or_404(id)
     print("Team: ", team)
     users = User.query.all()
-    #form = TeamInviteForm()
-    form = EmptyForm()
+    form = TeamInviteForm()
+    #form = EmptyForm()
 
     # Filters out the users already in the team
     us = []
@@ -369,9 +369,30 @@ def team_invite(id):
     #form = EmptyForm()
 
     if form.validate_on_submit():
-        return redirect(url_for('main.invite_user_to_team', team_id=id, username=form.username.data))
+        username = request.args.get('username')
+        user = User.query.filter_by(username=username).first()
+        tm = team.invite_user(user.username)
+
+        # If invite was successful, carry out
+        # database operation.
+        if tm:
+            db.session.add(tm)
+            db.session.commit()
+        else:
+            flash('Did you try to invite someone already in your team?')
+            #TODO: Vaihda, jos siirryt toiseen kutsunta menetelmään
+            return redirect(url_for('main.invite_to_team', id=team.id))
+        
+        flash(message=('Invited user ' + user.username))
+        print("Suoritus loppumassa iffin sisäiseen redirectiin")
+        return redirect(url_for('main.team_invite', id=team.id, team=team, users=us, form=form, team_id=team.id))
+        #return redirect(url_for('main.invite_user_to_team', team_id=id, username=form.username.data))
     
-    return render_template('team_members.html', team=team, users=us, form=form, team_id=team.id, id=team.id)
+    #return render_template('_invite_team_members.html', id=team.id, team=team, users=team.users, form=form)
+    return render_template('team_members.html', id=team.id, team=team, users=us, form=form, team_id=team.id)
+
+
+    #return render_template('team_members.html', id=team.id, team=team, users=us, form=form, team_id=team.id)
 
 
 

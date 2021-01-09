@@ -35,17 +35,15 @@
             {{ utils.icon("glyphicon glyphicon-arrow-left", ["small"]) }}
             {% endif %} #}
           </td>
-          <td>
+          <td id="edit">
             {{ modal_form34_image_edit_task('main.edit_team_task', id=team.id, form=form, team=team, task_id=task.id, title='Edit task') }}
           </td>
-          <td>
+          <td id="delete">
             {{ modal_form34_image_delete('main.team_task_delete', id=team.id, task_id=task.id, teksti='delete', value='delete') }}
           </td>
           <td>
             {{ move_arrow('main.task_move', id=team.id, task_id=task.id, direction="right", task=task) }}
-            {# <a href="{{ url_for('main.team_task_move_right', id=team.id, task_id = task.id) }}">{{ utils.icon("glyphicon glyphicon-arrow-right", ["small"]) }}</a>
-            {{ modal_form34_image_move_task_right('main.team_task_move_right', id=team.id, form=form, task_id=task.id, title="Move right") }} #}
-            {# <img href="#" class="card_link">{{ utils.icon("glyphicon glyphicon-arrow-right", ["small"]) }}</a> #}
+            
           </td>
         </tr>
       </table>
