@@ -1,0 +1,12 @@
+{% import 'bootstrap/wtf.html' as wtf %}
+{% extends "base.html" %}
+
+
+{% block app_content %}
+    {% for team in teams %}
+    {% with team=team %}
+        {% include '_team.html' %}
+    {% endwith %}
+    {% endfor %}
+
+{% endblock %}

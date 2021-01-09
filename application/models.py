@@ -790,6 +790,7 @@ class Team(db.Model):
     created = db.Column(DateTime, default=datetime.utcnow())
     modified = db.Column(DateTime, default=datetime.utcnow())
     users = relationship("User", secondary='team_members')
+    
     team_tasks = relationship('Task', secondary='team_tasks')#backref='team_tasks', lazy='dynamic')
     # team_tasks = db.relationship(
     #     'Task',
@@ -803,7 +804,7 @@ class Team(db.Model):
     
     def __eq__(self, other):
         """ Allows comparing user objects """
-        if isinstance(self, User):
+        if isinstance(self, Team):
             return self.id == other.id
         return False
 
@@ -885,7 +886,22 @@ class Team(db.Model):
             print("ei löytynyt")
 
         return team_task
+    
+    def add_admin_role(self):
+        """ Adds admin role to team for Administrator,
+        if moderation is required for some reason """
+        # Admin user is recognized by an email address given in
+        # environment variables
+        admin_user = User.query.filter_by(email=os.getenv('ADMIN')).first()
+        print("Admin user: ", admin_user)
 
+        # Admin TeamMember object:
+        tm_admin = TeamMember(
+            team_id=self.id,
+            team_member_id=admin_user.id
+        )
+
+        return tm_admin
 #     #creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
 class TeamMember(db.Model):

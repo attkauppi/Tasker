@@ -15,6 +15,5 @@ def internal_error(error):
 
 @bp.app_errorhandler(403)
 def forbidden(error):
-    #TODO: Varmista, että 403 virhe toimii
     print("Error 403 occurred, something unauthorized was attempted")
     return render_template('errors/403.html'), 403

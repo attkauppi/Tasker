@@ -14,7 +14,6 @@
                             <!-- Lisaa toiminto, joka tarkistaa, onko kayttaja jo tiimissa -->
                             <p>
                                 <form action="{{ url_for('main.invite_user_to_team',username=user.username, team_id=team_id) }}" method="post">
-                                    {# {{ form.team_role.label }}{{ form.team_role }} #}
                                     {{ form.hidden_tag() }}
                                     {{ form.submit(value=('invite_user_to_team'), class_='btn btn-default btn-sm') }}
                                 </form>
@@ -30,10 +29,9 @@
                 
             </small>
             <div class="post-footer">
-            {% if current_user.is_team_moderator(team.id) or current_user.is_team_administrator(team.id) %}
+            {% if current_user.is_team_moderator(team.id) or current_user.is_team_administrator(team.id) or current_user.is_administrator() %}
                 {% if "invite" in request.endpoint and "team" in request.endpoint %}
                     <form action="{{ url_for('main.team_invite', id=team.id, username=user.username, team_id=team_id) }}" method="post">
-                        {# {{ form.team_role.label }}{{ form.team_role }} #}
                         {{ form.hidden_tag() }}
                         {{ form.submit(value=('invite_user_to_team'), class_='btn btn-default btn-sm') }}
                     </form>

@@ -2,7 +2,6 @@ from flask import request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField, SelectField
 from wtforms.validators import ValidationError, DataRequired, Length, Email, Regexp
-# from flask_babel import _, lazy_gettext as _l
 from application.models import User, Team, Role, TeamRole, Board, Task, TeamPermission, TeamMember, TeamTask
 
 
@@ -21,7 +20,6 @@ class EditProfileForm(FlaskForm):
     def validate_username(self, username):
         """ Validates a user's username """
         if username.data != self.original_username:
-            # SQL
             user = User.query.filter_by(username=self.username.data).first()
             if user is not None:
                 raise ValidationError(message='Please choose another username.')
@@ -33,8 +31,7 @@ class EditProfileAdmin(FlaskForm):
         DataRequired(),
         Length(1, 64),
         Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0, 'Usernames must have only letters, numbers, dots or underscores')])
-    #TODO: Ota käyttöön, kun sähköpostivarmistaminen toimii
-    # confirmed = BooleanField('Confirmed)
+    confirmed = BooleanField('Confirmed')
     role = SelectField('Role', coerce=int)
     # name = StringField('Name', validators=[Length(0, 64)])
     about_me = TextAreaField('About me', validators=[Length(min=0, max=360)])

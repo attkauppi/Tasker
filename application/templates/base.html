@@ -47,6 +47,13 @@
                         </ul>
                     </li>
                     {% endif %}
+                    {% if current_user.is_administrator() %}
+                        <li class="dropdown" style="background-color:salmon">
+                            <a href="#" class="dropdown_toggle" data-toggle="dropdown" id="team">Teams<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{{ url_for('main.admin_teams') }}">Teams</a></li>
+                            </ul>
+                    {% endif %}
 
                 </ul>
                 

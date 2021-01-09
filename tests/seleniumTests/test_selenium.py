@@ -226,6 +226,7 @@ class SeleniumTestCase(unittest.TestCase):
         try:
             self.client.get('http://localhost:5000/auth/login')
             time.sleep(3)
+            
 
             # Finds the login button from the navbar and clicks
             #self.client.find_element_by_xpath('//*[@id="bs-example-navbar-collapse-1"]/ul[4]').click()
@@ -270,7 +271,8 @@ class SeleniumTestCase(unittest.TestCase):
             self.client.find_element_by_id('submit').click()
             # time.sleep(5)
             print("Submittasko?")
-
+            time.sleep(3)
+            
             #time.sleep(3)
         except Exception:
             pass
@@ -283,80 +285,8 @@ class SeleniumTestCase(unittest.TestCase):
         #text = None
         try:
 
-            #t = Team('')
-
-            # Create team
-            print("Team tasks alkaa")
-            # time.sleep(2)
-            # self.client.get('http://localhost:5000/auth/login')
-            # time.sleep(3)
-
-            # # Finds the login button from the navbar and clicks
-            # #self.client.find_element_by_xpath('//*[@id="bs-example-navbar-collapse-1"]/ul[4]').click()
-            # #time.sleep(3)
-
-            # # Finds username field
-            # username= self.client.find_element_by_id('username')
-            # username.send_keys('testaaja25')
-            # time.sleep(2)
-
-            # # finds password field
-            # password = self.client.find_element_by_id('password')
-            # password.send_keys('testaaja25')
-
-            # time.sleep(2)
-
-            # # submit button
-            # self.client.find_element_by_id('submit').click()
-            # time.sleep(5)
-            # #######
-
-            # # Finds the create team button
-            # self.client.find_element_by_id('team').click()
-            # time.sleep(2)
-            # self.client.find_element_by_link_text('Create team').click()
-            # time.sleep(3)
             
-            # #time.sleep(3)
-
-            # # Finds the team name field
-            # team_title = self.client.find_element_by_id('title')
-            # team_title.send_keys('testaaja25:sen tiimi')
-            # #time.sleep(3)
-
-            # # Finds the description field
-            # team_desc = self.client.find_element_by_id('description')
-            # team_desc.send_keys('description')
-            # #time.sleep(3)
-            # print("TIIMIN LUONTI TESTI")
-
-            # # Finds the submit button
-            # self.client.find_element_by_id('submit').click()
-            # time.sleep(5)
-            # print("Submittasko?")
-            #################
-
-            # self.client.get('http://localhost:5000/auth/login')
-            # time.sleep(3)
-
-            # # Finds the login button from the navbar and clicks
-            # #self.client.find_element_by_xpath('//*[@id="bs-example-navbar-collapse-1"]/ul[4]').click()
-            # #time.sleep(3)
-
-            # # Finds username field
-            # username= self.client.find_element_by_id('username')
-            # username.send_keys('testaaja25')
-            # time.sleep(2)
-
-            # # finds password field
-            # password = self.client.find_element_by_id('password')
-            # password.send_keys('testaaja25')
-
-            # time.sleep(2)
-
-            # # submit button
-            # self.client.find_element_by_id('submit').click()
-            # time.sleep(5)
+            print("Team tasks alkaa")
             #######
 
             self.client.get('http://localhost:5000/team/1')
@@ -430,9 +360,6 @@ class SeleniumTestCase(unittest.TestCase):
             # submit
             self.client.find_element_by_id('submit_edit_team_task').click()
 
-            text = self.client.find_element_by_xpath('/html/body/div[2]/div/div/div/div[2]/div[2]/div[1]').text
-            self.assertTrue("otsikko muokattu" in text)
-
             time.sleep(3)
 
         except Exception:
@@ -441,19 +368,44 @@ class SeleniumTestCase(unittest.TestCase):
         # Otsikko teksti sivulla haettuna xpathin mukaan 
         #text = self.client.find_element_by_xpath('/html/body/div[2]/div/div/div/div[2]/div[2]/div[1]').text
         #self.assertTrue("otsikko muokattu" in text)
-        self.assertTrue('assigned to' in self.client.page_source)
-        self.assertTrue('testaaja25' in self.client.page_source)
+        self.assertIn('assigned to', self.client.page_source)
+        self.assertIn('testaaja25', self.client.page_source)
 
     def test_invite_to_team(self):
         """ Tests inviting """
-
+        #name = None
         try:
-            self.client.get('http://127.0.0.1:5000/teams/1/invites')
+            print("TASKS")
             time.sleep(3)
+            self.client.get('http://127.0.0.1:5000/teams/1/invites')
+            time.sleep(4)
+
+            self.client.find_element_by_id('invite_to_team').click()
+            time.sleep(3)
+
+            # Name of user to be invited
+            name = self.client.find_element_by_xpath('/html/body/div[2]/table[1]/tbody/tr/td[2]/p/a').text
+
+            time.sleep(3)
+            # invite button
+            self.client.find_element_by_xpath('//*[@id="submit"]').click()
+            time.sleep(4)
+
             
+            self.assertTrue("Invited user "+name in self.client.page_source)
+            time.sleep(2)
+
+            # members
+            self.client.find_element_by_xpath('/html/body/div[1]/div/div[2]/ul[1]/li[1]/a').click()
+            time.sleep(4)
+
+
+            #self.assertTrue(name in self.client.page_source)
                     
         except Exception:
             pass
+        
+        self.assertIn('Team member', self.client.page_source)
 
 
     # def test_creator_is_team_owner(self):

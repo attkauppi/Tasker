@@ -183,6 +183,14 @@
   <a class="edit-modal-opener34" id="task_move_right" data-toggle="modal" type="submit" data-whatever="{{ url_for(endpoint, **kwargs) }}" title="Move right">{{ utils.icon("glyphicon glyphicon-arrow-right", ["small"]) }}</a>
 {% endmacro %}
 
+{% macro get_team_admin(endpoint,id) %}
+<form method="post" action="{{ url_for('main.get_team_admin', id=team.id) }}">
+  <button type="submit" name="submit" class="btn btn-danger">
+    Claim admin
+  </button>
+</form>
+{% endmacro %}
+
 {# Arrows to move tasks between boards on the less fancy task management page #}
 {% macro move_arrow(endpoint, id, task_id, direction, task) %}
 

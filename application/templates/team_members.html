@@ -3,7 +3,14 @@
 
 {% block app_content %}
     {% for user in users %}
-        {% include '_users.html' %}
+        {# Admin is hidden #}
+        {% if user.is_administrator() and not current_user.is_administrator() %}
+            {# Skip over #}
+        {% elif current_user.is_administrator() %}
+            {% include '_users.html' %}
+        {% else %}
+            {% include '_users.html' %}
+        {% endif %}
     {% endfor %}
 
 {% endblock %}

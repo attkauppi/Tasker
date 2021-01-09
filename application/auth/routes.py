@@ -78,12 +78,8 @@ def register():
             email=form.email.data.lower(),
             created = datetime.utcnow())
         user.set_password(form.password.data)
-        #user.email = form.email.data
-        #user.created = datetime.utcnow()
         db.session.add(user)
         db.session.commit()
-        # Token for email confirmation email
-        #token = user.generate_confirmation_token()
         send_confirmation_email(user)
         token = user.generate_confirmation_token()
         flash("Congrats, you're now a user! We sent a confirmation link to your email.")
@@ -93,14 +89,11 @@ def register():
 @bp.route('/reset_password_request', methods=["GET", "POST"])
 def reset_password_request():
     if current_user.is_authenticated:
-        print("Authenticated")
         return redirect(url_for('main.index'))
     form = ResetPasswordRequestForm()
     if request.method == "POST":
         if form.validate_on_submit:
             user = User.query.filter_by(email=form.email.data).first()
-            print(user.email)
-            print("User", user)
             if user:
                 send_password_reset_email(user)
             flash('Check your email for instructions')
