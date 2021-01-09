@@ -72,7 +72,7 @@ class TeamTask(db.Model):
         print("Edit team taskin löytämä team task: ", team_task)
 
         #form_data = kwargs.get('form_data')
-        # print("Form data: ", form_data)
+        print("Form data: ", form_data)
         # TODO: Katso ettei tässä ole tietoturvariskiä
         if "assign_to_choices" in form_data:
             if form_data['assign_to_choices'] == 0:
@@ -81,7 +81,16 @@ class TeamTask(db.Model):
                 # print("assign to choices oli nolla!")
             else:
                 # print("assign_to_choices: ", form_data['assign_to_choices'])
-                team_task.doing = form_data['assign_to_choices']
+                #team_task.doing = form_data['assign_to_choices']
+
+                # Team task doing is actually the user id,
+                # because I wanted to get a real name
+                # instead of a join table id as an option
+                # in the task editing form. We need to find out
+                # which team_member's user_id is the integer
+                # given in doing field
+                tm = TeamMember.query.filter_by(team_member_id=form_data['assign_to_choices']).filter_by(team_id=team_id).first()
+                team_task.doing = tm.id
                 team_task.assigned = True
         
         return team_task

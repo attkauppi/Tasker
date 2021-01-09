@@ -13,8 +13,6 @@
 
 {% block navbar %}
     <nav class="navbar navbar-default" role="navigation" margin-bottom="0px">
-        {# Vaihtamalla tähän saa leviämään koko sivulle! #}
-        {# <div class="container-fluid"> #}
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
                     <span class="sr-only">Toggle navigation</span>
@@ -49,9 +47,10 @@
                     {% endif %}
                     {% if current_user.is_administrator() %}
                         <li class="dropdown" style="background-color:salmon">
-                            <a href="#" class="dropdown_toggle" data-toggle="dropdown" id="team">Teams<b class="caret"></b></a>
+                            <a href="#" class="dropdown_toggle" data-toggle="dropdown" id="team">Admin<b class="caret"></b></a>
                             <ul class="dropdown-menu">
                                 <li><a href="{{ url_for('main.admin_teams') }}">Teams</a></li>
+                                <li><a href="{{ url_for('main.admin_users') }}">Users</a></li>
                             </ul>
                     {% endif %}
 
@@ -62,18 +61,7 @@
                     {% if not current_user.is_anonymous %}
                     
                     <!-- Henkilokohtaiselle sivulle vieva linkki -->
-                    {# <li>
-                        <a href="{{ url_for('main.messages') }}">
-                            {{ 'Messages' }}
-                            {% set new_messages = current_user.new_messages() %}
-                            <span id="message_count" class="badge"
-                                  style="visibility: {% if new_messages %}visible
-                                                     {% else %}hidden {% endif %};">
-                                {{ new_messages }}
-                            </span>
-                            {# {% endset %} #}
-                        </a>
-                    </li> #}
+                    
                     <li>
                         <a href="{{ url_for('main.messages') }}">{{ ('Messages') }}
                             {% set new_messages = current_user.new_messages() %}

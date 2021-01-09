@@ -7,48 +7,54 @@
             
                 {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
                 {# If request path is in an url associated with inviting users, show the popup #}
-                    {% if request.referrer %}
-                        
-                        {% if "main.team" not in request.endpoint %}
-                            {% if "team" in request.referrer and "invite" in request.referrer and "invites" not in request.endpoint %}
-                            <!-- Lisaa toiminto, joka tarkistaa, onko kayttaja jo tiimissa -->
-                            <p>
-                                <form action="{{ url_for('main.invite_user_to_team',username=user.username, team_id=team_id) }}" method="post">
-                                    {{ form.hidden_tag() }}
-                                    {{ form.submit(value=('invite_user_to_team'), class_='btn btn-default btn-sm') }}
-                                </form>
-                            </p>
+                    {% if "team" in request.endpoint %}
+                
+                        {% if request.referrer %}
+                                
+                                {% if "main.team" not in request.endpoint %}
+                                    {% if "team" in request.referrer and "invite" in request.referrer and "invites" not in request.endpoint %}
+                                    <!-- Lisaa toiminto, joka tarkistaa, onko kayttaja jo tiimissa -->
+                                    <p>
+                                        <form action="{{ url_for('main.invite_user_to_team',username=user.username, team_id=team_id) }}" method="post">
+                                            {{ form.hidden_tag() }}
+                                            {{ form.submit(value=('invite_user_to_team'), class_='btn btn-default btn-sm') }}
+                                        </form>
+                                    </p>
+                                    {% endif %}
+                                {% endif %}
                             {% endif %}
+                            {% if "team" in request.path and "invites" not in request.endpoint and "invite" not in request.endpoint %}
+                            <p>
+                                <b>Current team role:</b> {{ get_user_team_role(user, team_id=team.id) }}
+                            </p>
                         {% endif %}
-                    {% endif %}
-                    {% if "team" in request.path and "invites" not in request.endpoint and "invite" not in request.endpoint %}
-                    <p>
-                        <b>Current team role:</b> {{ get_user_team_role(user, team_id=team.id) }}
-                    </p>
                     {% endif %}
                 
             </small>
             <div class="post-footer">
-            {% if current_user.is_team_moderator(team.id) or current_user.is_team_administrator(team.id) or current_user.is_administrator() %}
-                {% if "invite" in request.endpoint and "team" in request.endpoint %}
-                    <form action="{{ url_for('main.team_invite', id=team.id, username=user.username, team_id=team_id) }}" method="post">
-                        {{ form.hidden_tag() }}
-                        {{ form.submit(value=('invite_user_to_team'), class_='btn btn-default btn-sm') }}
-                    </form>
-                {% endif %}
-                {% if "team" in request.path and "members" in request.path %}
-                    <a class="btn btn-default" href="{{ url_for('.edit_team_member', id=team.id, username=user.username) }}">Edit team role</a>
-                {% else %}
+            {% if "team" in request.endpoint %}
                 
-                {# {% elif current_user.is_administrator() %} #}
-                    {% if user == current_user %}
-                        <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">Edit Profile</a>
+                {% if current_user.is_team_moderator(team.id) or current_user.is_team_administrator(team.id) or current_user.is_administrator() %}
+                    {% if "invite" in request.endpoint and "team" in request.endpoint %}
+                        <form action="{{ url_for('main.team_invite', id=team.id, username=user.username, team_id=team_id) }}" method="post">
+                            {{ form.hidden_tag() }}
+                            {{ form.submit(value=('invite_user_to_team'), class_='btn btn-default btn-sm') }}
+                        </form>
                     {% endif %}
-                    {% if current_user.is_administrator() %}
-                        <a class="btn btn-danger" href="{{ url_for('main.edit_profile_admin', id=user.id) }}">Edit Profile [Admin]</a>
+                    {% if "team" in request.path and "members" in request.path %}
+                        <a class="btn btn-default" href="{{ url_for('.edit_team_member', id=team.id, username=user.username) }}">Edit team role</a>
                     {% endif %}
+                {% endif %}
+            {% else %}
+                
+                {% if user == current_user %}
+                    <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">Edit Profile</a>
+                {% endif %}
+                {% if current_user.is_administrator() %}
+                    <a class="btn btn-danger" href="{{ url_for('main.edit_profile_admin', id=user.id) }}">Edit Profile [Admin]</a>
                 {% endif %}
             {% endif %}
+                {# {% endif %} #}
             </div>
         </td>
     </tr>

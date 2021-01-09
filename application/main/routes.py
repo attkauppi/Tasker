@@ -735,6 +735,7 @@ def edit_team_task(id):
                     task.done = False
             form_data = form.data
             team_task = TeamTask.edit_team_task(task, team.id, form_data)
+            print("team task: ", team_task)
 
             db.session.commit()
 
@@ -1064,6 +1065,14 @@ def admin_teams():
     teams = Team.query.all()
 
     return render_template('_teams.html', teams=teams)
+
+@bp.route("/admin/users", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_users():
+    users = User.query.all()
+
+    return render_template('users.html', users=users)
 
 @bp.route('/teams/<int:id>/edit_team_admin', methods=["GET", "POST"])
 @login_required
