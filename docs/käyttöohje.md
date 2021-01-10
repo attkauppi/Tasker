@@ -6,7 +6,7 @@ Palveluun pääsee rekisteröitymään painamalla oikean ylälaidan "Login"-pain
 
 Sähköpostivarmennuksen ollessa käytössä, on tässä vaiheessa hyvä kirjautua ja avata sitten sähköpostiin tullut varmennusviestin linkki (tilin varmentaessaan täytyy olla kirjautunut, jotta sähköpostiosoitteen varmistaminen onnistuu). Kun sähköposti on varmennettu käyttäen sähköpostilinkkiä, on palvelua mahdollista alkaa käyttämään.
 
-Jos sähköpostiin tullut varmennuslinkki ehtii vanhentumaan, on sisäänkirjautumisen jälkeen mahdollista pyytää uuden varmennusviestin lähettämistä. Jos sähköpostien lähettämisessä on vikaa, kannattaa sähköpostivarmenteet ottaa pois päältä lisäämällä ympäristömuuttujatiedostoon .env Tasker-kansiossa asetus CONFIGURED=0 . Ympäristömuuttujista tarkemmin [asennusohjeessa](docs/asennusohje#-ympäristömuuttujat).
+Jos sähköpostiin tullut varmennuslinkki ehtii vanhentumaan, on sisäänkirjautumisen jälkeen mahdollista pyytää uuden varmennusviestin lähettämistä. Jos sähköpostien lähettämisessä on vikaa, kannattaa sähköpostivarmenteet ottaa pois päältä lisäämällä ympäristömuuttujatiedostoon .env Tasker-kansiossa asetus ```CONFIGURED=0``` . Ympäristömuuttujista tarkemmin [asennusohjeessa](docs/asennusohje#-ympäristömuuttujat).
 
 ## Tiimit
 
