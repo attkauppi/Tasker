@@ -670,9 +670,6 @@ def create_team_task(id):
         db.session.commit()
         team_task = team.create_team_task(t)
 
-        print("Team task: ", team_task)
-
-        #db.session.add(t)
         db.session.add(team_task)
         db.session.commit()
 
@@ -689,10 +686,6 @@ def team_tasks_uusi(id):
     team = Team.query.get_or_404(id)
 
     args = request.args.to_dict()
-
-
-    #print("team.team_tasks")
-    #print(team.team_tasks)
 
     todos = team.get_todo_tasks()
     #print("todos: ", todos)
@@ -737,9 +730,6 @@ def edit_team_task(id):
 
     #form = TeamTaskFormEdit(team=team, task=task, user=current_user)
     assigned_to = None
-    print("Task boards: ", Task.boards())
-    print("Task.boards()['TODO'] == task.board: ", (task.board == Task.boards()['TODO']))
-    print("Task.boards()[DONE]: ", Task.boards()['DONE'])
 
     #FIXME: Jotain vikaa lomakkeessa täälläkin
     if request.method == "POST":

@@ -43,7 +43,9 @@ Asentaminen on käsitelty tarkemmin ylle linkitetyissä osioissa.
 
 ## Työn ja sovelluksen rajoitteet
 
-Olisin halunnut saada Kanban-tauluista esim. JQuerylla toimivia, jossa olisi helposti voinut vetää tehtäviä taulusta toiseen. Käytinkin tähän kohtuullisen paljon aikaa, mutta 
+Olisin halunnut saada Kanban-tauluista esim. JQuerylla toimivia, jossa olisi helposti voinut vetää tehtäviä taulusta toiseen. Käytinkin tähän kohtuullisen paljon aikaa, mutta FullStack-kurssia käymättä en saanut sovelluksesta riittävän käyttökelpoista - paljolti tästä syystä sovelluksesta löytyy API-määrittelyt, joita hyödynsin tietojen hakemiseen ajaxilla.
+
+Tämä olisi selvä jatkokehityskohde.
 
 
 # TODO: Jos lisäät käyttäjille omat taulut, lisää tähän.
