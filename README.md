@@ -2,6 +2,7 @@ Tasker-Kanban-järjestelmän käyttäminen
 ======================================
 
 - [Lyhyt kuvaus Taskerista](#tasker)
+- [Käyttötapauksista](#käyttötapauksista)
 
 # Tasker
 
@@ -21,10 +22,14 @@ Kaikki tiimin jäsenet voivat luoda tiimin Kanban-tauluihin tehtäviä sekä ott
 
 ### [Tarkemmat asennusohjeet](docs/asennusohje.md)
 
+#### [Asentaminen Docker-ympäristössä](docs/asennusohje#-asentaminen-docker-ympäristössä)
+
 Järjestelmän nopeaa katselmointia varten nopeinta voi olla käyttää docker-kansion sisältämiä Dockerfile ja docker-compose.yml-tiedostoja. Tällöin ei tarvitse asentaa Postgresql:ää tai luoda uutta tietokantaa sovellusta varten. Tämä kuitenkin edellyttää [Dockerin]('https://docs.docker.com/engine/install/') ja [docker-composen]('https://docs.docker.com/compose/install/'), mikä on dokumentoitu kattavasti eri käyttöjärjestelmille Dockerin omilla sivuilla.
 
-#### [Asentaminen Python-ympäristöön](docs/)
+#### [Asentaminen Python-ympäristöön](docs/asennusohje#-asentaminen-python-ympäristössä)
 Toisena on käyttää esimerkiksi virtualenv- tai pipenv-ympäristöä Python-pakettien asentamiseen ja luoda tietokanta esimerkiksi postgresql:n tai sqliteen. Sovelluksen kehityksessä käytetty Python-versio on ollut 3.8.7 (määritelty myös [runtime.txt]('runtime.txt')-tiedostossa), mutta myös luultavasti myös Python-versiot >= 3.8.1 toimivat, sillä tätä käytetään esimerkiksi Docker-ympäristössä.
+
+Asentaminen on käsitelty tarkemmin ylle linkitetyissä osioissa.
 
 # TODO: Jos lisäät käyttäjille omat taulut, lisää tähän.
 

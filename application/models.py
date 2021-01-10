@@ -265,8 +265,7 @@ class User(UserMixin, db.Model):
         # self.password = password
         print(self.role)
         if self.role is None:
-            
-            #if self.email == os.getenv('ADMIN'):
+
             # This will not work, if in the registration form
             # the user is not instantiated with at least the
             # email, i.e., u = User(email=form.email.data)

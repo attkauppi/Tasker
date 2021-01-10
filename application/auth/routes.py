@@ -14,8 +14,7 @@ from application.models import User
 from datetime import date
 from datetime import datetime
 from application.email import send_email
-#from flask_mail import Message
-#from application import mail
+import os
 
 @bp.before_app_request
 def before_request():
@@ -73,19 +72,38 @@ def register():
         return redirect(url_for('main.index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(
-            username=form.username.data,
-            email=form.email.data.lower(),
-            created = datetime.utcnow())
+
+        user = None
+        
+        # If EMAIL_CONFIGURED environment variable is set
+        # to false, all users are confirmed upon registration.
+        # this is risky, because the only thing keeping someone
+        # from highjacking the admin account is the registered
+        # email addresses of users having to be confirmed.
+        if os.getenv('EMAIL_CONFIGURED') != 0:
+
+            user = User(
+                username=form.username.data,
+                email=form.email.data.lower(), 
+                confirmed=True
+            )
+            
+        else:
+            user = User(
+                username=form.username.data,
+                email=form.email.data.lower(),
+                created = datetime.utcnow())
+        
         user.set_password(form.password.data)
-        #user.email = form.email.data
-        #user.created = datetime.utcnow()
         db.session.add(user)
         db.session.commit()
+
         # Token for email confirmation email
-        #token = user.generate_confirmation_token()
-        send_confirmation_email(user)
-        token = user.generate_confirmation_token()
+        if os.getenv('EMAIL_CONFIGURED') != 0:
+            send_confirmation_email(user)
+            token = user.generate_confirmation_token()
+
+        user_new = User.query.filter_by(username=user.username).first()
         flash("Congrats, you're now a user! We sent a confirmation link to your email.")
         return redirect(url_for("auth.login"))
     return render_template('auth/register.html', form=form)
@@ -93,14 +111,11 @@ def register():
 @bp.route('/reset_password_request', methods=["GET", "POST"])
 def reset_password_request():
     if current_user.is_authenticated:
-        print("Authenticated")
         return redirect(url_for('main.index'))
     form = ResetPasswordRequestForm()
     if request.method == "POST":
         if form.validate_on_submit:
             user = User.query.filter_by(email=form.email.data).first()
-            print(user.email)
-            print("User", user)
             if user:
                 send_password_reset_email(user)
             flash('Check your email for instructions')

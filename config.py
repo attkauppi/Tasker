@@ -74,6 +74,7 @@ class DevConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URI')
     DATABASE_URL = os.environ.get('DEV_DATABASE_URI')
+    print("DATABASE_URL: ", DATABASE_URL)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     print("debug mode: ", os.environ.get('DEBUG'))
     TESTING = True

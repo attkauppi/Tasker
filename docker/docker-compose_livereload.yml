@@ -1,0 +1,36 @@
+version: "3"
+
+# FOR DEVELOPMENT USE ONLY. DON'T DEPLOY THIS
+
+services:
+
+  web:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile_livereload_dev_only
+    entrypoint:
+      - flask
+      - run
+      - --host=0.0.0.0
+    env_file:
+      - ./.env.dev
+    environment:
+      FLASK_DEBUG: 1
+      FLASK_APP: ./wsgi.py
+    ports: ['5000:5000']
+    volumes:
+      - ./:/app
+    depends_on:
+      - db
+  db:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    expose:
+      - "5432"
+    env_file:
+      - ./.env.db
+
+volumes:
+  postgres_data:

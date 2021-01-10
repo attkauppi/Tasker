@@ -1,0 +1,7 @@
+FROM python:3.8.7-slim
+
+RUN mkdir app
+WORKDIR app
+COPY requirements.txt .
+RUN pip install -U pip --no-cache-dir wheel -r requirements.txt
+CMD ["python", "wsgi.py"]
