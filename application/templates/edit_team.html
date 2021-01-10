@@ -1,4 +1,8 @@
-{% extends "base.html" %}
+{% if "main.create_team" not in request.endpoint %}
+    {% extends "_team_base.html" %}
+{% else %}
+    {% extends "base.html" %}
+{% endif %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% from "_macros.html" import modal_form33 with context %}
 {% from "_macros.html" import delete with context %}
@@ -6,7 +10,7 @@
 {% block app_content %}
     <h1>{{ ('Edit team') }}</h1>
     {% if "team" in request.path and "create" not in request.endpoint and "members" in request.endpoint %}
-    {% include '_users.html' %}
+        {% include '_users.html' %}
     {% endif %}
     <div class="row">
         <div class="col-md-4">
@@ -16,21 +20,25 @@
 
     {% if "team" in request.path and "create" not in request.endpoint %}
 
-        {% if current_user.is_administrator() %}
+        {# {% if current_user.is_administrator() %}
             <a class="btn btn-danger"
                 href="{{ url_for('.edit_profile_admin', id=user.id) }}">
                 Edit Profile [Admin]
             </a>
-        {% endif %}
+        {% endif %} #}
         <p>
-        {% if get_user_team_role(current_user, team.id).team_role_name == "Team owner" %}
+        {% if get_user_team_role(current_user, team.id).team_role_name == "Team owner" or current_user.get_team_member_object(team.id).is_team_owner() or current_user.is_team_administrator(team.id) or current_user.is_administrator() %}
             {% if "create_team" not in request.endpoint %}
             <div class="row">
                 <div class="col-md-4">
                     {#
                     {{ modal_form33('main.team_delete', id=team.id, teksti="Delete") }}
                     #}
-                    {{ delete('main.team_delete', id=team.id, teksti="Delete team") }}
+                    {% if not current_user.is_administrator() %}
+                        {{ delete('main.team_delete', id=team.id, teksti="Delete team") }}
+                    {% else %}
+                        {{ delete('main.team_delete', id=team.id, teksti="Delete team as admin") }}
+                    {% endif %}
                 </div>
             </div>
             {% endif %}

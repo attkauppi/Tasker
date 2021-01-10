@@ -74,6 +74,7 @@ class SeleniumTestCase(unittest.TestCase):
             #cls.client = webdriver.Chrome(chrome_options=options)
             print("CURRENT DIR: ", currentdir)
             cls.client = webdriver.Chrome(currentdir+"/chromedriver")
+            cls.client.implicitly_wait(10)
             #cls.client.get('google.com'); time.sleep(10)
         except:
             pass
@@ -101,8 +102,8 @@ class SeleniumTestCase(unittest.TestCase):
 
             # Create the database
             db.create_all()
-            # Role.insert_roles()
-            # TeamRole.insert_roles()
+            Role.insert_roles()
+            TeamRole.insert_roles()
 
             u = User(
                 username="testaaja25",
@@ -169,7 +170,7 @@ class SeleniumTestCase(unittest.TestCase):
     
     def test_home_page(self):
         self.client.get('http://localhost:5000/')
-        time.sleep(3)
+        # time.sleep(3)
         tasker = self.client.find_element_by_xpath("/html/body/nav/div[1]/a").text
         self.assertEqual(tasker, "Tasker")
 
@@ -179,7 +180,7 @@ class SeleniumTestCase(unittest.TestCase):
     def test_login(self):
         """ Test logging in """
         self.client.get('http://localhost:5000/auth/login')
-        time.sleep(3)
+        # time.sleep(3)
 
         # Finds the login button from the navbar and clicks
         #self.client.find_element_by_xpath('//*[@id="bs-example-navbar-collapse-1"]/ul[4]').click()
@@ -192,7 +193,7 @@ class SeleniumTestCase(unittest.TestCase):
             username= self.client.find_element_by_id('username').click()
             time.sleep()
             username.send_keys('testaaja25')
-            time.sleep(2)
+            #time.sleep(2)
         except Exception:
             pass
 
@@ -206,12 +207,13 @@ class SeleniumTestCase(unittest.TestCase):
             pass
 
         
-        time.sleep(2)
+        # time.sleep(2)
 
         # submit button
         try:
             self.client.find_element_by_id('submit').click()
-            time.sleep(10)
+            time.sleep(2)
+            # time.sleep(10)
         except Exception:
             pass
 
@@ -224,10 +226,11 @@ class SeleniumTestCase(unittest.TestCase):
         try:
             self.client.get('http://localhost:5000/auth/login')
             time.sleep(3)
+            
 
             # Finds the login button from the navbar and clicks
             #self.client.find_element_by_xpath('//*[@id="bs-example-navbar-collapse-1"]/ul[4]').click()
-            #time.sleep(3)
+            time.sleep(3)
 
             # Finds username field
             username= self.client.find_element_by_id('username')
@@ -262,10 +265,14 @@ class SeleniumTestCase(unittest.TestCase):
             team_desc = self.client.find_element_by_id('description')
             team_desc.send_keys('description')
             #time.sleep(3)
+            print("TIIMIN LUONTI TESTI")
 
             # Finds the submit button
             self.client.find_element_by_id('submit').click()
-
+            # time.sleep(5)
+            print("Submittasko?")
+            time.sleep(3)
+            
             #time.sleep(3)
         except Exception:
             pass
@@ -273,61 +280,190 @@ class SeleniumTestCase(unittest.TestCase):
         self.assertIn('testaaja25:sen tiimi', self.client.page_source)
         self.assertIn('Team members', self.client.page_source)
     
-
-    def test_creator_is_team_owner(self):
-        """ Tests that the creator of the team
-        becomes its owner """
+    def test_tasks(self):
+        """ Tests task functionalities """
+        #text = None
         try:
-            self.client = self.login()
 
+            
+            print("Team tasks alkaa")
+            #######
+
+            self.client.get('http://localhost:5000/team/1')
+            time.sleep(3)
+
+            print("Get team tasks page")
+            self.client.get('http://localhost:5000/teams/1/team_tasks')
+            time.sleep(3)
+
+            # Click Team tasks2 on navbar
+            self.client.find_element_by_xpath('/html/body/div[1]/div/div[2]/ul[1]/li[3]').click()
+            time.sleep(4)
+
+            # Create task
+            self.client.find_element_by_xpath('/html/body/div[2]/p[3]/button').click()
+            title = self.client.find_element_by_id('title')
+            title.send_keys('otsikko')
+            time.sleep(4)
+
+            desc = self.client.find_element_by_id('description')
+            desc.send_keys('kuvaus')
+            time.sleep(5)
+
+            # Create button
+            self.client.find_element_by_id('submit_new_task').click()
+            time.sleep(5)
+
+            # Move right
+            self.client.find_element_by_xpath('//*[@id="task_span"]/div/div[2]/table/tbody/tr/td[4]/form/button').click()
+            time.sleep(5)
+            
+            
+            # test
+            # moved_right = "Moved right" in self.client.page_source
+
+            # Move left
+            self.client.find_element_by_xpath('/html/body/div[2]/div[2]/div/div/div[2]/div[2]/div[2]/table/tbody/tr/td[1]/form/button').click()
+            time.sleep(4)
+            #moved_left = "Moved left" in self.client.page_source
+
+            time.sleep(3)
+
+
+            # Edit
+            #self.find_element_by_xpath('//*[@id="task_span"]/div/div[2]/table/tbody/tr/td[2]/a').click()
+            #
+            self.client.find_element_by_id('edit').click()
+            # self.find_element_by_xpath('//*[@id="task_span"]/div/div[2]/table/tbody/tr/td[2]/a').click()
+            # print("Clidk edit")
+            time.sleep(5)
+            # self.find_element_by_css_selector('a.edit-modal-opener34').click()
+            # //*[@id="task_span"]/div/div[2]/table/tbody/tr/td[2]/a/span
+
+            title = self.client.find_element_by_id('title')
+            title.send_keys('otsikko muokattu')
+
+            time.sleep(4)
+
+            # Assign to
+            self.client.find_element_by_xpath('//*[@id="assign_to_choices"]').click()
+            time.sleep(3)
+            self.find_element_by_xpath('//*[@id="assign_to_choices"]/option[2]').click()
             time.sleep(2)
-            self.client.get('http://localhost:5000/user/testaaja25')
+
+            # move to
+            self.client.find_element_by_xpath('//*[@id="board_choices"]').click() 
+            time.sleep(5)
+            self.client.find_element_by_xpath('//*[@id="board_choices"]/option[2]').click()
             time.sleep(2)
 
-            self.client.find_element_by_xpath('/html/body/div[1]/table/tbody/tr/td[3]/ul/li[1]/a').click()
-            time.sleep(2)
-            #self.client.find_element_by_partial_link_text('')
+            # submit
+            self.client.find_element_by_id('submit_edit_team_task').click()
 
-
-            #self.client.find_element_by_id('team').click()
-            #time.sleep(2)
-            print("Current url: ", self.client.current_url)
-            self.client.find_element_by_link_text('Members').click()
-            time.sleep(10)
-
-            self.client.find_element_by_link_text('testaaja25:sen tiimi').click()
             time.sleep(3)
 
         except Exception:
             pass
 
-        self.assertIn('Team owner', self.client.page_source)
-    
-    def test_can_invite_to_team(self):
-        """ Tests that it's possible to invite users to team """
+        # Otsikko teksti sivulla haettuna xpathin mukaan 
+        #text = self.client.find_element_by_xpath('/html/body/div[2]/div/div/div/div[2]/div[2]/div[1]').text
+        #self.assertTrue("otsikko muokattu" in text)
+        self.assertIn('assigned to', self.client.page_source)
+        self.assertIn('testaaja25', self.client.page_source)
+
+    def test_invite_to_team(self):
+        """ Tests inviting """
+        #name = None
         try:
-            self.client = self.login()
-
-            time.sleep(2)
-            self.client.get('http://localhost:5000/user/testaaja25')
-            time.sleep(2)
-
-            self.client.find_element_by_xpath('/html/body/div[1]/table/tbody/tr/td[3]/ul/li[1]/a').click()
-            time.sleep(2)
-            print("Current url: ", self.client.current_url)
-            self.client.find_element_by_link_text('Members').click()
-            time.sleep(10)
-
-            self.client.find_element_by_link_text('testaaja25:sen tiimi').click()
+            print("TASKS")
             time.sleep(3)
+            self.client.get('http://127.0.0.1:5000/teams/1/invites')
+            time.sleep(4)
 
             self.client.find_element_by_id('invite_to_team').click()
-            self.client.sleep(10)
+            time.sleep(3)
+
+            # Name of user to be invited
+            name = self.client.find_element_by_xpath('/html/body/div[2]/table[1]/tbody/tr/td[2]/p/a').text
+
+            time.sleep(3)
+            # invite button
+            self.client.find_element_by_xpath('//*[@id="submit"]').click()
+            time.sleep(4)
+
+            
+            self.assertTrue("Invited user "+name in self.client.page_source)
+            time.sleep(2)
+
+            # members
+            self.client.find_element_by_xpath('/html/body/div[1]/div/div[2]/ul[1]/li[1]/a').click()
+            time.sleep(4)
+
+
+            #self.assertTrue(name in self.client.page_source)
+                    
         except Exception:
             pass
+        
+        self.assertIn('Team member', self.client.page_source)
+
+
+    # def test_creator_is_team_owner(self):
+    #     """ Tests that the creator of the team
+    #     becomes its owner """
+    #     try:
+    #         print("IS OWNER")
+    #         self.client = self.login()
+
+    #         time.sleep(2)
+    #         self.client.get('http://localhost:5000/user/testaaja25')
+    #         time.sleep(2)
+
+    #         self.client.find_element_by_xpath('/html/body/div[1]/table/tbody/tr/td[3]/ul/li[1]/a').click()
+    #         time.sleep(2)
+    #         #self.client.find_element_by_partial_link_text('')
+
+
+    #         #self.client.find_element_by_id('team').click()
+    #         #time.sleep(2)
+    #         print("Current url: ", self.client.current_url)
+    #         self.client.find_element_by_link_text('Members').click()
+    #         time.sleep(10)
+
+    #         self.client.find_element_by_link_text('testaaja25:sen tiimi').click()
+    #         time.sleep(3)
+
+    #     except Exception:
+    #         pass
+
+    #     self.assertIn('Team owner', self.client.page_source)
+    
+    # def test_can_invite_to_team(self):
+    #     """ Tests that it's possible to invite users to team """
+    #     try:
+    #         self.client = self.login()
+
+    #         time.sleep(2)
+    #         self.client.get('http://localhost:5000/user/testaaja25')
+    #         time.sleep(2)
+
+    #         self.client.find_element_by_xpath('/html/body/div[1]/table/tbody/tr/td[3]/ul/li[1]/a').click()
+    #         time.sleep(2)
+    #         print("Current url: ", self.client.current_url)
+    #         self.client.find_element_by_link_text('Members').click()
+    #         time.sleep(10)
+
+    #         self.client.find_element_by_link_text('testaaja25:sen tiimi').click()
+    #         time.sleep(3)
+
+    #         self.client.find_element_by_id('invite_to_team').click()
+    #         self.client.sleep(10)
+    #     except Exception:
+    #         pass
 
     ########### UTILITY METHODS ######
     def login(self):
+        print("LOGIN")
         try:
             self.client.get('http://127.0.0.1:5000/auth/login')
             time.sleep(3)

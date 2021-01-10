@@ -34,14 +34,75 @@
         </div>
         <!-- kortti -->
         <span id="task_span">
-        {% for task in todos %}
-        {% with task_id=task.id %}
-        {% if get_task_assigned(task.team_tasks) is not none %}
-          {% with user=get_user_from_id(get_task_assigned(task.team_tasks)) %}
+         {% for task in todos %}
+          {% with task_id=task.id %}
+            {% if (get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id)) %}
+              {% with user=(get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id)) %}
+                {% include '_task2.html' %}
+              {% endwith %}
+            {% else %}
+              {% include '_task2.html' %}
+            {% endif %}
+          {% endwith %}
+
+          <br>
+          {% endfor %}
+         
+          {# {% for task in todos %}
+          {% with task_id=task.id %} #}
+          {# {% with user=get_user_from_team_member_id(get_task_assigned2(task.team_tasks)) %} #}
+            
+            {# {% if get_task_assigned(task.team_tasks) is not none %} #}
+              {# Legacy versio #}
+              {# {% if get_user_from_id(get_task_assigned(task.team_tasks)) is not none %}
+                {% with user=get_user_from_id(get_task_assigned(task.team_tasks)) %}
+                    {% include '_task2.html' %}
+                {% endwith %} #}
+              
+              {# {% elif get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id) is not none %}
+                {% with user=get_user_from_team_member_id(get_task_assigned2(task.team_tasks)) %}
+                  {% include '_task2.html' %}
+                {% endwith %} #}
+              
+              
+            {# {% else %}
+              {% include '_task2.html' %}
+            {% endif %}
+          {% endwith %} 
+          <br>
+        {% endfor %} #}
+
+        {# {% for task in todos %}
           
-          {% include '_task2.html' %}
+        {% with task_id=task.id %}
+          {% with user=get_user_from_team_member_id(team_member_id=get_task_assigned2(task.team_tasks).doing, team_id=get_task_assigned2(task.team_tasks).team_id) %}
+            {{ user.username }}
+            {% include '_task2.html' %}
+          {% endwith %}
+          
+          {% if get_task_assigned(task.team_tasks) is not none %} #}
+            {# Legacy versio #}
+            {# {% if get_user_from_id(get_task_assigned(task.team_tasks)) is not none %}
+              {% with user=get_user_from_id(get_task_assigned(task.team_tasks)) %}
+                  {% include '_task2.html' %}
+              {% endwith %}
+            {% elif get_user_from_team_member_id(team_member_id=get_task_assigned2(task.team_tasks).doing, team_id=get_task_assigned2(task.team_tasks).team_id) is not none %}
+              {% with user=get_user_from_team_member_id(get_task_assigned2(task.team_tasks)) %}
+                {{ user.username }}
+                {% include '_task2.html' %}
+              {% endwith %}
+            {% endif %}
+          {% else %}
+            {% include '_task2.html' %}
+          {% endif %}
+        {% endwith %}
+        <br>
+      {% endfor %} #}
+      
+          
+          {# {% include '_task2.html' %} #}
           {# {% set new_tasks = current_user.new_tasks() %} #}
-            {#<span id="todo_tasks"
+            {# <span id="todo_tasks"
               style="visibility: {% if new_messages %}visible
                 {% else %}hidden {% endif %};">
 
@@ -49,13 +110,13 @@
             </span> #}
                             {# {% endset %} #}
               
-            {% endwith %}
+            {# {% endwith %}
         {% else %}
           {% include '_task2.html' %}
         {% endif %}
-          {% endwith %}
-          <br>
-        {% endfor %}
+          {% endwith %} #}
+          {#<br> #}
+        {# {% endfor %} #}
       </span>
       </div> 
       <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 green text-center">
@@ -67,18 +128,41 @@
         </div>
         <!-- kortti -->
         {% for task in doings %}
+          {% with task_id=task.id %}
+            {% if (get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id)) %}
+              {% with user=(get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id)) %}
+                {% include '_task2.html' %}
+              {% endwith %}
+            {% else %}
+              {% include '_task2.html' %}
+            {% endif %}
+          {% endwith %}
+
+          <br>
+          {% endfor %}
+         
+
+        {# {% if (get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id)) %} #}
+        {# {% for task in doings %}
           
           {% with task_id=task.id %}
-          {% if get_task_assigned(task.team_tasks) is not none %}
-          {% with user=get_user_from_id(get_task_assigned(task.team_tasks)) %}
+            {% if get_task_assigned(task.team_tasks) is not none %} #}
+              {# Legacy versio #}
+              {# {% if get_user_from_id(get_task_assigned(task.team_tasks)) is not none %}
+                {% with user=get_user_from_id(get_task_assigned(task.team_tasks)) %}
+                    {% include '_task2.html' %}
+                {% endwith %}
+              {% elif get_user_from_team_member_id(get_task_assigned2(task.team_tasks)) is not none %}
+                {% with user=get_user_from_team_member_id(get_task_assigned2(task.team_tasks)) %}
+                  {% include '_task2.html' %}
+                {% endwith %}
+              {% endif %}
+            {% else %}
               {% include '_task2.html' %}
-            {% endwith %}
-        {% else %}
-          {% include '_task2.html' %}
-        {% endif %}
+            {% endif %}
           {% endwith %}
           <br>
-        {% endfor %}
+        {% endfor %} #}
         
         <!-- Kortti loppuu -->
       </div>
@@ -90,7 +174,23 @@
           </div>
         </div>
         <!-- Kortti alkaa -->
+
         {% for task in dones %}
+          {% with task_id=task.id %}
+            {% if (get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id)) %}
+              {% with user=(get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id)) %}
+                {% include '_task2.html' %}
+              {% endwith %}
+            {% else %}
+              {% include '_task2.html' %}
+            {% endif %}
+          {% endwith %}
+
+          <br>
+          {% endfor %}
+         
+       
+        {# {% for task in dones %}
         {% with task_id=task.id %}
         {% if get_task_assigned(task.team_tasks) is not none %}
             {% with user=get_user_from_id(get_task_assigned(task.team_tasks)) %}
@@ -101,7 +201,7 @@
         {% endif %}
           {% endwith %}
           <br>
-        {% endfor %}
+        {% endfor %} #}
         
         <!-- Kortti loppuu -->
       </div>

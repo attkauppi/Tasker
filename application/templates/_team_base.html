@@ -14,57 +14,44 @@
 {% block navbar %}
 {{ super() }}
 
-<div class="navbar navbar-inverse" role="navigation" margin-bottom="0px" margin-top="0px">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                {#<a class="btn btn-default" href="{{ url_for('.team_members', id=team.id) }}">Members</a>#}
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="{{ url_for('.team', id=team.id) }}">{{ team.title }}</a>
-        </div>
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li><a href="{{ url_for('.team_members', id=team.id) }}">Members</a></li>
-                <li><a href="{{ url_for('.team_tasks', id=team.id) }}">Team tasks</a></li>
-                <li><a href="{{ url_for('.team_tasks_uusi', id=team.id, team=team) }}">Team tasks2</a></li>
-                {% if current_user.is_team_moderator(team.id) or current_user.is_team_administrator(team.id) %}
-                <li><a id="invite_to_team" href="{{ url_for('.team_invite', id=team.id) }}">Invite to team - vakioasettelu</a></li>
-                {% endif %}
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-                {% if "main.team_tasks_uusi" in request.endpoint %}
-                <li>{{ modal_form33('main.create_team_task', id=team.id, form=form, team=team, teksti="Create task") }}</li>
-                {% endif %}
-                {# {% if "main.team_tasks_uusi" not in request.endpoint %} #}
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        team options<b class="caret"></b>
-                    </a>
-                    <ul class="dropdown-menu">
-                        </li>
-                        {# <a href="{{ url_for('main.team_leave', id=team.id, username=current_user.username) }}"> </a> #}
-                        {#<li>{{ delete_link('main.team_leave', id=team.id, username=current_user.username, form=form, teksti='Leave team') }}</li>#}
-                        <li>{{ leave_team(id=id, username=username, teksti="leave team") }}</li>
-                        {# {{ delete_link('main.team_leave', id=team.id, form=form, teksti='Leave team') }} #}
-                    </ul>
-                </li>
-            </ul>
-                {# {% endif %} #}
-                <!-- <li>
-                    <a href=
-                </li> -->
-                
-                {#<li><a href="/auth/login">Log In</a></li>#}
-                
-                
-               
+    <div class="navbar navbar-inverse" role="navigation" margin-bottom="0px" margin-top="0px">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="{{ url_for('.team', id=team.id) }}">{{ team.title }}</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="{{ url_for('.team_members', id=team.id) }}">Members</a></li>
+                    <li><a href="{{ url_for('.team_tasks', id=team.id) }}">Team tasks</a></li>
+                    <li><a href="{{ url_for('.team_tasks_uusi', id=team.id, team=team) }}">Team tasks2</a></li>
+                    {% if current_user.is_team_moderator(team.id) or current_user.is_team_administrator(team.id) %}
+                    <li><a id="invite_to_team" href="{{ url_for('.team_invite', id=team.id) }}">Invite to team - vakioasettelu</a></li>
+                    {% endif %}
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if "main.team_tasks_uusi" in request.endpoint %}
+                    <li>{{ modal_form33('main.create_team_task', id=team.id, form=form, team=team, teksti="Create task") }}</li>
+                    {% endif %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            team options<b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            </li>
+                            <li>{{ leave_team(id=id, username=username, teksti="leave team") }}</li>
+                            
+                        </ul>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
-</div>
 
 {% endblock %}
 

@@ -71,10 +71,9 @@ class TeamTask(db.Model):
         team_task = TeamTask.query.filter_by(task_id=task.id).first()
         print("Edit team taskin löytämä team task: ", team_task)
 
-        
-        
         #form_data = kwargs.get('form_data')
-        # print("Form data: ", form_data)
+        print("Form data: ", form_data)
+        # TODO: Katso ettei tässä ole tietoturvariskiä
         if "assign_to_choices" in form_data:
             if form_data['assign_to_choices'] == 0:
                 team_task.doing = None
@@ -82,14 +81,19 @@ class TeamTask(db.Model):
                 # print("assign to choices oli nolla!")
             else:
                 # print("assign_to_choices: ", form_data['assign_to_choices'])
-                team_task.doing = form_data['assign_to_choices']
-                team_task.assigned = True
-            #if form_data['board_choices'] != 
+                #team_task.doing = form_data['assign_to_choices']
 
-        # print("Edit team taskin löytämä team task: ", team_task)
+                # Team task doing is actually the user id,
+                # because I wanted to get a real name
+                # instead of a join table id as an option
+                # in the task editing form. We need to find out
+                # which team_member's user_id is the integer
+                # given in doing field
+                tm = TeamMember.query.filter_by(team_member_id=form_data['assign_to_choices']).filter_by(team_id=team_id).first()
+                team_task.doing = tm.id
+                team_task.assigned = True
         
         return team_task
-
 
 
 class TeamPermission:
@@ -260,18 +264,14 @@ class User(UserMixin, db.Model):
     def __init__(self, **kwargs): # Initializes user roles
         """ Sets user roles. Sets Admin if email matches """
         super(User, self).__init__(**kwargs)
-        #self.email = email
-        # self.username = username
-        # self.password = password
-        print(self.role)
-        if self.role is None:
 
+        if self.role is None:
             # This will not work, if in the registration form
             # the user is not instantiated with at least the
             # email, i.e., u = User(email=form.email.data)
-            if self.email == os.getenv('ADMIN'): # Checks whether the email address of the user matches that of the admin's
-                # TODO: Tietokantaviritykset lopuksi
-                print("Ei päässyt iffiin")
+
+            # Checks whether the email address of the user matches that of the admin's
+            if self.email == os.getenv('ADMIN'): 
                 self.role = Role.query.filter_by(role_name='Administrator').first()
             if self.role is None:
                 self.role = Role.query.filter_by(default_role=True).first()
@@ -347,17 +347,15 @@ class User(UserMixin, db.Model):
             )['confirm']
         except:
             return False
-        
-        
+
         if id != self.id:
-            #print("Pääsi iffin läpi, mutta id ei vastannut")
             return False
-        
+
         try: 
             expiration = jwt.decode(token, current_app.config['SECRET_KEY'],
                             algorithms=['HS256']
             )['exp']
-            #print("Expiration: ", expiration)
+
         except:
             return False
         # Token vastasi id:tä
@@ -369,8 +367,6 @@ class User(UserMixin, db.Model):
     
     def get_reset_password_token(self, expires_in=3600):
         """ Sends a user a password reset token in email """
-        print("self: ", self)
-        print("self.id: ", str(self.id))
         return jwt.encode(
             {'reset_password': self.id, 'exp': time() + expires_in},
             current_app.config['SECRET_KEY'],
@@ -383,8 +379,6 @@ class User(UserMixin, db.Model):
             id = jwt.decode(token, current_app.config['SECRET_KEY'],
                             algorithms=['HS256']
             )['reset_password']
-            # print("verity_reset_password_token")
-            # print(id)
         except:
             return
         return User.query.get(id)
@@ -427,14 +421,13 @@ class User(UserMixin, db.Model):
         """ Returns a user's team role, used in layouts, for example """
         # tm = TeamMember object
         tm = self.get_team_member_object(team_id)
-        #print("get_team_role() tm: ", tm)
-        teamrole = TeamRole.query.filter_by(id=tm.team_role_id).first() #TeamRole.get_role_by_id(tm.team_role_id)
-        # print("Tuloksena saatu team role: ", teamrole)
+        #TeamRole.get_role_by_id(tm.team_role_id)
+        teamrole = TeamRole.query.filter_by(id=tm.team_role_id).first() 
         return teamrole
         
     def can_moderate_team(self, id):
         """ Checks that user can moderate team """
-        #print("get team role: ", self.get_team_role(id))
+        
         tm = self.get_team_member_object(id)
 
         print("tm: ", tm)
@@ -453,7 +446,12 @@ class User(UserMixin, db.Model):
     def can_team(self, id, team_perm):
         """ Checks if the user has the required
         permissions to carry out a function on the
-        team site """
+        team site 
+        
+        parameters:
+         - id=team id
+         - team_perm = team permission
+         """
         print("saatu team_id: ", id)
         tm = self.get_team_member_object(id)
         print("SAATU TEAM PERM: ", team_perm)
@@ -485,7 +483,7 @@ class User(UserMixin, db.Model):
 
         teamrole_user = TeamRole.query.filter_by(id=tm.team_role_id).first()
         if teamrole_user is not None and teamrole_user.team_role_name == team_role_name:
-           
+
             return True
 
         return False
@@ -498,23 +496,20 @@ class User(UserMixin, db.Model):
         if tm.is_team_administrator():
             return True
         return False
-    
+
     def is_team_moderator(self, team_id):
         tm = self.get_team_member_object(team_id)
         if tm is None:
             return False
-        
+
         if tm.is_team_moderator():
             return True
         return False
 
     def get_team_member_object(self, team_id):
         """ Finds the role of the user in a given group """
-        #print("TEAM MEMBERSHIPS")
         for i in self.team_memberships:
-            #print(i)
             if i.team_id is not None and i.team_id == team_id:
-                #print("Tämän pitäisi olla oikea tm: ", i)
                 return i
         return None
        
@@ -600,7 +595,6 @@ class Role(db.Model):
     
     @staticmethod
     def insert_roles():
-        # TODO: On lisättävä email confirmation, jotta admin-tiliä ei voida kaapata.
         """
         Tries to find existing roles by name and update
         those. A new role is created only for those roles
@@ -691,7 +685,6 @@ class Board:
     TODO = 1
     DOING = 2
     DONE = 4
-
 
 
 class Task(db.Model):
@@ -806,6 +799,7 @@ class Team(db.Model):
     created = db.Column(DateTime, default=datetime.utcnow())
     modified = db.Column(DateTime, default=datetime.utcnow())
     users = relationship("User", secondary='team_members')
+    
     team_tasks = relationship('Task', secondary='team_tasks')#backref='team_tasks', lazy='dynamic')
     # team_tasks = db.relationship(
     #     'Task',
@@ -819,7 +813,7 @@ class Team(db.Model):
     
     def __eq__(self, other):
         """ Allows comparing user objects """
-        if isinstance(self, User):
+        if isinstance(self, Team):
             return self.id == other.id
         return False
 
@@ -901,7 +895,22 @@ class Team(db.Model):
             print("ei löytynyt")
 
         return team_task
+    
+    def add_admin_role(self):
+        """ Adds admin role to team for Administrator,
+        if moderation is required for some reason """
+        # Admin user is recognized by an email address given in
+        # environment variables
+        admin_user = User.query.filter_by(email=os.getenv('ADMIN')).first()
+        print("Admin user: ", admin_user)
 
+        # Admin TeamMember object:
+        tm_admin = TeamMember(
+            team_id=self.id,
+            team_member_id=admin_user.id
+        )
+
+        return tm_admin
 #     #creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
 class TeamMember(db.Model):
@@ -909,8 +918,9 @@ class TeamMember(db.Model):
     __tablename__ = "team_members"
     id = db.Column(db.Integer, primary_key=True)
     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
+    # FIXME: Erittäin harhaanjohtava, kun tarkoittaa käyttäjä id:tä oikeasti
     team_member_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    #role_id = db.Column(db.Integer, db.ForeignKey('team_roles.id'))
+    #role_id = db.Column(db.Infteger, db.ForeignKey('team_roles.id'))
     team_role_id = db.Column(db.Integer, db.ForeignKey('team_roles.id'), nullable=False)
     #users = relationship('User', backref='role', lazy='dynamic')
     #team_permissions = db.Column(db.Integer)
@@ -992,10 +1002,6 @@ class TeamMember(db.Model):
         return "<TeamMember: id:{}; team_id:{}; team_member_id:{}; team_role_id:{}>".format(self.id, self.team_id, self.team_member_id, self.team_role_id)
     # TODO: Implement
     #team_role_id = db.Column(db.Integer)
-
-
-
-
 
 
 @login_manager.user_loader

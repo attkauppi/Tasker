@@ -19,6 +19,7 @@ from application.models import (
     User, Task, Role, Team, TeamMember, TeamRole, TeamPermission,
     TeamTask, Board, Message, Notification
 )
+import os
 from application.main import bp
 from utils.decorators import (
     admin_required,
@@ -258,12 +259,19 @@ def edit_profile_admin(id):
 def create_team():
     """ Allows creating a new team """
     form = TeamCreateForm()
-    
     if form.validate_on_submit():
         team = Team(
             title = form.title.data,
             description = form.description.data
         )
+
+        team_same_names = Team.query.filter_by(title=team.title).all()
+        
+        for i in team_same_names:
+            if current_user.is_team_role(i.id, 'Team owner'):
+                flash("You've already created that team ;-)")
+                return redirect(url_for('main.team', id=i.id))
+                
         db.session.add(team)
         db.session.flush()
         team_id = team.id
@@ -273,10 +281,8 @@ def create_team():
         # Get the current team's id now that it has
         # been assigned
         t = Team.query.filter_by(id=team_id).first()
-        print("team: ", team)
 
         tr = TeamRole.query.filter_by(team_role_name="Team owner").first()
-        print("Team role: ", tr)
 
         # Create team_member association table record
         team_member = TeamMember(
@@ -289,10 +295,9 @@ def create_team():
         db.session.commit()
 
         tm_uusi = TeamMember.query.filter_by(team_id=t.id).first()
-        print("TM UUSI: ", tm_uusi)
 
         flash("Your team was created!")
-        return redirect(url_for('main.team', id=t.id))#title=(team.title), team_id=t.id))
+        return redirect(url_for('main.team', id=t.id))
     
     return render_template('edit_team.html', title=("Create your team"), form=form)
 
@@ -319,7 +324,7 @@ def edit_team(id):
     form.title.data = team.title
     form.description.data = team.description
     
-    return render_template('edit_team.html', title=("Edit your team222"), form=form, team=team)    
+    return render_template('edit_team.html', id=team.id, title=("Edit your team222"), form=form, team=team)
 
 @bp.route("/teams/<int:id>/delete", methods=["GET", "POST"])
 @login_required
@@ -349,32 +354,42 @@ def team_delete(id):
 #TODO: Tämä on periaattteessa turha. Halusit yhdennäköistää members-sivun
 @bp.route('/teams/<int:id>/invites', methods=["GET", "POST"])
 @login_required
+@team_moderator_required(id)
 def team_invite(id):
     """ Route for sending team invites """
     team = Team.query.get_or_404(id)
-    print("Team: ", team)
     users = User.query.all()
-    #form = TeamInviteForm()
     form = EmptyForm()
 
     # Filters out the users already in the team
     us = []
     for i in users:
         if team in i.teams:
-            print("Tiimi on jo käyttäjän tiimeissä, ei lisätä")
-            #continue
+            continue
         else:
             us.append(i)
-    
-    #form = EmptyForm()
 
     if form.validate_on_submit():
-        return redirect(url_for('main.invite_user_to_team', team_id=id, username=form.username.data))
-    
-    return render_template('team_members.html', team=team, users=us, form=form, team_id=team.id, id=team.id)
+        
+        username = request.args.get('username')
+        user = User.query.filter_by(username=username).first()
+        tm = team.invite_user(user.username)
 
+        # If invite was successful, carry out
+        # database operation.
+        if tm:
+            db.session.add(tm)
+            db.session.commit()
+        else:
+            flash('Did you try to invite someone already in your team?')
+            return redirect(url_for('main.team_invite', id=team.id, team=team, users=us, form=form, team_id=team.id))
+        
+        flash(message=('Invited user ' + user.username))
+        return redirect(url_for('main.team_invite', id=team.id, team=team, users=us, form=form, team_id=team.id))
+        
+    return render_template('team_members.html', id=team.id, team=team, users=us, form=form, team_id=team.id)
 
-
+# TODO: TURHA
 @bp.route('/teams/<int:id>/invite', methods=["GET", "POST"])
 @login_required
 def invite_to_team(id):
@@ -410,6 +425,8 @@ def invite_to_team(id):
 
     return render_template('find_user.html', team_id=id, users=us)
 
+
+# TODO: TURHA
 @bp.route('/user/<username>/popup/<int:team_id>')
 @login_required
 def user_popup(username, team_id):
@@ -442,6 +459,8 @@ def user_popup(username, team_id):
 
     return render_template('user_popup.html', user=user, team_id=team_id, data=d, form=form)
 
+
+# TODO: TURHA
 @bp.route('/invite/<username>/<team_id>/', methods=['GET', 'POST'])
 #@bp.route('/teams/<int:id>/invite/<username>', methods=["GET", "POST"])
 @login_required
@@ -467,10 +486,6 @@ def invite_user_to_team(username, team_id):#username, team_id):
     
     team = Team.query.filter_by(id=team_id).first()
     print("Team: ", team)
-    #user = User.query.filter_by(username=username).first()
-    #print("invite_user_to_team args")
-    #print(args)
-    #team_id = args.get('team_id')
     user = User.query.filter_by(username=username).first_or_404()
     #print("Team id: ", team_id)
     #team = Team.query.filter_by(id=team_id).first()
@@ -510,35 +525,13 @@ def team(id):
     user = current_user
     username = current_user.username
 
-    # print("current_user team_memberships")
-    # print(current_user.team_memberships)
-
-    # print("membership tyypit:")
-    for i in current_user.team_memberships:
-        print("\t", type(i))
     tm = TeamMember.query.filter_by(team_id=id)
 
-    # print("user metodin testaus")
     tm = current_user.get_team_member_object(id)
-    # print("user is moderator? ", tm.is_team_moderator())
-
-    # print("current user can moderate?")
-    # print(current_user.can_team(id, TeamPermission.CREATE_TASKS))
-    if current_user.can_team(id, TeamPermission.CREATE_TASKS):
-        print("Kayttaja saa luoda tehtavia!")
-
-    # if current_user.is_team_role(id, "Team member"):
-    #     print("Kayttajalla on perus tiimiläisen oikeudet!")
-    # #meta.Session.query(Team)
 
     tm1 = TeamMember.query.filter_by(team_id=id).filter_by(team_member_id=current_user.id).first()
 
     team_members = team.users
-  
-    for u in team.users:
-        r = u.get_team_role(team.id)
-        print("\t rooli: ", r)
-        
 
     return render_template('team.html', team=team, id=team.id, username=username)
 
@@ -555,7 +548,7 @@ def team_members(id):
 # TODO: Korjaa team_permission_required-dekoraattori
 @bp.route('/team/<int:id>/members/edit/<username>', methods=["GET", "POST"])
 @login_required
-@team_moderator_required(id)#, TeamPermission.MODERATE_TEAM)
+@team_moderator_required(id)
 def edit_team_member(id, username):
     """ Allows editing a team members team details """
     team = Team.query.get_or_404(id)
@@ -566,7 +559,6 @@ def edit_team_member(id, username):
     max_role = current_user.get_team_role(id)
 
     max_role_id = current_user.get_team_member_object(id).team_role_id
-    print(max_role_id)
 
     form = TeamEditMemberForm(max_role_id=max_role_id)
 
@@ -586,9 +578,6 @@ def edit_team_member(id, username):
         tm = TeamMember.query.filter_by(id=user_team_member_object.id).first()
         flash("Member permissions updated!")
         return redirect(url_for('.team_members', id=team.id))
-
-    print("team: ", team)
-    print("user: ", username)
 
     return render_template(
         'edit_team_member.html',
@@ -643,7 +632,7 @@ def team_tasks(id):
     """ For team tasks """
     team = Team.query.get_or_404(id)
 
-    return render_template('team_tasks.html', team=team, team_id=team.id)
+    return render_template('team_tasks.html', id=team.id, team=team, team_id=team.id)
 
 @bp.route('/teams/<int:id>/team_tasks/create_task', methods=["GET", "POST"])
 @login_required
@@ -652,9 +641,7 @@ def create_team_task(id):
     team = Team.query.get_or_404(id)
 
     form = TeamTaskForm()
-    #if request.method == "POST":
     if form.validate_on_submit() and request.method=="POST":
-        print("request.args: ", request.args)
 
         t = Task(
             title = form.title.data,
@@ -667,7 +654,8 @@ def create_team_task(id):
             is_team_task=True
         )
         db.session.add(t)
-        db.session.commit()
+        db.session.flush()
+        #db.session.commit()
         team_task = team.create_team_task(t)
 
         db.session.add(team_task)
@@ -687,17 +675,11 @@ def team_tasks_uusi(id):
 
     args = request.args.to_dict()
 
+    # Tasks on different boards
     todos = team.get_todo_tasks()
-    #print("todos: ", todos)
-
     doings = team.get_doing_tasks()
-    #print("Doings: ", doings)
-
     dones = team.get_done_tasks()
-    #print("Dones: ", dones)
-        
 
-    #request = request.args.get('user')
     return render_template(
         'team_tasksU.html',
         id=team.id,
@@ -706,7 +688,7 @@ def team_tasks_uusi(id):
         doings=doings,
         dones=dones,
         teksti="Create task")
-        #assigned_to=assigned_to)
+
 
 # @bp.route('/teams/tasks_static', methods=["GET", "POST"])
 # @login_required
@@ -734,11 +716,6 @@ def edit_team_task(id):
     #FIXME: Jotain vikaa lomakkeessa täälläkin
     if request.method == "POST":
 
-
-        print("Request args: ", request.args)
-        print("request.view_args: ", request.view_args)
-        print("Form.data: ", form.data)
-
         # Tällä voisi varmaan tarkistaa, voiko
         # henkilö tehdä muokkauksia tehtävään: 
         # if user.can_team(team.id, TeamPermission.ASSIGN_TASKS):
@@ -751,8 +728,6 @@ def edit_team_task(id):
             
             if int(task.board) != int(form.data['board_choices']):
                 task.board = int(form.data['board_choices'])
-                print("form_data: board_choices: ", int(form.data['board_choices']))
-
 
                 if int(task.board) == int(Board.DONE):
                     task.done = True
@@ -760,116 +735,16 @@ def edit_team_task(id):
                     task.done = False
             form_data = form.data
             team_task = TeamTask.edit_team_task(task, team.id, form_data)
-            print("saatu team task: ", team_task)
+            print("team task: ", team_task)
 
             db.session.commit()
 
             flash('Saved task changes')
             return redirect(url_for('main.team_tasks_uusi', id=team.id), 307)
 
-            # print("Validated")
-            # task.title = form.title.data
-            # task.description = form.title.data
-            # task.board = form.data['board_choices']
-
-
-
-            # if int(task.board) == int(Board.DONE):
-            #     print("Oli true")
-            #     task.done = True
-            # elif (int(task.board != int(Board.DONE))):
-            #     task.done = False
-
-        
-
-            # print("samat? ", (int(task.board) == int(Board.DONE)))
-
-            #db.session.commit()
-
-            # team_task = TeamTask.query.filter_by(task_id=task.id).first()
-
-            # if team_task is None:
-            #     team_task = team.create_team_task(task, form_data=form.data)
-
-            # db.session.commit()
-            
-            # flash('Saved task changes')
-            # return redirect(url_for('main.team_tasks_uusi', id=team.id), 307)
-
-
-        #db.session.commit()
-        
-        #return redirect(url_for('main.edit_team_task', id=team.id, form=form, title="Edit task", team=team, task=task, assigned_to=assigned_to))
     form.title.data = task.title
     form.description.data = task.description
-    #form.board_choices.data = task.board
-
     form.board_choices.default = task.board
-    
-
-    #print("form.board_choices data: ", form.board_choices.data)
-
-    # board_choices = SelectField('Move to board', choices=[(1, "TODO"), (2, "DOING"), (4, "DONE")])
-
-
-
-    # # List of choices for boards
-
-    # # Task.boards gives us the values we need, but in the wrong
-    # # (board name, board id), we want them as (board id, board name)
-    # boards_dict = {y:x for x,y in Task.boards().items()}
-    # print("Boards dict: ", boards_dict)
-
-    # # Now we can generate a list of choices for the selectfield
-    # # and have the current board as the default choice
-    # list = [(k, v) for k, v in boards_dict.items()]
-
-    # default_value = None
-
-    # for i in list:
-    #     if i[0] == task.board:
-    #         default_value = i
-    # form.board_choices.default = default_value
-
-    # print(form.data)
-    
-
-    # #list2 = [(item.value, item.key) for item in Task.boards().items()]
-
-    # print("List of choices", list)
-    # #print("List of choices2", list2)
-    # board_choices = SelectField(
-    #     "Move to board",
-    #     default=default_value,
-    #     choices=list
-    # )
-
-    # form.board_choices.data = board_choices
-
-    # print(form.data)
-    ##############
-
-    
-    # print("Task.boards(): ", Task.boards())
-    # print("form.board_choices data: ", form.board_choices.data)
-
-    # form.board_choices.default = task.board
-    # #form.board_choices.process()
-    # print("form.board_choices uudelleen: ", form.board_choices.data)
-
-    # #board_choices = SelectField('Move to board', choices=[(1, "TODO"), (2, "DOING"), (4, "DONE")])
-    # form.board_choices = SelectField('Move to board', choices=list, default=task.board, coerce=int)
-
-    # form.board_choices.data = task.board
-
-
-    
-    
-    #if team_task.doing is not None:   
-    
-    #if team_task.doing is not None:
-    #    team_member_assigned_to = User.query.filter_by(id=team_task.doing).first()
-    #    form.assign_to_choices.data = team_member_assigned_to.id#.get_team_member_object(team.id).
     
     return render_template('_modal.html', id=team.id, form=form, endpoint="main.edit_team_task", title="Edit task", team=team, task=task, assigned_to=assigned_to, board=task.board)
 
@@ -885,8 +760,6 @@ def team_task_delete(id, task_id):
         abort(404)
 
     form = EmptyForm()
-
-    #form = EmptyForm(value="Delete")
 
     if form.validate_on_submit():
         team_task = TeamTask.query.filter_by(task_id=task.id).first()
@@ -918,13 +791,8 @@ def team_task_move(id, task_id):
     team = Team.query.get_or_404(id)
     task = Task.query.get_or_404(task_id)
 
-    #form = EmptyForm()
-
-    #if form.validate_on_submit():
     if request.method == "POST":
         moved = False
-        print("request.form: ", request.form)
-        print("submit.form.get('submit_left'): ", ("submit_left" in request.form.keys()))#.get('submit_left')))
         if ("submit_left" in request.form.keys()):
             task_board_orig = task.board
             moved = True
@@ -937,8 +805,6 @@ def team_task_move(id, task_id):
         if ("submit_right" in request.form.keys()):
             task_board_orig = task.board
             task.move_right()
-            #db.session.commit()
-            #flash('Moved right')
             moved = True
 
             if task.board != task_board_orig:
@@ -952,13 +818,6 @@ def team_task_move(id, task_id):
         
         return redirect(url_for('main.team_tasks_uusi', id=id))
 
-        
-        
-
-        #return redirect(url_for('main.team_tasks_uusi', id=id))
-    #return render_template('_button_form.html', id=team.id, task_id=task.id)
-
-
 @bp.route("/teams/<int:id>/task/<int:task_id>/move_left", methods=["GET", "POST"])
 @login_required
 @team_role_required(id)
@@ -967,9 +826,9 @@ def team_task_move_left(id, task_id):
     team = Team.query.get_or_404(id)
     task = Task.query.get_or_404(task_id)
 
-    #form = EmptyForm()
+    if current_user.email != os.getenv('ADMIN'):
+        abort(403)
 
-    #if form.validate_on_submit():
     if request.method == "POST":
         
         task.move_left()
@@ -995,30 +854,27 @@ def team_task_move_right(id, task_id):
 
         return redirect(url_for('main.team_tasks_uusi', id=id))
 
+# FIXME: Turha?
 @bp.route('/teams/<int:id>/tasks_frame', methods=["GET", "POST"])
 @login_required
 def team_tasks_static(id):
     """ For loading static team tasks assets """
     team = Team.query.get_or_404(id)
-    #return send_file('templates/_team_tasks2.html')
     return render_template('_team_tasks2.html')
 
+#FIXME Voiko roolivaatimusta lisätä vai ei?
 @bp.route('/team/leave2', methods=["GET", "POST"])
 @login_required
 #@team_role_required(id)
 def team_remove_member_self():
     """ For removing a member from team """
     team = Team.query.get_or_404(request.view_args.get('id'))
-    print("team: ", team)
-    ##team = Team.query.get_or_404(id)
     user = current_user# User.query.filter_by(username=username).first()
-    
-    form = EmptyForm(value="Delete")
-    
-    if form.validate_on_submit():
 
+    form = EmptyForm(value="Delete")
+
+    if form.validate_on_submit():
         user_team_member_object = user.get_team_member_object(id)
-        
         db.session.delete(user_team_member_object)
         db.session.commit()
         flash('Successfully deleted')
@@ -1050,25 +906,13 @@ def team_leave(id, username):
     user = User.query.filter_by(username=username_arg).first()
     
     form = EmptyForm(value="Delete")
-    # print("User: current_user", user)
 
-    
-    #if request.method == "POST":
-    #    print("request.args: ", request.args)
-
-    #if form.validate_on_submit():
     if request.method == "POST":
 
-        # print("form.data: ", form.data)
-        # print("request.args: ", request.args)
-        # print("view args: ", request.view_args)
         if form.validate_on_submit():
-            print("Form validated")
             user_team_member_object = user.get_team_member_object(id)
             db.session.delete(user_team_member_object)
             db.session.commit()
-            print("request.args: ", request.args)
-            print("view args: ", request.view_args)
             flash('Successfully left team')
             return redirect(url_for('main.index'), 307)
 
@@ -1080,19 +924,16 @@ def team_leave(id, username):
 
     return render_template('_confirm.html', id=team.id, username=username, form=form, value="Leave team", endpoint='main.team_leave', title="Are you sure?", text=text)
 
+# FIXME: jäänee turhaksi
 @bp.route('/send_popup', methods=["GET", "POST"])
 @login_required
 def user_edit():
-    # Testasit tätä
-    #user = User.query.filter_by(username=username).first()
     form = TestForm()
     print("Sai jotain")
     form.vastaanottaja.data = "Ari tietenkin"
     form.viesti.data = "Viestin tynka"
 
-
     return render_template('_form_edit.html', form=form)
-
 
 @bp.route('/send/<username>/send', methods=["GET", "POST"])
 @login_required
@@ -1100,9 +941,6 @@ def receive_edit(username):
     form = TestForm()
     user = User.query.filter_by(username=username).first()
     if form.validate_on_submit():
-        #vastaanottaja = User.query.filter_by(username=username).first()
-        print(form.vastaanottaja.data)
-        print(form.viesti.data)
         flash('Mukamas')
         return redirect(url_for('.user', username=user.username), code=307)
     
@@ -1152,8 +990,6 @@ def messages():
     
     messages = current_user.messages_received.order_by(
         Message.timestamp.desc())
-    print("Messages: ", messages)
-    #print("Messages items: ", messages)
 
     #TODO: jos lisää paginoinnin ota tämä mukaan:
             #.paginate(
@@ -1196,7 +1032,72 @@ def notifications():
         } for n in notifications]
     )
 
+@bp.route('/admin/team/<int:id>/get_admin', methods=["POST"])
+@login_required
+@admin_required
+def get_team_admin(id):
+    """ Adds admin rights to admin, if moderation
+    is needed for some reason """
+    print("Pääsi oikeaan endpointtiin")
+    team = Team.query.get_or_404(id)
+    form = EmptyForm()
 
+    if request.method == "POST":
+        print("request.args: ", request.args)
+        print("request view args: ", request.view_args)
+
+
+        #if form.validate_on_submit():
+        print("Validated?")
+        tm_admin = team.add_admin_role()
+        print("tm_admin: ", tm_admin)
+        db.session.add(tm_admin)
+        db.session.commit()
+        flash('You can now admin this team')
+        return redirect(url_for('main.team', id=team.id))
+
+
+
+@bp.route("/admin/teams", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_teams():
+    teams = Team.query.all()
+
+    return render_template('_teams.html', teams=teams)
+
+@bp.route("/admin/users", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_users():
+    users = User.query.all()
+
+    return render_template('users.html', users=users)
+
+@bp.route('/teams/<int:id>/edit_team_admin', methods=["GET", "POST"])
+@login_required
+#@team_permission_required2(id, TeamPermission.TEAM_OWNER)
+@admin_required
+def edit_team_admin(id):
+    """ edit team form """
+    team = Team.query.get_or_404(id)
+    form = TeamEditForm()
+
+    if form.validate_on_submit():
+        team.title = form.title.data
+        team.description = form.description.data
+        team.modified = datetime.utcnow()
+
+        db.session.add(team)
+        db.session.commit()
+
+        flash('Your team was updated!')
+        return redirect(url_for('main.team', id=team.id))
+
+    form.title.data = team.title
+    form.description.data = team.description
+    
+    return render_template('edit_team.html', id=team.id, title=("Edit your team222"), form=form, team=team)    
 
 # @bp.route('/team/<int:id>/edit_member_role/<username>', methods=["GET", "POST"])
 # @login_required
