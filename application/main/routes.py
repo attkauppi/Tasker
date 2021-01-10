@@ -632,7 +632,7 @@ def team_tasks(id):
     """ For team tasks """
     team = Team.query.get_or_404(id)
 
-    return render_template('team_tasks.html', team=team, team_id=team.id)
+    return render_template('team_tasks.html', id=team.id, team=team, team_id=team.id)
 
 @bp.route('/teams/<int:id>/team_tasks/create_task', methods=["GET", "POST"])
 @login_required
