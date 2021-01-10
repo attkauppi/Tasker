@@ -3,6 +3,7 @@ Tasker-Kanban-järjestelmän käyttäminen
 
 - [Lyhyt kuvaus Taskerista](#tasker)
 - [Käyttötapauksista](#käyttötapauksista)
+- [Käyttöohjeet](#käyttöohjeet)
 
 # Tasker
 
@@ -30,6 +31,10 @@ Järjestelmän nopeaa katselmointia varten nopeinta voi olla käyttää docker-k
 Toisena on käyttää esimerkiksi virtualenv- tai pipenv-ympäristöä Python-pakettien asentamiseen ja luoda tietokanta esimerkiksi postgresql:n tai sqliteen. Sovelluksen kehityksessä käytetty Python-versio on ollut 3.8.7 (määritelty myös [runtime.txt]('runtime.txt')-tiedostossa), mutta myös luultavasti myös Python-versiot >= 3.8.1 toimivat, sillä tätä käytetään esimerkiksi Docker-ympäristössä.
 
 Asentaminen on käsitelty tarkemmin ylle linkitetyissä osioissa.
+
+## Käyttöohjeet
+
+### [Käyttöohjeet tarkemmin](docs/käyttöohje.md)
 
 # TODO: Jos lisäät käyttäjille omat taulut, lisää tähän.
 
