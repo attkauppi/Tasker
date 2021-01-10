@@ -80,7 +80,7 @@ def register():
         # this is risky, because the only thing keeping someone
         # from highjacking the admin account is the registered
         # email addresses of users having to be confirmed.
-        if os.getenv('EMAIL_CONFIGURED') != 0:
+        if os.getenv('EMAIL_CONFIGURED') != 0 and os.getenv('EMAIL_CONFIGURED') is not None:
 
             user = User(
                 username=form.username.data,

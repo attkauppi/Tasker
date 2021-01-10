@@ -4,6 +4,7 @@ Tasker-Kanban-järjestelmän käyttäminen
 - [Lyhyt kuvaus Taskerista](#tasker)
 - [Käyttötapauksista](#käyttötapauksista)
 - [Käyttöohjeet](#käyttöohjeet)
+- [Työn ja sovelluksen rajoitteet](#työn-ja-sovelluksen-rajoitteet)
 
 # Tasker
 
@@ -35,6 +36,15 @@ Asentaminen on käsitelty tarkemmin ylle linkitetyissä osioissa.
 ## Käyttöohjeet
 
 ### [Käyttöohjeet tarkemmin](docs/käyttöohje.md)
+
+* Kirjautuminen onnistuu sivun oikeasta ylälaidasta löytyvän Login-painikkeen kautta
+* Rekisteröitymisvaihtoehto löytyy kirjautumissivun alalaidasta.
+* Tiimin luonti: Kirjautumisen jälkeen sivun navbarille ilmestyy dropdown-valikko "Teams", jossa luetellaan tiimit, joihin käyttäjä kuuluu, ja viimeisenä vaihtoehtona on tiimin luominen.
+
+## Työn ja sovelluksen rajoitteet
+
+Olisin halunnut saada Kanban-tauluista esim. JQuerylla toimivia, jossa olisi helposti voinut vetää tehtäviä taulusta toiseen. Käytinkin tähän kohtuullisen paljon aikaa, mutta 
+
 
 # TODO: Jos lisäät käyttäjille omat taulut, lisää tähän.
 
