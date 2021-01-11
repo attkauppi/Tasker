@@ -298,17 +298,5 @@
             });
         });
     </script>
-    {# <script>
-        $('#submit-comment').click(function(event) {
-            event.preventDefault();
-            $.post(url, data=$('#task_comment').serialize(), function(data) {
-                if (data.status == 'ok') {
-                    //location.reload();
-                    $('#Modal .modal-content').html(data);
-                    //$('#editModal .modal-content').html(data)
-                }
-            })
-        })
-    </script> #}
 
 {% endblock %}

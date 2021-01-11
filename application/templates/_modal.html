@@ -38,36 +38,3 @@
     </div>
     
 </form>
-
-<hr>
-
-{% if "main.edit_team_task" in request.endpoint %}
-<hr>
-{% import "bootstrap/wtf.html" as wtf %}
-<form id="task_comment" name="stepForm" action="{{ url_for('main.team_task_comment', id=team.id, task_id=task.id) }}" class="form" method="post">
-    <div class="row">
-        <div class="col-md-4">
-           {{ wtf.quick_form(comment_form) }}
-        </div>
-    </div>
-    </div>
-    <div class="modal-footer">
-        {# <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button> #}
-        <button id="submit-comment" type="submit" value="comment" class="btn btn-success">Submit</button>
-    </div>
-
-
-</form>
-    
-</div>
-
-<hr>
-
-<hr>
-<h4>Comments</h4>
-{% for comment in comments %}
-{% include "_comments.html" %}
-{% endfor %}
-
-
-{% endif %}

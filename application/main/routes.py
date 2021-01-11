@@ -418,97 +418,6 @@ def invite_to_team(id):
     return render_template('find_user.html', team_id=id, users=us)
 
 
-# TODO: TURHA
-@bp.route('/user/<username>/popup/<int:team_id>')
-@login_required
-def user_popup(username, team_id):
-    """ Used to create a popup window for inviting team members """
-    #if path is not None:
-    #    print("path: ", path)
-    print("popuin team_id: ", team_id)
-    print("popupin saama username: ", username)
-    args = request.args.to_dict()
-    print("popup args: ", args)
-
-    form = TeamInviteForm()
-
-    user = User.query.filter_by(username=username).first_or_404()
-    
-
-    args = request.args.to_dict()
-
-    if "team_id" in args:
-        print("team id on query parametri")
-
-    team = Team.query.filter_by(id=team_id).first()
-   
-    d = {
-        "team_id": team_id,
-        "username": user.username
-    }
-    
-    form = TeamInviteForm()
-
-    return render_template('user_popup.html', user=user, team_id=team_id, data=d, form=form)
-
-
-# TODO: TURHA
-@bp.route('/invite/<username>/<team_id>/', methods=['GET', 'POST'])
-#@bp.route('/teams/<int:id>/invite/<username>', methods=["GET", "POST"])
-@login_required
-def invite_user_to_team(username, team_id):#username, team_id):
-    """ Invites a user to a team """
-    print("invite_user_to_team________________")
-    print("username: ", username)
-    print("team_id: ", team_id)
-    args = request.args.to_dict()
-    #if request.method == "POST":
-        #print(request.args)
-    print(args)
-    print("invite_user_to_team==========")
-    print(request.args)
-    print("path: ")
-    print(request.url.rstrip("?"))
-    #print(foo)
-    #args = request.args.to_dict()
-    
-    #print("all args: ", request.args.lists())
-    args = request.args.to_dict()
-    print("args: ", args)
-    
-    team = Team.query.filter_by(id=team_id).first()
-    print("Team: ", team)
-    user = User.query.filter_by(username=username).first_or_404()
-    #print("Team id: ", team_id)
-    #team = Team.query.filter_by(id=team_id).first()
-    #team
-    print("Team johon kutsutaan: ", team)
-
-    form = TeamInviteForm()
-
-    if form.validate_on_submit():
-        print("Forimin saama rooli määritys: ")
-        print("Validoi ")
-        tm = team.invite_user(user.username)
-
-        # If invite was successful, carry out
-        # database operation.
-        if tm:
-            db.session.add(tm)
-            db.session.commit()
-        else:
-            flash('Did you try to invite someone already in your team?')
-            #TODO: Vaihda, jos siirryt toiseen kutsunta menetelmään
-            return redirect(url_for('main.invite_to_team', id=team.id))
-        
-        flash(message=('Invited user ' + user.username))
-        print("Suoritus loppumassa iffin sisäiseen redirectiin")
-        return redirect(url_for('main.invite_to_team', id=team.id))
-    print("Suoritus loppumassa render_templateen")
-    #return render_template(url_for('main.invite_to_team', id=team.id))
-    return redirect(url_for('main.invite_to_team', id=team.id))
-
-
 @bp.route('/team/<int:id>', methods=["GET", "POST"])
 @login_required
 @team_role_required(id)
@@ -685,7 +594,7 @@ def team_tasks_uusi(id):
 # @bp.route('/teams/tasks_static', methods=["GET", "POST"])
 # @login_required
 # def team_tasks():
-#     #team = Team.query.get_or_404(id)
+#     team = Team.query.get_or_404(id)
 #     return send_from_directory('static/js/src/', 'index.html')
 
 @bp.route('/teams/<int:id>/team_tasks/edit_task', methods=["GET", "POST"])
@@ -699,14 +608,10 @@ def edit_team_task(id):
     task = Task.query.get_or_404(task_id)
 
     form = TeamTaskFormEdit(team_id=team.id, task=task, user=current_user)
-    comment_form = CommentForm()
 
     team_task = TeamTask.query.filter_by(task_id=task_id).first()
-
-    #form = TeamTaskFormEdit(team=team, task=task, user=current_user)
     assigned_to = None
 
-    #FIXME: Jotain vikaa lomakkeessa täälläkin
     if request.method == "POST":
 
         # Tällä voisi varmaan tarkistaa, voiko
@@ -738,8 +643,6 @@ def edit_team_task(id):
     form.title.data = task.title
     form.description.data = task.description
     form.board_choices.default = task.board
-
-    comments = task.comments.order_by(Comment.created_on.asc())
     
     return render_template(
         '_modal.html',
@@ -750,36 +653,8 @@ def edit_team_task(id):
         team=team,
         task=task,
         assigned_to=assigned_to,
-        board=task.board,
-        comments=comments,
-        comment_form=comment_form
+        board=task.board
     )
-
-@bp.route('/teams/<int:id>/team_tasks/task/<int:task_id>/comment', methods=["POST"])
-@login_required
-@team_role_required(id)
-def team_task_comment(id, task_id):
-    """ Method for adding comments to team tasks """
-    team = Team.query.get_or_404(id)
-    task = Task.query.get_or_404(task_id)
-    form = CommentForm()
-
-
-    print("request.args: ", request.args)
-    print("request view args: ", request.view_args)
-
-    if form.validate_on_submit():
-        print("Validoi kommentin luomisen")
-        print("request.view args: ", request.view_args)
-        comment = Comment(
-            body=form.body.data,
-            task=task,
-            author = current_user._get_current_object()
-        )
-        db.session.add(comment)
-        db.session.commit()
-        flash('Comment added')
-        return redirect(url_for('main.edit_team_task', id=team.id, task=task) + "#edit-modal-opener34")
 
 @bp.route('/teams/<int:id>/team_tasks/edit_task/<int:task_id>/delete', methods=["GET", "POST"])
 @login_required
@@ -887,22 +762,13 @@ def team_task_move_right(id, task_id):
 
         return redirect(url_for('main.team_tasks_uusi', id=id))
 
-# FIXME: Turha?
-@bp.route('/teams/<int:id>/tasks_frame', methods=["GET", "POST"])
-@login_required
-def team_tasks_static(id):
-    """ For loading static team tasks assets """
-    team = Team.query.get_or_404(id)
-    return render_template('_team_tasks2.html')
-
-#FIXME Voiko roolivaatimusta lisätä vai ei?
 @bp.route('/team/leave2', methods=["GET", "POST"])
 @login_required
-#@team_role_required(id)
+@team_role_required(id)
 def team_remove_member_self():
     """ For removing a member from team """
     team = Team.query.get_or_404(request.view_args.get('id'))
-    user = current_user# User.query.filter_by(username=username).first()
+    user = current_user
 
     form = EmptyForm(value="Delete")
 
@@ -956,29 +822,6 @@ def team_leave(id, username):
     If you carry this out, you can't access the team pages nor team tasks again without being invited back and you'll lose your team role """
 
     return render_template('_confirm.html', id=team.id, username=username, form=form, value="Leave team", endpoint='main.team_leave', title="Are you sure?", text=text)
-
-# FIXME: jäänee turhaksi
-@bp.route('/send_popup', methods=["GET", "POST"])
-@login_required
-def user_edit():
-    form = TestForm()
-    print("Sai jotain")
-    form.vastaanottaja.data = "Ari tietenkin"
-    form.viesti.data = "Viestin tynka"
-
-    return render_template('_form_edit.html', form=form)
-
-@bp.route('/send/<username>/send', methods=["GET", "POST"])
-@login_required
-def receive_edit(username):
-    form = TestForm()
-    user = User.query.filter_by(username=username).first()
-    if form.validate_on_submit():
-        flash('Mukamas')
-        return redirect(url_for('.user', username=user.username), code=307)
-    
-    flash('Lomake ei validoinut itseään')
-    redirect(url_for('.user', username=user.username))
 
 #### Messages #####
 @bp.route("/send_message/<recipient>", methods=["GET", "POST"])
