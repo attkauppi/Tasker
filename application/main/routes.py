@@ -734,18 +734,6 @@ def edit_team_task(id):
 
             flash('Saved task changes')
             return redirect(url_for('main.team_tasks_uusi', id=team.id), 307)
-        
-        print("request.view args: ", request.view_args)
-        if comment_form.validate_on_submit():
-            comment = Comment(
-                body=form.body.data,
-                task=task,
-                author = current_user._get_current_object()
-            )
-            db.session.add(comment)
-            db.session.commit()
-            flash('Comment added')
-            return redirect(url_for('main.edit_team_task', id=team.id, task_id=task.id))
 
     form.title.data = task.title
     form.description.data = task.description
@@ -767,7 +755,31 @@ def edit_team_task(id):
         comment_form=comment_form
     )
 
+@bp.route('/teams/<int:id>/team_tasks/task/<int:task_id>/comment', methods=["POST"])
+@login_required
+@team_role_required(id)
+def team_task_comment(id, task_id):
+    """ Method for adding comments to team tasks """
+    team = Team.query.get_or_404(id)
+    task = Task.query.get_or_404(task_id)
+    form = CommentForm()
 
+
+    print("request.args: ", request.args)
+    print("request view args: ", request.view_args)
+
+    if form.validate_on_submit():
+        print("Validoi kommentin luomisen")
+        print("request.view args: ", request.view_args)
+        comment = Comment(
+            body=form.body.data,
+            task=task,
+            author = current_user._get_current_object()
+        )
+        db.session.add(comment)
+        db.session.commit()
+        flash('Comment added')
+        return redirect(url_for('main.edit_team_task', id=team.id, task=task) + "#edit-modal-opener34")
 
 @bp.route('/teams/<int:id>/team_tasks/edit_task/<int:task_id>/delete', methods=["GET", "POST"])
 @login_required
