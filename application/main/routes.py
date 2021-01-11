@@ -109,9 +109,9 @@ def index():
     # user_agent = request.headers.get('User-Agent')
     return render_template("index.html", count=count, messages=messages)
 
-@bp.route("/new")
-def new():
-    return render_template("new.html")
+# @bp.route("/new")
+# def new():
+#     return render_template("new.html")
 
 @bp.route("/send", methods=["POST"])
 def send():
@@ -126,14 +126,7 @@ def send():
 def user(username):
 
     user = User.query.filter_by(username=username).first_or_404()
-    print("Parametrina saatu user: ", user)
-    print("Nykyinen kayttaja: ", current_user.username)
-
-    print("user teams: ")
-    print(user.teams)
-    # ==> Eroavat toisistaan
     
-    # TODO: Onko teoriassa mahdollista, että toinen käyttäjä voisi lisätä tehtäviä toiselle? Kokeile esim. Postmanilla.
     form = TaskForm()
     if form.validate_on_submit() and username == current_user.username:
         title=form.task_title.data
@@ -153,29 +146,15 @@ def user(username):
 
     user_tasks = user.tasks
     
-    # Testidata, jolla saa testattua helposti, mikäli hajoaa jossain
-    # vaiheessa: 
-    #tasks = [
-    #    {'author': user, 'title': 'Test task1'},
-    #    {'author': user, 'title': 'Test task2'}
-    #
-    #]
-
-    # TODO: Ei kannata toteuttaa kai näin, vaan esim. käytttämällä rooleja.
-    # Tosin kannattaa miettiä, miten sivustot suunnittelee.
     if user.username != current_user.username:
         return render_template('user.html', user=user, tasks=user_tasks)
     return render_template('user.html', user=user, tasks=user_tasks, form=form)
-
-
 
 @bp.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
     """ Allows making changes to a user profile """
-    # TODO: There's no test for this method yet.
     form = EditProfileForm(current_user.username)
-    # TODO: SQL-komennot tilalle lopuksi
 
     # FIXME: Salli myös salasanan vaihtaminen
     if form.validate_on_submit():
@@ -220,6 +199,16 @@ def delete_profile(username):
         text=text
     )
 
+
+@bp.route('/user/<username>/task_dashboard', methods=["GET", "POST"])
+@login_required
+def task_dashboard(username):
+    user = User.query.filter_by(username=username).first()
+
+    if user is None:
+        return abort(404)
+    
+    return render_template('_user_tasks.html')
 
 @bp.route('/edit_profile/<int:id>', methods=["GET", "POST"])
 @login_required

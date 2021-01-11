@@ -34,22 +34,12 @@ def create_app(config_class=Config):
     app.config.from_object('config.DevConfig')
     app.config['DEBUG'] = True
     app.debug = True
-    # Tämä toimii
 
     #if os.environ.get('DYNO'):
     #    app.config.from_object('config.HerokuConfig')
     # if app.config['SSL_REDIRECT']:
     #     from flask_sslify import SSLify
     #     sllify = SSLify(app)
-
-    # Vaikutti mielekkäältä opetella käyttämään application factory -juttuja
-    # suunnilleen jo tässä vaiheessa, jotta refaktorointia ei synny niin
-    # valtavasti. Vinkkeinä käytin mm. seuraavaa
-    # Lahde: https://hackersandslackers.com/flask-application-factory/
-    
-    #TODO: Utilizing databases is actually still not implemented.
-    # Initialize plugins
-    # from . import db
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -72,7 +62,6 @@ def create_app(config_class=Config):
     app.register_blueprint(auth_bp, url_prefix="/auth")
     from application.main import bp as main_bp
     app.register_blueprint(main_bp)
-    #FIXME Tämä voi aiheuttaa 
     from application.api import bp as api_blueprint
     app.register_blueprint(api_blueprint, url_prefix='/api_blueprint/v1')
 

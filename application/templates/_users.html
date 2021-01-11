@@ -54,37 +54,7 @@
                     <a class="btn btn-danger" href="{{ url_for('main.edit_profile_admin', id=user.id) }}">Edit Profile [Admin]</a>
                 {% endif %}
             {% endif %}
-                {# {% endif %} #}
             </div>
         </td>
     </tr>
 </table>
-{#
-<ul class="users">
-    <li class="user">
-        <div class="user-thumbnail">
-            <a href="{{ url_for('main.user', username=user.username) }}">
-                <img class="img-rounded profile-thumbnail" src="{{ user.gravatar(size=40) }}">
-            </a>
-        </div>
-        <div class="user-content">
-            <div class="user"><a href="{{ url_for('main.user', username=user.username) }}">{{ user.username }}</a></div>
-            <div class="user-body">
-                {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
-            </div>
-            <div class="user-footer">
-                {% if user == current_user %}
-                <a href="{{ url_for('.edit_profile') }}">
-                    <span class="label label-primary">Edit Profile</span>
-                </a>
-                {% endif %}
-                {% if current_user.is_administrator() %}
-                <a href="{{ url_for('main.edit_profile_admin', id=user.id) }}">
-                    <span class="label label-danger">Edit Profile [Admin]"</span>
-                </a>
-                {% endif %}
-            </div>
-        </div>
-    </li>
-</ul>
-#}

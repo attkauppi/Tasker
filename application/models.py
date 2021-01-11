@@ -41,21 +41,18 @@ class TeamTask(db.Model):
     doing = db.Column(db.Integer, db.ForeignKey('team_members.id'))
     # Was task assigned or claimed?
     assigned = db.Column(db.Boolean, default=False)
-    team_tasks = db.relationship('Task', backref='team')#, cascade="all, delete-orphan")#, lazy='dynamic')
+    team_tasks = db.relationship('Task', backref='team')
 
     @staticmethod
     def can_modify(task, user):
         """ Checks whether team member is allowed to modify task """
         team_task = TeamTask.query.filter_by(task_id=task.id).first()
-        #print("Team task: ", team_task)
         # If task is not a team task, it's a personal task and anyone
         # can modify those. They also only access them themselves
         if team_task is None:
             return True
 
         team_member = user.get_team_member_object(team_task.team_id)
-        print("Team task doing: ", team_task.doing)
-        print("Team member id: ", team_member.id)
         if team_member.id == team_task.doing:
             
             return True
@@ -69,29 +66,23 @@ class TeamTask(db.Model):
         """ Edits team task """
         
         team_task = TeamTask.query.filter_by(task_id=task.id).first()
-        print("Edit team taskin löytämä team task: ", team_task)
-
-        #form_data = kwargs.get('form_data')
-        print("Form data: ", form_data)
         # TODO: Katso ettei tässä ole tietoturvariskiä
         if "assign_to_choices" in form_data:
             if form_data['assign_to_choices'] == 0:
                 team_task.doing = None
                 team_task.assigned = False
-                # print("assign to choices oli nolla!")
             else:
-                # print("assign_to_choices: ", form_data['assign_to_choices'])
-                #team_task.doing = form_data['assign_to_choices']
-
+                tm = TeamMember.query.filter_by(team_member_id=form_data['assign_to_choices']).filter_by(team_id=team_id).first()
+                team_task.doing = tm.id
+                team_task.assigned = True
+                # TODO: team_task.doing
                 # Team task doing is actually the user id,
                 # because I wanted to get a real name
                 # instead of a join table id as an option
                 # in the task editing form. We need to find out
                 # which team_member's user_id is the integer
                 # given in doing field
-                tm = TeamMember.query.filter_by(team_member_id=form_data['assign_to_choices']).filter_by(team_id=team_id).first()
-                team_task.doing = tm.id
-                team_task.assigned = True
+                
         
         return team_task
 
@@ -401,10 +392,8 @@ class User(UserMixin, db.Model):
         """ Fetches an avatar given a person's user account using
         the gravatar.com service, which turns a person's email address
         into a profile picture, if they've registered to gravatar.com """
-        #if request.is_secure:
+
         url = 'https://secure.gravatar.com/avatar'
-        #else:
-        #    url = 'http://gravatar.com/avatar'
         # An email address is turned into an md5 hash on gravatar
         # so the url is https://secure.gravatar.com/avatar/[email address hashed with md5]
         # hash = hashlib.md5(self.email.lower().encode('utf-8')).hexdigest()
@@ -421,7 +410,6 @@ class User(UserMixin, db.Model):
         """ Returns a user's team role, used in layouts, for example """
         # tm = TeamMember object
         tm = self.get_team_member_object(team_id)
-        #TeamRole.get_role_by_id(tm.team_role_id)
         teamrole = TeamRole.query.filter_by(id=tm.team_role_id).first() 
         return teamrole
         
@@ -432,7 +420,6 @@ class User(UserMixin, db.Model):
 
         print("tm: ", tm)
         teamrole = self.get_team_role(id) #TeamRole.query.filter_by(id=tm.team_role_id).first()
-        print("team role can moderate: ", teamrole)
         
         if teamrole is None:
             print("TEAM ROLE OLI MUKAMAS NONE")
@@ -452,22 +439,15 @@ class User(UserMixin, db.Model):
          - id=team id
          - team_perm = team permission
          """
-        print("saatu team_id: ", id)
         tm = self.get_team_member_object(id)
-        print("SAATU TEAM PERM: ", team_perm)
         if tm is None:
-            print("TEAMMEMBER OLIO OLI MUKAMAS NONE")
             return False
-        print("can_team käsiteltävänä oleva tm: ", tm)
         teamrole = TeamRole.query.filter_by(id=tm.team_role_id).first()
-        print("=======team role: ", teamrole)
         if teamrole is None:
-            print("TEAM ROLE OLI MUKAMAS NONE")
             return False
 
         print("Team role has permission: ", teamrole.has_permission(team_perm))
         if teamrole is not None and teamrole.has_permission(team_perm):
-            print("tiimi rooli oli ja oikeus tehdä pyydettyä asiaa")
             return True
             
         print("Kaatui has_permission kohtaan!!!")
@@ -761,10 +741,6 @@ class Task(db.Model):
         self.board = Board.TODO
         self.done = False
 
-    #user = db.relationship('User')
-
-    #user = db.relationship('User', innerjoin=True, back_populates='tasks')
-
     def to_json(self):
         json_task = {
             'description': self.description,
@@ -800,7 +776,7 @@ class Team(db.Model):
     modified = db.Column(DateTime, default=datetime.utcnow())
     users = relationship("User", secondary='team_members')
     
-    team_tasks = relationship('Task', secondary='team_tasks')#backref='team_tasks', lazy='dynamic')
+    team_tasks = relationship('Task', secondary='team_tasks') #backref='team_tasks', lazy='dynamic')
     # team_tasks = db.relationship(
     #     'Task',
     #     secondary='team_tasks',
@@ -878,8 +854,7 @@ class Team(db.Model):
                 doing = None,
                 assigned = False
             )
-        
-        
+
         if 'form_data' in kwargs:
             form_data = kwargs.get('form_data')
             if "assign_to_choices" in form_data:
@@ -911,7 +886,7 @@ class Team(db.Model):
         )
 
         return tm_admin
-#     #creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
 
 class TeamMember(db.Model):
     """ A class for storing information about team members"""
@@ -938,13 +913,7 @@ class TeamMember(db.Model):
         # self.team_roleksi
         print("self.team_role: ", self.team_role_id)
         if self.team_role_id is None:
-            #print("self email: ", self.email)
-            print("os.getenv(admin): ", os.getenv('ADMIN'))
-            #if self.email == os.getenv('ADMIN'):
-            # This will not work, if in the registration form
-            # the user is not instantiated with at least the
-            # email, i.e., u = User(email=form.email.data)
-
+            
             team_id = kwargs.get('team_id')
             team = Team.query.filter_by(id=team_id).first()
             if self.get_user().email == os.getenv('ADMIN'): # Checks whether the email address of the user matches that of the admin's
@@ -959,13 +928,6 @@ class TeamMember(db.Model):
                 self.team_role_id = TeamRole.query.filter_by(default_role=True).first().id
         else:
             self.team_role_id = team_role_id
-        
-        print("Team role id lopussa: ", self.team_role_id)#else:
-        #    self.team_role_id =team_role_id
-        
-        # Gravatar
-        #if self.email is not None and self.avatar_hash is None:
-        #    self.avatar_hash = self.gravatar_hash()
     
     def get_user(self):
         return User.query.filter_by(id=self.team_member_id).first()
@@ -980,6 +942,7 @@ class TeamMember(db.Model):
         print(self.team_role)
         return self.team_role is not None and self.team_role.has_permission(perm)
     
+    #FIXME: Jäänyt selkeästi kesken
     def is_team_member(self):
         tr = TeamRole.query.filter_by(team_role_name="Team member").first()
         print("self.team_role")

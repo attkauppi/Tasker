@@ -1,7 +1,6 @@
 {% from 'bootstrap/wtf.html' import form_field %}
 {% import 'bootstrap/wtf.html' as wtf %}
 <form id="ModalForm" name="stepForm" action="{{ url_for(endpoint, id=id, username=username) }}" class="form" method="post"></form>
-{# <form id="ModalForm" name="stepForm" action="{{ url_for(endpoint, id=id, username=current_user.username) }}" class="form" method="post"> #}
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="close">
             <span aria-hidden="true">&times;</span>
@@ -9,46 +8,16 @@
         <h4 class="modal-title">{{ title }}</h4>
     </div>
     <div class="modal-body">
-
-    {# {% for field in form if field.name != 'csrf_token' %} #}
-
-    
-
-        {#{% for field in form if field.name != 'csrf_token' and field.name != 'submit' %} #} 
         <div class="row">
-            
             <div class="col-md-4">
-                {# {{ field.label }}
-                {{ field()  }} #}
-                
                 {{ wtf.quick_form(form) }}
-
-
                  {{ form.hidden_tag() }}
                {{ form.submit(value=('Send') )}}
             </div>
         </div>
-
-        
-        {# {% endfor %} #}
-        {# {% for error in field.errors %}
-            <div class="error">{{ error }}</div>
-       
-
-        {% endfor %}#}
-
-        {#{{ form.hidden_tag() }}
-        {{ form.submit(value=('Send') )}}
-        
-        {{ form.hidden_tag() }}
-        {{ form_field(form.viesti) }}
-        {{ form_field(form.vastaanottaja) }} 
-        {{ form.submit(value=('Send') )}} #}
-
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        {#{{ form.submit(value='Create') }} #}
         <button id="submit" type="submit" value="Create" class="btn btn-success">Submit</button>
     </div>
 </form>

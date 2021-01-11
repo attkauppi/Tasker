@@ -33,11 +33,11 @@ CREATE TABLE users (
     password TEXT,
     email TEXT,
     about_me TEXT,
+    confirmed BOOLEAN,
     created TIMESTAMP WITHOUT TIME ZONE,
     last_seen TIMESTAMP WITHOUT TIME ZONE,
     role_id INTEGER,
     avatar_hash TEXT,
-    confirmed BOOLEAN,
     FOREIGN KEY (role_id) REFERENCES roles (id)
 );
 CREATE TABLE team_members (

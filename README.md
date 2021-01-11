@@ -5,10 +5,11 @@ Tasker-Kanban-järjestelmän käyttäminen
 - [Käyttötapauksista](#käyttötapauksista)
 - [Käyttöohjeet](#käyttöohjeet)
 - [Työn ja sovelluksen rajoitteet](#työn-ja-sovelluksen-rajoitteet)
+- [Tietokantakaavio](#tietokantakaavio)
 
 # Tasker
 
-Tasker on tiimipohjainen Kanban-palvelu, jota voi hyödyntää esimerkiksi tiimin tehtävien hallinnassa ja tiimin jäsenten välisessä työnjaossa. Käyttäjät voivat luoda tiimejä vapaasti ja kutsua tiimiinsä muita käyttäjiä tiiminsä jäseniksi. 
+Tasker on tiimipohjainen Kanban-palvelu, jota voi hyödyntää esimerkiksi tiimin tehtävien hallinnassa ja tiimin jäsenten välisessä työnjaossa. Käyttäjät voivat luoda tiimejä vapaasti ja kutsua muita käyttäjiä tiiminsä jäseniksi. 
 
 Tiimejä voi luoda mihin tarkoitukseen tahansa - esimerkiksi projektikohtaisesti tai pysyvämpien tiimien tehtävienhallintaan. Palvelun käyttäjät – sivuston ylläpitäjiä lukuunottamatta – näkevät vain niiden tiimien tiedot, joiden jäseniä he ovat.
 
@@ -18,7 +19,7 @@ Tiimejä voi luoda mihin tarkoitukseen tahansa - esimerkiksi projektikohtaisesti
 
 ### [Käyttötapauksista tarkemmin](docs/käyttötapaukset.md)
 
-Kaikki tiimin jäsenet voivat luoda tiimin Kanban-tauluihin tehtäviä sekä ottaa tehtävän hoidettavakseen ('claim task'). Tiimin omistaja voi kuitenkin antaa tiimiläisilleen erilaisia "tiimirooleja" ('TeamRole' tietokannassa) riippuen tarpeistaan. Muut roolit sallivat esimerkiksi tehtävien delegoinnin jonkun muun tiimiläisen hoidettavaksi ('Team member with assign') ja esimerkiksi tiimin moderaattorit ovat tiimin jäseniä, joiden oikeudet lähentelevät tiimin omistajan omia oikeuksia; he voivat kutsua tiimiin jäseniä, määrittää tehtävien tekijän uudelleen sekä poistaa tiimistä jäseniä.
+Kaikki tiimin jäsenet voivat luoda tiimin Kanban-tauluihin tehtäviä sekä ottaa tehtävän hoidettavakseen ('claim task'). Tiimin omistaja voi antaa tiimiläisilleen erilaisia "tiimirooleja" ('TeamRole' tietokannassa) riippuen tarpeistaan. Muut roolit sallivat esimerkiksi tehtävien delegoinnin jonkun muun tiimiläisen hoidettavaksi ('Team member with assign' -tiimirooli) ja esimerkiksi tiimin moderaattorit ovat tiimin jäseniä, joiden oikeudet lähentelevät tiimin omistajan omia oikeuksia: moderaattorit voivat kutsua tiimiin jäseniä, määrittää tehtävien tekijän uudelleen sekä poistaa tiimistä jäseniä. Omistaja voi lisäksi poistaa tiimin.
 
 ## Sovelluksen asennusohje
 
@@ -26,10 +27,10 @@ Kaikki tiimin jäsenet voivat luoda tiimin Kanban-tauluihin tehtäviä sekä ott
 
 #### [Asentaminen Docker-ympäristössä](docs/asennusohje#-asentaminen-docker-ympäristössä)
 
-Järjestelmän nopeaa katselmointia varten nopeinta voi olla käyttää docker-kansion sisältämiä Dockerfile ja docker-compose.yml-tiedostoja. Tällöin ei tarvitse asentaa Postgresql:ää tai luoda uutta tietokantaa sovellusta varten. Tämä kuitenkin edellyttää [Dockerin]('https://docs.docker.com/engine/install/') ja [docker-composen]('https://docs.docker.com/compose/install/'), mikä on dokumentoitu kattavasti eri käyttöjärjestelmille Dockerin omilla sivuilla.
+Järjestelmän nopeaa katselmointi onnistunee parhaiten käyttämällä docker-kansion sisältämiä Dockerfile- ja docker-compose.yml -tiedostoja. Tällöin ei tarvitse asentaa Postgresql:ää tai luoda uutta tietokantaa sovellusta varten. Tämä kuitenkin edellyttää [Dockerin]('https://docs.docker.com/engine/install/') ja [docker-composen]('https://docs.docker.com/compose/install/') asentamista, mikä on dokumentoitu kattavasti eri käyttöjärjestelmille Dockerin omilla sivuilla.
 
 #### [Asentaminen Python-ympäristöön](docs/asennusohje#-asentaminen-python-ympäristössä)
-Toisena on käyttää esimerkiksi virtualenv- tai pipenv-ympäristöä Python-pakettien asentamiseen ja luoda tietokanta esimerkiksi postgresql:n tai sqliteen. Sovelluksen kehityksessä käytetty Python-versio on ollut 3.8.7 (määritelty myös [runtime.txt]('runtime.txt')-tiedostossa), mutta myös luultavasti myös Python-versiot >= 3.8.1 toimivat, sillä tätä käytetään esimerkiksi Docker-ympäristössä.
+Toisena vaihtoehtona on käyttää esimerkiksi virtualenv- tai pipenv -ympäristöä Python-pakettien asentamiseen ja luoda tietokanta esimerkiksi postgresql:ään tai Sqliteen. Sovelluksen kehityksessä käytetty Python-versio on 3.8.7 (määritelty myös [runtime.txt]('runtime.txt')-tiedostossa). Luultavasti myös Python-versiot >= 3.8.1 toimivat, sillä kyseistä versiota käytetään esimerkiksi Docker-ympäristössä.
 
 Asentaminen on käsitelty tarkemmin ylle linkitetyissä osioissa.
 
@@ -43,10 +44,11 @@ Asentaminen on käsitelty tarkemmin ylle linkitetyissä osioissa.
 
 ## Työn ja sovelluksen rajoitteet
 
-Olisin halunnut saada Kanban-tauluista esim. JQuerylla toimivia, jossa olisi helposti voinut vetää tehtäviä taulusta toiseen. Käytinkin tähän kohtuullisen paljon aikaa, mutta FullStack-kurssia käymättä en saanut sovelluksesta riittävän käyttökelpoista - paljolti tästä syystä sovelluksesta löytyy API-määrittelyt, joita hyödynsin tietojen hakemiseen ajaxilla.
+Olisin halunnut saada Kanban-taulujen tehtävistä esim. JQuerylla toimivia, joita olisi helposti voinut vetää taulusta toiseen. Käytinkin tähän kohtuullisen paljon aikaa, mutta FullStack-kurssia käymättä en saanut sovelluksesta riittävän käyttökelpoista - paljolti tästä syystä sovelluksesta löytyy API-määrittelyt, joita hyödynsin tietojen hakemiseen ajaxilla.
 
 Tämä olisi selvä jatkokehityskohde.
 
+## [Tietokantakaavio](docs/tietokantakaavio#-tietokantakaavio)
 
 # TODO: Jos lisäät käyttäjille omat taulut, lisää tähän.
 

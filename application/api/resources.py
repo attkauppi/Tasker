@@ -63,7 +63,6 @@ class AuthAPI(Resource):
         return jsonify({'token': g.current_user.generate_auth_token(
             expiration=3600), 'expiration': 3600})
 
-# tasks
 taskss = [
         {
             'description': u'eras tehtava',

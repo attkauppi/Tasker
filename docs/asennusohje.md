@@ -3,15 +3,15 @@
 
 ## Asentaminen Docker-ympäristössä
 
-Sovelluksen käyttäminen paikallisesti Docker-ympäristössä edellyttää Dockerin ja docker-composen asentamista, mihin löydät ohjeet seuraavista linkeistä:
+Sovelluksen käyttäminen paikallisesti Docker-ympäristössä edellyttää Dockerin ja docker-composen asentamista, mihin löytyy ohjeet seuraavista linkeistä:
 
 * [Dockerin asentaminen]('https://docs.docker.com/engine/install/')
 * [docker-composen]('https://docs.docker.com/compose/install/')
 
-Kun docker ja docker-compose on asennettu, kopioi docker-kansiosta esimerkiksi tiedostot *.env.db*, *.env.dev*, *docker-compose_livereload.yml*, *Dockerfile_livereload_dev_only* sekä *entrypoint.sh* Tasker-kansioon. Näiden avulla voit luoda Docker-ympäristön, jossa ohjelmiston koodiin tekemäsi muutokset näkyvät otetaan välittömästi käyttöön sovelluksen ollessa päällä. Kyseisten tiedostojen määrittämät Docker-asetukset eivät kuitenkaan sovellu esimerkiksi Herokussa hyödynnettäviksi!
+Kun Docker ja docker-compose on asennettu, kopioi docker-kansiosta esimerkiksi tiedostot *.env.db*, *.env.dev*, *docker-compose_livereload.yml*, *Dockerfile_livereload_dev_only* sekä *entrypoint.sh* Tasker-kansioon. Niiden avulla voit luoda Docker-ympäristön, jossa ohjelmiston koodiin tekemäsi muutokset otetaan välittömästi käyttöön sovelluksen ollessa päällä. Kyseisten tiedostojen määrittämät Docker-asetukset eivät kuitenkaan sovellu esimerkiksi Herokussa hyödynnettäviksi!
 
-* **.env.dev** sisältämät asetukset ovat samat kuin [myöhemmin kuvatut](#-ympäristömuuttujat)
-* **.env.db** sisältää Dockeroidun postgres-tietokantaa koskevia ympäristömuuttujia, jotka tarvitaan yhteyden muodostamiseksi tietokantaan.
+* **.env.dev** sisältämät asetukset ovat samat kuin myöhemmin kuvatut [ympäristömuuttujat](#-ympäristömuuttujat)
+* **.env.db** sisältää Dockeroitua postgres-tietokantaa koskevia ympäristömuuttujia, jotka tarvitaan yhteyden muodostamiseksi tietokantaan.
 
 **.env.db - dockeroidun postgres-tietokannan ympäristömuuttujia**
 ```
@@ -21,13 +21,13 @@ POSTGRES_DB=tietokannan_nimi
 ```
 ### Docker-ympäristön kokoaminen
 
-Mikäli olet asentanut docker-composen ja dockerin sekä siirtänyt em. tiedostot Tasker-kansioon, seuraavien komentojen pitäisi luoda dockeroitu versio Tasker-sovellusksesta. Tasker-kansion sisällä, suorita:
+Mikäli olet asentanut docker-composen ja dockerin sekä siirtänyt em. tiedostot Tasker-kansioon, seuraavien komentojen pitäisi luoda dockeroitu versio Tasker-sovellusksesta. Suorita Tasker-kansion sisällä:
 
 ```
 docker-compose -f docker-compose_livereload.yml build
 ```
 
-Tämä muodostaa kuvat Dockerfile_livereload_dev_only ja compose_livereload.yml:n määrittelemällä tavalla sekä containerin postgresia ja Taskerin Python-ympäristöä varten. Mikäli suorituksen aikana ei ilmene ongelmia, pitäisi Tasker-sovelluksen käynnistyä komennolla:
+Tämä muodostaa kuvat Dockerfile_livereload_dev_only ja compose_livereload.yml:n määrittelemällä tavalla sekä containerin postgresia että Taskerin Python-ympäristöä varten. Mikäli suorituksen aikana ei ilmene ongelmia, pitäisi Tasker-sovelluksen käynnistyä komennolla:
 
 ```
 docker-compose -f docker-compose_livereload.yml up
@@ -41,13 +41,13 @@ Voit käynnistää sovelluksen taustalla myös komennolla:
 docker-compose -f docker-compose_livereload.yml up -d
 ```
 
-Lopettaaksesi sovelluksen, voit joko painaa CTRL+C, mikäli käynnistit sovelluksen ensiksi mainitulla tavalla tai suorittamalla komennon
+Lopettaaksesi sovelluksen voit joko painaa CTRL+C, mikäli käynnistit sovelluksen ensiksi mainitulla tavalla, tai suorittamalla komennon
 
 ```
 docker-compose -f docker-compose_livereload.yml down
 ```
 
-Mikäli sovellus antaa virheitä tietokantaan liittyviä virheitä, voit yrittää suorittaa komennon, joka tyhjentää vanhan tietokannan ja luo uuden sen tilalle:
+Mikäli sovellus antaa tietokantaan liittyviä virheitä, voit yrittää suorittaa seuraavan komennon, joka tyhjentää vanhan tietokannan ja luo uuden sen tilalle:
 
 ```
 docker-compose -f docker-compose.prod.yml exec web python manage.py create_db
@@ -58,7 +58,7 @@ Lisäksi voit luoda tavallisen testikäyttäjän (käyttäjätunnus: "testi"; sa
 ```
 docker-compose -f docker-compose.prod.yml exec web python manage.py seed_db
 ```
-Mikäli haluat kokeilla ylläpitäjäoikeuksien käyttöä, voit muokata seed_db:n käyttäjää luovaa koodia siten, että muutat käyttäjän sähköpostiosoitteen vastaamaan [.env.dev](#-ympäristömuuttujat)-tiedoston ADMIN-ympäristömuuttujaa vastaavaksi sähköpostiosoitteeksi.
+Mikäli haluat kokeilla ylläpitäjäoikeuksien käyttöä, voit muokata manage.py:n seed_db-metodin käyttäjän luovaa koodia siten, että muutat käyttäjän sähköpostiosoitteen vastaamaan [.env.dev](#-ympäristömuuttujat)-tiedoston ADMIN-ympäristömuuttujan sähköpostiosoitetta.
 
 ### Docker-ympäristön poistaminen
 
@@ -68,7 +68,7 @@ Voit tarkistaa, jäikö Docker-containereita koneellesi vielä sovelluksen sammu
 docker container ls -a
 ```
 
-Jonka output voi näyttää suunnilleen seuraavalta, jos containereita on vielä järjestelmään tallennettuna:
+jonka output voi näyttää suunnilleen seuraavalta, jos containereita on vielä järjestelmään tallennettuna:
 
 ```
 CONTAINER ID   IMAGE             COMMAND                  CREATED          STATUS         PORTS                    NAMES
@@ -97,7 +97,7 @@ postgres     latest       1f1bd4302537   11 days ago   314MB
 python       3.8.7-slim   4fab6f68e9f0   2 weeks ago   115MB
 ```
 
-Saat poistettua ne komennolla:
+saat poistettua ne komennolla:
 
 ```
 docker rmi <IMAGE ID>
@@ -151,7 +151,7 @@ python3 -m venv venv
 
 Tämän seurauksena kansioon pitäisi ilmestyä venv-niminen kansio, johon kaikki sovelluksen vaatimat python-paketit asennetaan. Poistamalla kyseisen kansion pääset eroon sovelluksen vaatimista python-paketeista.
 
-Ympäristön otetaan käyttöön komennolla:
+Ympäristö otetaan käyttöön komennolla:
 
 ```
 source venv/bin/activate
@@ -164,7 +164,7 @@ deactivate
 ```
 ### Varsinaisten sovelluksen edellyttämien pakettien asentaminen
 
-Mene ensin komentorivillä kansioon, johon latasit sovelluksen ja suorita seuraava komento:
+Mene ensin komentorivillä kansioon, johon latasit sovelluksen ja suorita seuraava komento virtualenv-ympäristön ollessa käytössä:
 
 ```
 pip install -r requirements.txt
@@ -178,7 +178,7 @@ Mikäli asentamisen aikana ei tapahdu virheitä, vaaditut python-paketit on nyt 
 
 Luo Tasker-kansioon .env-niminen tiedosto, johon tallennat sovelluksen käyttämät ympäristömuuttujat. Tämän tiedoston avulla myös säätelet, missä config.py-tiedoston määrittelemistä asetuksista sovellus käynnistyy säätämällä APP_SETTINGS-muuttujan määritystä. Esimerkissä käytössä on sovelluksen kehitystila. Sähköpostia ei välttämättä tarvita, mutta jos kokeilet sovellusta antamatta sovellukselle oikeuksia sähköpostin käyttöön, aseta ympäristömuuttuja ```EMAIL_CONFIGURED=0```, jolloin sovellukseen rekisteröityneiltä käyttäjiltä ei edellytetä sähköpostiosoitteen varmentamista ennen kuin sovelluksen käyttäminen on mahdollista.
 
-Lisäksi jos haluat sovelluksen käyttävän tietokantaa ja tietojen pysyvän tallessa, joudut luomaan sovellukselle tietokannan. Kaikkein helpointa on käyttää sqlite-tietokantaa, jolloin voit korvata DATABASE_URL- ja DEV_DATABASE_URI -muuttujat esimerkiksi "sqlite:///db.db", jolloin sovellus luo application-kansion sisälle db.db-nimisen Sqlite3-tietokannan ja käyttää sitä. Toisaalta, jos et halua säilyttää tietoja myöhempää käyttöä varten, polku sqlite:/// luo väliaikaisen tietokannan tietokannan muistiin, joka poistetaan, kun sovellus lopetetaan.
+Jos lisäksi haluat sovelluksen käyttävän tietokantaa ja tietojen pysyvän tallessa, joudut luomaan sovellukselle tietokannan. Kaikkein helpointa on käyttää sqlite-tietokantaa, jolloin voit korvata DATABASE_URL- ja DEV_DATABASE_URI -muuttujat esimerkiksi "sqlite:///db.db", jolloin sovellus luo application-kansion sisälle db.db-nimisen Sqlite3-tietokannan ja käyttää sitä. Toisaalta, jos et halua säilyttää tietoja myöhempää käyttöä varten, polku sqlite:/// luo tietokoneen muistiin väliaikaisen tietokannan, joka poistetaan, kun sovellus lopetetaan.
 
 Vastaavasti, jos haluat käyttää esimerkiksi postgresql-tietokantaa, voit syöttää sen tiedot em. kenttiin. Alla näkyvässä esimerkissä oletetaan, että käytössä olisi paikallinen postgresql-tietokanta:
 
@@ -213,9 +213,9 @@ MAIL_SUBJECT_RESET="Reset password"
 ```
 ### Gmail-sähköpostin käyttäminen
 
-Mikäli sovelluksen haluaa lähettävän salasananpalautusviestejä, uusien tilien varmentamisviestejä jne., on sille annettava käyttöön jokin sähköpostiosoite. Itse käytin Gmail-osoitetta, jonka toimimaan saaminen edellytty "Vähemmän turvallisten sovellusten käyttöoikeuksien" sallimista [Googlen sivuilla](https://myaccount.google.com/lesssecureapps?pli=1&rapt=AEjHL4M_b6ZbBQgTf7w6vflBCGi8NlOyAVEVO89ZDcoFSfU4KCXb5768NLBxGh-R3zSEurQqXpZSO5divb38ls_VnF_-pzQeSw).
+Mikäli haluaa sovelluksen lähettävän salasananpalautusviestejä, uusien tilien varmentamisviestejä jne., on sille annettava käyttöön jokin sähköpostiosoite. Itse käytin Gmail-osoitetta, jonka toimimaan saaminen edellytti "Vähemmän turvallisten sovellusten käyttöoikeuksien" sallimista [Googlen sivuilla](https://myaccount.google.com/lesssecureapps?pli=1&rapt=AEjHL4M_b6ZbBQgTf7w6vflBCGi8NlOyAVEVO89ZDcoFSfU4KCXb5768NLBxGh-R3zSEurQqXpZSO5divb38ls_VnF_-pzQeSw).
 
-Aina tämäkään ei riitä, vaan Google saattaa myös estää sovelluksen toiminnan, mikäli gmail-tiliin kirjaudutaan Googlen mielestä epäilyttävästä sijainnista (esim. Heroku). Jos näin käy, voi joutua hyväksymään sovelluksen käyttämisen uudesta sijainnista osoitteessa: https://accounts.google.com/DisplayUnlockCaptcha . Lisäksi on käytävä [myaccount.google.com](https://myaccount.google.com/) -osoitteessa hyväksymässä viimeaikaiset epäilyttävät tapahtumat.
+Tämäkään ei aina riitä, vaan Google saattaa myös estää sovelluksen toiminnan, mikäli gmail-tiliin kirjaudutaan Googlen mielestä epäilyttävästä sijainnista (esim. Heroku). Jos näin käy, voi joutua hyväksymään sovelluksen käyttämisen uudesta sijainnista osoitteessa: https://accounts.google.com/DisplayUnlockCaptcha . Lisäksi on käytävä [myaccount.google.com](https://myaccount.google.com/) -osoitteessa hyväksymässä viimeaikaiset epäilyttävät tapahtumat.
 
 Suosittelenkin esimerkiksi MailGun-palvelun käyttöä, mikäli sähköpostin haluaa oikeasti toimimaan kohtuullisella toimintavarmuudella.
 
@@ -234,7 +234,7 @@ Mikäli sovelluksen käynnistyksen yhteydessä esiintyy virheitä esimerkiksi ti
 python manage.py create_db
 ```
 
-Lisäksi voit luoda testikäyttäjän sovellukseen komennolla
+Lisäksi voit luoda sovellukseen testikäyttäjän komennolla
 
 ```
 python manage.py seed_db
@@ -242,11 +242,11 @@ python manage.py seed_db
 
 Testikäyttäjän tunnnukset ovat käyttäjätunnus: "testi"; salasana: "testi".
 
-Mikäli haluat kokeilla ylläpitäjäoikeuksien käyttöä, voit muokata seed_db:n käyttäjää luovaa koodia siten, että muutat käyttäjän sähköpostiosoitteen vastaamaan .env.dev-tiedoston ADMIN-ympäristömuuttujaa vastaavaksi sähköpostiosoitteeksi.
+Mikäli haluat kokeilla ylläpitäjäoikeuksien käyttöä, voit muokata manage.py:n seed_db-metodin käyttäjän luovaa koodia siten, että muutat käyttäjän sähköpostiosoitteen vastaamaan [.env.dev](#-ympäristömuuttujat)-tiedoston ADMIN-ympäristömuuttujan sähköpostiosoitetta.
 
 ## Herokussa
 
-Herokussa sovelluksen käyttöönsaaminen onnistuu helpoiten käyttämällä Python buildpackeja. Sovellus tarvitsee Heroku-tietokannan, joten asennettuasi Heroku-clientin, kirjauduttuasi tililesi sekä luotuasi Heroku appin, on suoritettava:
+Herokussa sovelluksen käyttöönsaaminen onnistuu helpoiten käyttämällä Python buildpackeja. Sovellus tarvitsee Heroku-tietokannan, joten asennettuasi Heroku-clientin ja kirjauduttuasi tililesi sekä luotuasi Heroku appin, on suoritettava:
 
 ```
 heroku addons:create heroku-postgresql:hobby-dev --app app_name
@@ -256,7 +256,7 @@ Lisäksi Herokuun on lisättävä [ympäristömuuttujat](#-ympäristömuuttujat)
 ```
 heroku config:set EMAIL_CONFIGURED=0
 ```
-Tai herokun verkkosivuilta, menemällä appiin ja siellä settings -> Reveal config vars. Ympäristömuuttujan DATABASE_URL pitäisi ilmestyä Herokun ympäristömuuttujiin automaattisesti, kun postgres-tietokanta on otettu käyttöön.
+tai Herokun verkkosivuilta menemällä appiin ja siellä settings -> Reveal config vars. Ympäristömuuttujan DATABASE_URL pitäisi ilmestyä Herokun ympäristömuuttujiin automaattisesti, kun postgres-tietokanta on otettu käyttöön.
 
 Kun em. asiat on tehty, komennon ```git push heroku master``` pitäisi onnistua puskemaan sovellus Herokuun. Mikäli Herokussa tulee virheitä esimerkiksi tietokantaan liittyen, voi suorittaa vielä komennon:
 

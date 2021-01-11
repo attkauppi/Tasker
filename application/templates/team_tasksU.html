@@ -13,12 +13,7 @@
 {% block app_content %}
 {{ super() }}
 
-{# {% with todos=todos, doings=doings, dones=dones %}
-{% include '_team_tasks.html' %}
-{% endwith %} #}
-
 <p style="text-align:center">
-  {# {{ modal_form33('main.create_team_task', id=team.id, form=form, team=team, teksti="Create task") }} #}
   {{ modal_form33_create_task('main.create_team_task', id=team.id, form=form, team=team, teksti="Create task") }}
 </p>
 
@@ -47,76 +42,6 @@
 
           <br>
           {% endfor %}
-         
-          {# {% for task in todos %}
-          {% with task_id=task.id %} #}
-          {# {% with user=get_user_from_team_member_id(get_task_assigned2(task.team_tasks)) %} #}
-            
-            {# {% if get_task_assigned(task.team_tasks) is not none %} #}
-              {# Legacy versio #}
-              {# {% if get_user_from_id(get_task_assigned(task.team_tasks)) is not none %}
-                {% with user=get_user_from_id(get_task_assigned(task.team_tasks)) %}
-                    {% include '_task2.html' %}
-                {% endwith %} #}
-              
-              {# {% elif get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id) is not none %}
-                {% with user=get_user_from_team_member_id(get_task_assigned2(task.team_tasks)) %}
-                  {% include '_task2.html' %}
-                {% endwith %} #}
-              
-              
-            {# {% else %}
-              {% include '_task2.html' %}
-            {% endif %}
-          {% endwith %} 
-          <br>
-        {% endfor %} #}
-
-        {# {% for task in todos %}
-          
-        {% with task_id=task.id %}
-          {% with user=get_user_from_team_member_id(team_member_id=get_task_assigned2(task.team_tasks).doing, team_id=get_task_assigned2(task.team_tasks).team_id) %}
-            {{ user.username }}
-            {% include '_task2.html' %}
-          {% endwith %}
-          
-          {% if get_task_assigned(task.team_tasks) is not none %} #}
-            {# Legacy versio #}
-            {# {% if get_user_from_id(get_task_assigned(task.team_tasks)) is not none %}
-              {% with user=get_user_from_id(get_task_assigned(task.team_tasks)) %}
-                  {% include '_task2.html' %}
-              {% endwith %}
-            {% elif get_user_from_team_member_id(team_member_id=get_task_assigned2(task.team_tasks).doing, team_id=get_task_assigned2(task.team_tasks).team_id) is not none %}
-              {% with user=get_user_from_team_member_id(get_task_assigned2(task.team_tasks)) %}
-                {{ user.username }}
-                {% include '_task2.html' %}
-              {% endwith %}
-            {% endif %}
-          {% else %}
-            {% include '_task2.html' %}
-          {% endif %}
-        {% endwith %}
-        <br>
-      {% endfor %} #}
-      
-          
-          {# {% include '_task2.html' %} #}
-          {# {% set new_tasks = current_user.new_tasks() %} #}
-            {# <span id="todo_tasks"
-              style="visibility: {% if new_messages %}visible
-                {% else %}hidden {% endif %};">
-
-                  {{ new_messages }}
-            </span> #}
-                            {# {% endset %} #}
-              
-            {# {% endwith %}
-        {% else %}
-          {% include '_task2.html' %}
-        {% endif %}
-          {% endwith %} #}
-          {#<br> #}
-        {# {% endfor %} #}
       </span>
       </div> 
       <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 green text-center">
@@ -137,33 +62,8 @@
               {% include '_task2.html' %}
             {% endif %}
           {% endwith %}
-
           <br>
           {% endfor %}
-         
-
-        {# {% if (get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id)) %} #}
-        {# {% for task in doings %}
-          
-          {% with task_id=task.id %}
-            {% if get_task_assigned(task.team_tasks) is not none %} #}
-              {# Legacy versio #}
-              {# {% if get_user_from_id(get_task_assigned(task.team_tasks)) is not none %}
-                {% with user=get_user_from_id(get_task_assigned(task.team_tasks)) %}
-                    {% include '_task2.html' %}
-                {% endwith %}
-              {% elif get_user_from_team_member_id(get_task_assigned2(task.team_tasks)) is not none %}
-                {% with user=get_user_from_team_member_id(get_task_assigned2(task.team_tasks)) %}
-                  {% include '_task2.html' %}
-                {% endwith %}
-              {% endif %}
-            {% else %}
-              {% include '_task2.html' %}
-            {% endif %}
-          {% endwith %}
-          <br>
-        {% endfor %} #}
-        
         <!-- Kortti loppuu -->
       </div>
       <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 green text-center">
@@ -174,7 +74,6 @@
           </div>
         </div>
         <!-- Kortti alkaa -->
-
         {% for task in dones %}
           {% with task_id=task.id %}
             {% if (get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id)) %}
@@ -188,20 +87,7 @@
 
           <br>
           {% endfor %}
-         
-       
-        {# {% for task in dones %}
-        {% with task_id=task.id %}
-        {% if get_task_assigned(task.team_tasks) is not none %}
-            {% with user=get_user_from_id(get_task_assigned(task.team_tasks)) %}
-              {% include '_task2.html' %}
-            {% endwith %}
-        {% else %}
-          {% include '_task2.html' %}
-        {% endif %}
-          {% endwith %}
-          <br>
-        {% endfor %} #}
+        
         
         <!-- Kortti loppuu -->
       </div>
@@ -209,67 +95,5 @@
   </div>
 </div>
 
-
 {% endblock %}
 
-{#
-  
-  <div class="container">
-  <div class="row yellow">
-    <div class="col-lg-12 ">
-      <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 green text-center">
-        <!-- Kolumni 1-->
-        <div class="card text-center" style="border:none">
-          <div class="card-body" style="border:none">
-            <h2 class="card-title" style="border:none">Todos</h5>
-          </div>
-        </div>
-        <!-- kortti -->
-        <div class="card text-center">
-          <div class="card-header">Header</div>
-          <div class="card-body">
-            <h5 class="card-title">Vaara card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-            <a href="#" class="card-link">Sun Gone</a>
-            <a href="#" class="card-link">Still Gone</a>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 green text-center">
-        <!-- Kolumni 2-->
-        <div class="card text-center" style="border:none">
-          <div class="card-body" style="border:none">
-            <h2 class="card-title" style="border:none">Doing</h5>
-          </div>
-        </div>
-        <!-- kortti -->
-        <div class="card text-center">
-          <div class="card-header">Header</div>
-          <div class="card-body">
-            <h5 class="card-title">Vaara card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-          </div>
-        </div>
-        <!-- Kortti loppuu -->
-      </div>
-      <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 green text-center">
-        <!-- Kolumni 3-->
-        <div class="card text-center" style="border:none">
-          <div class="card-body" style="border:none">
-            <h2 class="card-title" style="border:none">Done</h5>
-          </div>
-        </div>
-        <!-- Kortti alkaa -->
-        <div class="card text-center">
-          <div class="card-header">Header</div>
-          <div class="card-body">
-            <h5 class="card-title">Vaara card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-          </div>
-        </div>
-        <!-- Kortti loppuu -->
-      </div>
-    </div>
-  </div>
-</div>
-#}
