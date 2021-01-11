@@ -39,9 +39,6 @@
             </p>
             
         </td>
-        {#
-        {% if (user == current_user) or (current_user.is_administrator()) %}
-        #}
         <td>
             <h2>Belongs to teams</h2>
             <ul>
@@ -75,9 +72,7 @@
     
     <a class="edit-modal-opener" data-toggle="modal"
         data-whatever="{{ url_for('main.user_edit') }}" href="#">Linkki</a> 
-        {# href="{{ url_for('main.user_edit', id=user.id) }}">Linkki</a> #}
     <div class="model-content">
-    {# {{ macros.modal_form() }} #}
     </div>
     </p>
     Väliteksti
@@ -87,16 +82,11 @@
     <p>
         väliteksti2
     </p>
-    {#<a class="edit-modal-opener button2" {{ modal_form3(user.username) }}>tekstia</a> #}
+    
     <p>
-        <p>{# TOIMII #}
+        <p>
             {{ modal_form3(user.username) }}
         </p>
-    {#
-    <!--<button class="edit-modal-opener button2" data-toggle="modal"
-        data-whatever="{{ url_for('main.user_edit') }}" href="#" value="juttu" color="IndianRed">asdad</button>-->
-    
-    #}
     
 
 {% endblock %}

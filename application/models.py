@@ -97,21 +97,12 @@ class TeamPermission:
 
 class TeamRole(db.Model):
     """ Implements team roles for team members """
-    #TODO: Lisää roolit schema.sql:n
     __tablename__ = 'team_roles'
     id = db.Column(db.Integer, primary_key=True)
     team_role_name = db.Column(db.String(64), unique=True, nullable=False)
     default_role = db.Column(db.Boolean, default=False)
     team_permissions = db.Column(Integer)
-    #users = relationship('TeamMember', backref='teamrole', lazy='dynamic')
-    #FIXME: backref voi aiheuttaa ongelmia! Et tiennyt, olisiko pitänyt olla team_role vai teamrole
-    #team_role = relationship(TeamMember, backref='TeamRole', lazy='dynamic')
-    #team_role = relationship(TeamMember, backref=backref("TeamRole"), lazy='dynamic')
-    # team_members = db.relationship('TeamMember', backref='team_role')
-    #member_role = 
     team_members = relationship('TeamMember', backref='team_role', lazy='dynamic')
-    #team_members = relationship("TeamMember", back_populates='team_role')
-    #team_member_roles = relationship(TeamMember, backref='team_roles', lazy='dynamic')
 
     def __init__(self, **kwargs):
         super(TeamRole, self).__init__(**kwargs)
@@ -130,8 +121,6 @@ class TeamRole(db.Model):
         self.team_permissions = 0
     
     def has_permission(self, perm):
-        print("self permissions: ", self.team_permissions)
-        #print("perm == perm",)
         return self.team_permissions & perm == perm
     
     @staticmethod
@@ -152,7 +141,6 @@ class TeamRole(db.Model):
     
     @staticmethod
     def insert_roles():#default_member_role='Team member'):
-        # TODO: On lisättävä email confirmation, jotta admin-tiliä ei voida kaapata.
         """
         Tries to find existing roles by name and update
         those. A new role is created only for those roles
@@ -198,7 +186,6 @@ class TeamRole(db.Model):
                 TeamPermission.ADMIN
             ]
         }
-        #default_role = 'User'
         default_role = 'Team member'
         for r in roles:
             role = TeamRole.query.filter_by(team_role_name=r).first()
@@ -225,14 +212,9 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(DateTime, default=datetime.utcnow())
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     avatar_hash = db.Column(db.String(32))
-    #tasks = db.relationship('Task', backref='author', lazy=True)
     tasks = relationship("Task", back_populates='user', cascade="all, delete-orphan")
     teams = relationship("Team", secondary="team_members")
-    #team_memberships = relationship('TeamMember', back_populates='user')#lazy='dynamic')
-    team_memberships = relationship('TeamMember', back_populates='user', cascade="all, delete-orphan")#, ondelete='cascade')
-    # tasks = db.relationship('Task', back_populates='users')
-    #tasks = db.relationship('Task', backref='user', lazy='dynamic')
-    #TODO Messages liittyvää
+    team_memberships = relationship('TeamMember', back_populates='user', cascade="all, delete-orphan")
     messages_sent = relationship(
         'Message',
         foreign_keys = 'Message.sender_id',
@@ -453,8 +435,6 @@ class User(UserMixin, db.Model):
         print("Kaatui has_permission kohtaan!!!")
         return False
     
-    # def can_moderate(self, )
-    
     def is_team_role(self, team_id, team_role_name):
         """ Checks user privileges using team_roles names """
         tm = self.get_team_member_object(team_id)
@@ -492,8 +472,7 @@ class User(UserMixin, db.Model):
             if i.team_id is not None and i.team_id == team_id:
                 return i
         return None
-       
-    # TODO: messages liittyvä
+
     def new_messages(self):
         """ Helper method uses the last_message_read_time
         to determine whether there are unread messages and
@@ -502,7 +481,6 @@ class User(UserMixin, db.Model):
         return Message.query.filter_by(recipient=self).filter(
             Message.timestamp > last_read_time).count()
     
-    # TODO: messages/notifications liittyvä
     def add_notification(self, name, data):
         """ Helper method to make it easier to work with notification objects 
         
@@ -518,10 +496,6 @@ class User(UserMixin, db.Model):
         db.session.add(n)
         return n
 
-        
-
-# TODO: Lisää tämä myös team permissioneiden tarkistukseen, jos tarpeen
-# miguelin kirjasta s. 132
 class AnonymousUser(AnonymousUserMixin):
     def can(self, permissions):
         return False
@@ -533,7 +507,6 @@ login_manager.anonymous_user = AnonymousUser
 
 class Role(db.Model):
     """ Implements roles for users """
-    #TODO: Lisää roolit schema.sql:n
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     role_name = db.Column(db.String(64), unique=True)
@@ -624,8 +597,6 @@ class Messages(db.Model):
     def __repr__(self):
         return f"Message saved: {self.message}"
 
-
-##### New message class
 class Message(db.Model):
     __tablename__ = 'message'
     id = db.Column(db.Integer, primary_key=True)
@@ -660,7 +631,7 @@ class Permission:
     MODERATE_GROUP = 8
     ADMIN = 16
 
-# TODO: Keksittävä jotain näiden suhteen
+
 class Board:
     TODO = 1
     DOING = 2
@@ -681,10 +652,7 @@ class Task(db.Model):
     board = db.Column(db.Integer, default=1)
     is_team_task = db.Column(db.Boolean, default=False)
     user = relationship('User', back_populates='tasks')
-    # TODO: Kunnon one-to-one suhdetta varten pitäisi
-    # laittaa uselist=False tähän
-    # https://docs.sqlalchemy.org/en/14/orm/basic_relationships.html#one-to-one
-    team_tasks = relationship('TeamTask', backref='tasks')#, cascade="all, delete-orphan")#, cascade="all, delete-orphan")#, lazy='dynamic')
+    team_tasks = relationship('TeamTask', backref='tasks')
 
     def __init__(self, **kwargs):
         super(Task, self).__init__(**kwargs)
@@ -761,10 +729,7 @@ class Task(db.Model):
         """ Checks equals """
         if isinstance(other, Task):
             return ((self.id == other.id) and (self.title == other.title) and (self.description == other.description) and (self.creator_id == other.creator_id))
-    # Lähde: https://stackoverflow.com/a/63901556
-    # def serializers(self):
-    #    dict_val={"id":self.id,"title":self.title,"description":self.description}#,"done":self.done,"updated_at":self.updated_at}
-    #    return json.loads(json.dumps(dict_val))#,default=default))
+    
 
 class Team(db.Model):
     """ A team data model """
@@ -776,13 +741,7 @@ class Team(db.Model):
     modified = db.Column(DateTime, default=datetime.utcnow())
     users = relationship("User", secondary='team_members')
     
-    team_tasks = relationship('Task', secondary='team_tasks') #backref='team_tasks', lazy='dynamic')
-    # team_tasks = db.relationship(
-    #     'Task',
-    #     secondary='team_tasks',
-    #     backref=db.backref('team', lazy='dynamic'),
-    #     lazy='dynamic'
-    # )
+    team_tasks = relationship('Task', secondary='team_tasks')
 
     def __repr__(self):
         return "<Team {}>".format(self.title)
@@ -798,19 +757,10 @@ class Team(db.Model):
         
         if u in self.users:
             return None
-        #if u in self.users:
-        #    print("Kuuluu jo tiimiin")
-        #    pass
-        #else:
-            #tr = TeamRole()
-        #tr = TeamRole()
         tm = TeamMember(
             team_id=self.id,
             team_member_id=u.id
         )
-        print(tm)
-
-        #db.session.add(tm)
         return tm
     
     def get_todo_tasks(self):
@@ -861,9 +811,7 @@ class Team(db.Model):
                 if form_data['assign_to_choices'] == 0:
                     team_task.doing = None
                     team_task.assigned = False
-                    print("assign to choices oli nolla!")
                 else:
-                    print("assign_to_choices: ", form_data['assign_to_choices'])
                     team_task.doing = form_data['assign_to_choices']
                     team_task.assigned = True
         else:
@@ -894,36 +842,32 @@ class TeamMember(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
     # FIXME: Erittäin harhaanjohtava, kun tarkoittaa käyttäjä id:tä oikeasti
+    # Tämä kannattaa korjata, jos sovellusta aikoo jatkokehittää. Nyt projektin loppuvaiheessa
+    # en uskaltanut muuttaa tämän muuttujan nimeä, sillä en uskonut, että
+    # vscode osaisi refaktoroida muuttujan nimen suoraan kaikista
+    # jinja-templateista jne., joissa team_member_id:ta saatetaan käyttää
     team_member_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    #role_id = db.Column(db.Infteger, db.ForeignKey('team_roles.id'))
     team_role_id = db.Column(db.Integer, db.ForeignKey('team_roles.id'), nullable=False)
-    #users = relationship('User', backref='role', lazy='dynamic')
-    #team_permissions = db.Column(db.Integer)
     user = relationship(User, backref=backref("team_members", cascade="all, delete-orphan"))
     team = relationship(Team, backref=backref("team_members", cascade="all, delete-orphan"))
-    #team_role = relationship('TeamRole', back_populates='team_members')
     team_member_user = relationship('User', back_populates='team_members')
     team_tasks = relationship("Task", secondary='team_tasks')
 
     def __init__(self, team_role_id=None, **kwargs): # Initializes user roles
         """ Sets team member roles. Sets Admin if email matches """
         super(TeamMember, self).__init__(**kwargs)
-        
-        #TODO: Tässä voi olla virhe, vaihdoit self.rolen
-        # self.team_roleksi
-        print("self.team_role: ", self.team_role_id)
+
         if self.team_role_id is None:
             
             team_id = kwargs.get('team_id')
             team = Team.query.filter_by(id=team_id).first()
             if self.get_user().email == os.getenv('ADMIN'): # Checks whether the email address of the user matches that of the admin's
-                # TODO: Tietokantaviritykset lopuksi
                 tr = TeamRole.query.filter_by(team_role_name='Administrator').first()
                 self.team_role_id = TeamRole.query.filter_by(team_role_name='Administrator').first().id
             elif (len(team.users) == 0):
                 # Tyhjä, joten tästä kaverista tehdään omistaja
                 tr = TeamRole.query.filter_by(team_role_name='Team owner').first()
-                self.team_role_id = tr.id#TeamRole.query.filter_by(team_role_name='Team owner').first()
+                self.team_role_id = tr.id #TeamRole.query.filter_by(team_role_name='Team owner').first()
             elif self.team_role_id is None:
                 self.team_role_id = TeamRole.query.filter_by(default_role=True).first().id
         else:
@@ -935,11 +879,6 @@ class TeamMember(db.Model):
     def can(self, perm):
         """ Checks whether user is allowed to carry out a particular
         function in a team """
-        print("Team rolen can metodista: ")
-        print("Input perm: ", perm)
-        print("self.etam_role.has_permission: ", self.team_role.has_permission)
-        print("Team member objectin team_role: ", self.team_role)
-        print(self.team_role)
         return self.team_role is not None and self.team_role.has_permission(perm)
     
     #FIXME: Jäänyt selkeästi kesken
@@ -963,9 +902,6 @@ class TeamMember(db.Model):
 
     def __repr__(self):
         return "<TeamMember: id:{}; team_id:{}; team_member_id:{}; team_role_id:{}>".format(self.id, self.team_id, self.team_member_id, self.team_role_id)
-    # TODO: Implement
-    #team_role_id = db.Column(db.Integer)
-
 
 @login_manager.user_loader
 def load_user(id):

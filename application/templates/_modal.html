@@ -17,47 +17,15 @@
         <p>Currently this task is assigned to: <strong id="embed_name">{{ assigned_to.username }}</strong></p>
         {% endif %}
     {% endif %}
-    
-    
-    {# {% for field in form if field.name != 'csrf_token' %} #}
-
-    
-
-        {#{% for field in form if field.name != 'csrf_token' and field.name != 'submit' %} #} 
         <div class="row">
             
             <div class="col-md-4">
-                {# {{ field.label }}
-                {{ field()  }} #}
-                
                 {{ wtf.quick_form(form) }}
-
-
-                 {# {{ form.hidden_tag() }} #}
-               {# {{ form.submit(value=('Send') )}} #}
             </div>
         </div>
-
-        
-        {# {% endfor %} #}
-        {# {% for error in field.errors %}
-            <div class="error">{{ error }}</div>
-       
-
-        {% endfor %}#}
-
-        {#{{ form.hidden_tag() }}
-        {{ form.submit(value=('Send') )}}
-        
-        {{ form.hidden_tag() }}
-        {{ form_field(form.viesti) }}
-        {{ form_field(form.vastaanottaja) }} 
-        {{ form.submit(value=('Send') )}} #}
-
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        {#{{ form.submit(value='Create') }} #}
         {% if "main.edit_team_task" in request.endpoint %}
        
             <button id="submit_edit_team_task" type="submit" value="Create" class="btn btn-success">Submit</button>
@@ -70,10 +38,3 @@
     </div>
 </form>
 </div>
-{#
-{% if "edit_team_task" in request.endpoint %}
-<p>
-    {{ delete('main.team_task_delete', id=team.id, task_id=task.id, teksti="Delete task") }}
-</p>
-{% endif %}
-#}

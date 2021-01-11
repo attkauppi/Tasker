@@ -1,19 +1,27 @@
 {% extends "base.html" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
+<h1 style="text-align:center;">Tasker - Kanban-tiimisovellus</h1>
+{% if not current_user.is_authenticated %}
+<img src="{{ url_for('static', filename='front_page_logo.png') }}"><br>
+
+{% endif %}
 {% if current_user.is_authenticated %}
+
 <h1>Hei {{ current_user.username }}</h1>
 <br>
 <!-- <p>Olet kirjautunut nimellä {{ session.username }}</p>
 <a href="/auth/logout">Kirjaudu ulos</a> -->
 {% endif %}
-Viestien määrä: {{ count }}
+
+{# Viestien määrä: {{ count }}
 <hr>
+
 {% for message in messages %}
 {{ message[0] }}
 <hr>
-{% endfor %}
-<a href="/new">Lähetä viesti</a>
+{% endfor %} #}
+{# <a href="/new">Lähetä viesti</a> #}
 <a href="{{ url_for('auth.register') }}">{{ 'Register' }}</a>
 <a href="{{ url_for('auth.login') }}">{{ 'Login' }}</a>
 

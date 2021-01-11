@@ -8,16 +8,7 @@
 
 {% block app_content %}
 <p>
-{# {{ delete('main.team_leave', id=id, username=username, value='team_leave', text='Are you sure?') }}
-<p>
-    <p>
-        {{ modal_form3(current_user.username) }}
-    </p>
-    {% if get_user_team_role(current_user, team.id) is not none %}
-    <p>
-        {{ leave_team(id=id, username=username, teksti="leave team") }}
-    </p>
-    {% endif %} #}
+
 <table class="table table-hover">
     <tr>
         <td width="256px"><img src="{{ url_for('static', filename='teamlogo.png') }}"></td>
@@ -27,11 +18,7 @@
             {% if team.description %}<p>{{ team.description }}</p>{% endif %}
             
             </p>
-            {#
-            <p>{{ delete('main.team_remove_member', id=id, username=username, teksti="Remove team member") }}
-                {{ delete('main.team_leave', id=team.id, username=current_user.username, teksti="Leave team") }}
-            </p>
-            #}
+
             <p>
                 {% if current_user.is_team_moderator(team.id) or current_user.is_team_administrator(team.id) or current_user.is_administrator() %}
                     {% if not current_user.is_administrator() %}
@@ -54,22 +41,10 @@
         <td>
             <h2>Team members</h2>
             <p>
-                {# a comment #}
-                {# TODO: Boostrapin sivuilla oli listattu kehittäjä tiimi ja käytetty
-                aika kivaa layouttia, josta osa kopioitu tähän alle. Ehkä tätä voisi hyödyntää? 
-                Esimerkin lähde: https://getbootstrap.com/docs/5.0/about/team/ 
-                
-                Katso lisäksi popover-esimerkki miguelin blogista:
-                https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xx-some-javascript-magic
-                
-                #}
-                {# Tämä ei kai toimi tällä hetkellä siitä syystä, että javascrpit-funktiosi tarvitsisi, että tekstissä
-                    on henkilön nimi ja tiimi numero, kuten find_user.html -sivulla tällä hetkellä. #}
                 {% for user in team.users %}
                 <div class="list-group mb-3">
                     <span class="user_popup">
                     <a class="list-group-item list-group-item-action d-flex align-items-center" href="{{ url_for('main.user', username=user.username) }}">
-                    {# href="{{ url_for('main.user_popup', username=user.username, team_id=team.id) }}">#}
                         <img src="{{ user.gravatar(32) }}", width="32", height="32", class="rounded me-2", loading="lazy">
                         <span>
                           <strong>{{ user.userame }}</strong> <b>{{ user.username }}</b>
@@ -84,20 +59,6 @@
                 </div>
                 
                 {% endfor %}
-                {# <p>
-                {% for user in team.users %}
-                <table>
-                    <tr>
-                        <th>Team member</th>
-                        <th>Team member role</th>
-                    </tr>
-                    <tr>
-                        <td>{{ user.username }}</td>
-                        <td>{{ get_user_team_role(user, team.id) }}</td>
-                    </tr>
-                </table>
-                {% endfor %}
-                </p>#}
             </p>
         </td>
     </tr>
