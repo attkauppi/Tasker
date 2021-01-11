@@ -24,3 +24,15 @@ Tiimirooleja ja tiimirooleihin liittyviä oikeuksia ovat:
 
 Tiimirooleista jne. tarkemmin [käyttötapaukset](käyttötapaukset.md)-osiossa.
 
+### Tiimitehtävät
+
+Tiimitehtäviin pääsee tiimisivun navbarin Team tasks -painikkeesta.
+
+### Tiimiin kutsuminen
+
+Tiimiin voi kutsua jäseniä tiimisivun navbarin Invite to team -painikkeesta.
+
+### Tiimin jäsenien tarkastelu ja roolien muuttaminen
+
+Tiimiin voi kutsua jäseniä voi tarkastella tiimisivun navbarin Members -painikkeesta. Mikäli olet kirjautuneena moderaattorina, tiimin omistajana tai Admin-käyttäjänä, voit muokata tiimiläisten rooleja painamalla tiimiläisen kohdalla näkyvää Edit team role -painiketta.
+

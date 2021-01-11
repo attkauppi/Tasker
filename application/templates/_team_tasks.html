@@ -7,10 +7,10 @@
         {% for task in todos %}
           {% if assigned_to is not none %}
             {% with assigned_to %}
-              {% include '_task2.html' %}
+              {% include '_task.html' %}
             {% endwith %}
           {% else %}
-            {% include '_task2.html' %}
+            {% include '_task.html' %}
           {% endif %}
         {% endfor %}
         <!-- otsikko kortti -->

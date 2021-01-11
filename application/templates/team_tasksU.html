@@ -33,10 +33,10 @@
           {% with task_id=task.id %}
             {% if (get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id)) %}
               {% with user=(get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id)) %}
-                {% include '_task2.html' %}
+                {% include '_task.html' %}
               {% endwith %}
             {% else %}
-              {% include '_task2.html' %}
+              {% include '_task.html' %}
             {% endif %}
           {% endwith %}
 
@@ -56,10 +56,10 @@
           {% with task_id=task.id %}
             {% if (get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id)) %}
               {% with user=(get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id)) %}
-                {% include '_task2.html' %}
+                {% include '_task.html' %}
               {% endwith %}
             {% else %}
-              {% include '_task2.html' %}
+              {% include '_task.html' %}
             {% endif %}
           {% endwith %}
           <br>
@@ -78,10 +78,10 @@
           {% with task_id=task.id %}
             {% if (get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id)) %}
               {% with user=(get_user_from_team_member_id(get_task_assigned2(task.team_tasks).doing, get_task_assigned2(task.team_tasks).team_id)) %}
-                {% include '_task2.html' %}
+                {% include '_task.html' %}
               {% endwith %}
             {% else %}
-              {% include '_task2.html' %}
+              {% include '_task.html' %}
             {% endif %}
           {% endwith %}
 

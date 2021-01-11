@@ -200,17 +200,6 @@ def delete_profile(username):
         text=text
     )
 
-# FIXME: poista tai toteuta
-@bp.route('/user/<username>/task_dashboard', methods=["GET", "POST"])
-@login_required
-def task_dashboard(username):
-    user = User.query.filter_by(username=username).first()
-
-    if user is None:
-        return abort(404)
-    
-    return render_template('_user_tasks.html')
-
 @bp.route('/edit_profile/<int:id>', methods=["GET", "POST"])
 @login_required
 @admin_required
@@ -223,7 +212,6 @@ def edit_profile_admin(id):
     if form.validate_on_submit():
         user.email = form.email.data.lower()
         user.username = form.username.data
-        # TODO: Lisää, kun sähköpostivarmistus toimii
         user.confirmed = form.confirmed.data
         user.role = Role.query.get(form.role.data)
         # TODO: lisää jos otat nimet käyttöön
@@ -343,7 +331,7 @@ def team_delete(id):
         text=text
     )
 
-#TODO: Tämä on periaattteessa turha. Halusit yhdennäköistää members-sivun
+
 @bp.route('/teams/<int:id>/invites', methods=["GET", "POST"])
 @login_required
 @team_moderator_required(id)
@@ -381,43 +369,6 @@ def team_invite(id):
         
     return render_template('team_members.html', id=team.id, team=team, users=us, form=form, team_id=team.id)
 
-# TODO: TURHA
-@bp.route('/teams/<int:id>/invite', methods=["GET", "POST"])
-@login_required
-def invite_to_team(id):
-    """ Route of endpoint for sending
-    team """
-    team = Team.query.get_or_404(id)
-    users = User.query.all()
-
-    # Filters out the users already in the team
-    # TODO: Write a better method to do this that doesn't
-    # constantly fail like the other methods you tried. 
-    us = []
-    for i in users:
-        if team in i.teams:
-            print("Tiimi on jo käyttäjän tiimeissä, ei lisätä")
-            #continue
-        else:
-            us.append(i)
-    
-    form = TeamInviteForm()
-    print("invite_to_team id: ", id)
-    print("Team johon kutsutaan: ", team)
-    #form = TeamInviteForm()
-
-    if form.validate_on_submit():
-        args = request.args.to_dict()
-        print("post args ", args)
-        return redirect(url_for('main.invite_user_to_team', username=form.username.data, team_id=id))
-
-    if not us:
-        flash("Sorry, we've run out of users, it seems\
-        You could always invite your friend to join the service :-)")
-
-    return render_template('find_user.html', team_id=id, users=us)
-
-
 @bp.route('/team/<int:id>', methods=["GET", "POST"])
 @login_required
 @team_role_required(id)
@@ -446,7 +397,6 @@ def team_members(id):
     print("Team users")
     return render_template('team_members.html', id=team.id, team=team, users=team.users)
 
-# TODO: Korjaa team_permission_required-dekoraattori
 @bp.route('/team/<int:id>/members/edit/<username>', methods=["GET", "POST"])
 @login_required
 @team_moderator_required(id)
@@ -556,7 +506,6 @@ def create_team_task(id):
         )
         db.session.add(t)
         db.session.flush()
-        #db.session.commit()
         team_task = team.create_team_task(t)
 
         db.session.add(team_task)
@@ -575,7 +524,6 @@ def team_tasks_uusi(id):
     team = Team.query.get_or_404(id)
 
     args = request.args.to_dict()
-
     # Tasks on different boards
     todos = team.get_todo_tasks()
     doings = team.get_doing_tasks()
@@ -589,13 +537,6 @@ def team_tasks_uusi(id):
         doings=doings,
         dones=dones,
         teksti="Create task")
-
-
-# @bp.route('/teams/tasks_static', methods=["GET", "POST"])
-# @login_required
-# def team_tasks():
-#     team = Team.query.get_or_404(id)
-#     return send_from_directory('static/js/src/', 'index.html')
 
 @bp.route('/teams/<int:id>/team_tasks/edit_task', methods=["GET", "POST"])
 @login_required
@@ -726,42 +667,6 @@ def team_task_move(id, task_id):
         
         return redirect(url_for('main.team_tasks_uusi', id=id))
 
-@bp.route("/teams/<int:id>/task/<int:task_id>/move_left", methods=["GET", "POST"])
-@login_required
-@team_role_required(id)
-def team_task_move_left(id, task_id):
-    """ Moves a team task to the board on the left """
-    team = Team.query.get_or_404(id)
-    task = Task.query.get_or_404(task_id)
-
-    if current_user.email != os.getenv('ADMIN'):
-        abort(403)
-
-    if request.method == "POST":
-        
-        task.move_left()
-        db.session.commit()
-
-        return redirect(url_for('main.team_tasks_uusi', id=id))
-    return render_template('_button_form.html', id=team.id, task_id=task.id)
-
-@bp.route("/teams/<int:id>/task/<int:task_id>/move_right", methods=["GET", "POST"])
-@login_required
-@team_role_required(id)
-def team_task_move_right(id, task_id):
-    """ Moves a team task to the board on the left """
-    team = Team.query.get_or_404(id)
-    task = Task.query.get_or_404(task_id)
-
-    form = EmptyForm()
-
-    if form.validate_on_submit():
-
-        task.move_right()
-        db.session.commit()
-
-        return redirect(url_for('main.team_tasks_uusi', id=id))
-
 @bp.route('/team/leave2', methods=["GET", "POST"])
 @login_required
 @team_role_required(id)
@@ -875,7 +780,6 @@ def messages():
     # prev_url = url_for('main.messages', page=messages.prev_num) \
     #     if messages.has_prev else None
     return render_template('_messages.html', messages=messages)
-    #return render_template('messages.html', messages=messages.items)#, next_url=next_url, prev_url=prev_url)
 
 
 ###----- generic notifications route -------#######
@@ -914,25 +818,15 @@ def notifications():
 def get_team_admin(id):
     """ Adds admin rights to admin, if moderation
     is needed for some reason """
-    print("Pääsi oikeaan endpointtiin")
     team = Team.query.get_or_404(id)
     form = EmptyForm()
 
     if request.method == "POST":
-        print("request.args: ", request.args)
-        print("request view args: ", request.view_args)
-
-
-        #if form.validate_on_submit():
-        print("Validated?")
         tm_admin = team.add_admin_role()
-        print("tm_admin: ", tm_admin)
         db.session.add(tm_admin)
         db.session.commit()
         flash('You can now admin this team')
         return redirect(url_for('main.team', id=team.id))
-
-
 
 @bp.route("/admin/teams", methods=["GET", "POST"])
 @login_required
@@ -952,7 +846,6 @@ def admin_users():
 
 @bp.route('/teams/<int:id>/edit_team_admin', methods=["GET", "POST"])
 @login_required
-#@team_permission_required2(id, TeamPermission.TEAM_OWNER)
 @admin_required
 def edit_team_admin(id):
     """ edit team form """
@@ -974,18 +867,3 @@ def edit_team_admin(id):
     form.description.data = team.description
     
     return render_template('edit_team.html', id=team.id, title=("Edit your team222"), form=form, team=team)    
-
-# @bp.route('/team/<int:id>/edit_member_role/<username>', methods=["GET", "POST"])
-# @login_required
-# def edit_member_roles(id, username):
-#     """ Allows editing member roles """
-#     team = Team.query.get_or_404(id)
-#     user = User.query.filter_by(username=username).first()
-#     form = TeamEditMemberForm()
-    
-
-#     if form.validate_on_submit():
-#         pass
-
-#     form.
-#     return render_template('edit_team.html', title=("Edit your team"), form=form, team=team, user=user)

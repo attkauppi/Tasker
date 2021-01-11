@@ -31,7 +31,7 @@
                     {#<li><a href="{{ url_for('.team_tasks', id=team.id) }}">Team tasks</a></li>#}
                     <li><a href="{{ url_for('.team_tasks_uusi', id=team.id, team=team) }}">Team tasks</a></li>
                     {% if current_user.is_team_moderator(team.id) or current_user.is_team_administrator(team.id) %}
-                    <li><a id="invite_to_team" href="{{ url_for('.team_invite', id=team.id) }}">Invite to team - vakioasettelu</a></li>
+                    <li><a id="invite_to_team" href="{{ url_for('.team_invite', id=team.id) }}">Invite to team</a></li>
                     {% endif %}
                 </ul>
                 <ul class="nav navbar-nav navbar-right">

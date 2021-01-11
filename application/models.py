@@ -906,7 +906,9 @@ class TeamMember(db.Model):
         return "<TeamMember: id:{}; team_id:{}; team_member_id:{}; team_role_id:{}>".format(self.id, self.team_id, self.team_member_id, self.team_role_id)
 
 class Comment(Base):
-    """ Class for commnets """
+    """ Class for commnets 
+    
+    Implemented in database, but isn't used. """
     __tablename__ = "comments"
     body = db.Column(db.Text)
     body_html = db.Column(db.Text)
