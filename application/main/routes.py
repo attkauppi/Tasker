@@ -699,7 +699,7 @@ def edit_team_task(id):
     task = Task.query.get_or_404(task_id)
 
     form = TeamTaskFormEdit(team_id=team.id, task=task, user=current_user)
-    # comment_form = CommentForm()
+    comment_form = CommentForm()
 
     team_task = TeamTask.query.filter_by(task_id=task_id).first()
 
@@ -735,21 +735,23 @@ def edit_team_task(id):
             flash('Saved task changes')
             return redirect(url_for('main.team_tasks_uusi', id=team.id), 307)
         
-        # if comment_form.validate_on_submit():
-        #     print("Commant form validoi")
-        #     comment = Comment(
-        #         body=form.body.data,
-        #         task=task,
-        #         author = current_user._get_current_object()
-        #     )
-        #     db.session.add(comment)
-        #     db.session.commit()
-        #     flash('Comment added')
-        #     return redirect(url_for('main.edit_team_task', id=team.id, task_id=task.id))
+        print("request.view args: ", request.view_args)
+        if comment_form.validate_on_submit():
+            comment = Comment(
+                body=form.body.data,
+                task=task,
+                author = current_user._get_current_object()
+            )
+            db.session.add(comment)
+            db.session.commit()
+            flash('Comment added')
+            return redirect(url_for('main.edit_team_task', id=team.id, task_id=task.id))
 
     form.title.data = task.title
     form.description.data = task.description
     form.board_choices.default = task.board
+
+    comments = task.comments.order_by(Comment.created_on.asc())
     
     return render_template(
         '_modal.html',
@@ -760,7 +762,9 @@ def edit_team_task(id):
         team=team,
         task=task,
         assigned_to=assigned_to,
-        board=task.board
+        board=task.board,
+        comments=comments,
+        comment_form=comment_form
     )
 
 

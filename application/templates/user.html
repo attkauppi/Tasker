@@ -51,7 +51,7 @@
         </td>
     </tr>
 </table>
-    <div>
+{#    <div>
         <h1>User: {{ user.username }}</h1>
         <hr>
         {% for task in tasks %}
@@ -64,11 +64,11 @@
         {{ wtf.quick_form(form) }}
         <br>
         {% endif %}
-    </div>
+    </div> #}
 
     {# Esimerkki modaalilomake #}
     <!-- Dynamic Modal -->
-    <p>
+ {#   <p>
     
     <a class="edit-modal-opener" data-toggle="modal"
         data-whatever="{{ url_for('main.user_edit') }}" href="#">Linkki</a> 
@@ -88,5 +88,5 @@
             {{ modal_form3(user.username) }}
         </p>
     
-
+#}
 {% endblock %}
