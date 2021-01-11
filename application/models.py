@@ -17,19 +17,21 @@ from urllib import request
 from wtforms.validators import ValidationError
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 import json
+from markdown import markdown# %% [markdown]
+import bleach
 
 # TODO Lisää mukaan lopuksi, ettei hajota jotain 
 # kesken kaiken
-# class Base(db.Model):
-#     __abstract__ = True
+class Base(db.Model):
+    __abstract__ = True
 
-#     id = db.Column(db.Integer, primary_key=True)
-#     created_on = db.Column(DateTime, default=datetime.utcnow())
-#     modified_on = db.Column(
-#         DateTime,
-#         default=datetime.utcnow(),
-#         onupdate=datetime.utcnow()
-#     )
+    id = db.Column(db.Integer, primary_key=True)
+    created_on = db.Column(DateTime, index=True, default=datetime.utcnow())
+    modified_on = db.Column(
+        DateTime,
+        default=datetime.utcnow(),
+        onupdate=datetime.utcnow()
+    )
 
 class TeamTask(db.Model):
     """ A table for team tasks """
@@ -66,7 +68,6 @@ class TeamTask(db.Model):
         """ Edits team task """
         
         team_task = TeamTask.query.filter_by(task_id=task.id).first()
-        # TODO: Katso ettei tässä ole tietoturvariskiä
         if "assign_to_choices" in form_data:
             if form_data['assign_to_choices'] == 0:
                 team_task.doing = None
@@ -82,8 +83,6 @@ class TeamTask(db.Model):
                 # in the task editing form. We need to find out
                 # which team_member's user_id is the integer
                 # given in doing field
-                
-        
         return team_task
 
 
@@ -227,6 +226,8 @@ class User(UserMixin, db.Model):
         backref='recipient',
         lazy='dynamic'
     )
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')
+
     last_message_read_time = db.Column(db.DateTime)
 
     # Notifications relationship, not just related to Message-class
@@ -653,6 +654,7 @@ class Task(db.Model):
     is_team_task = db.Column(db.Boolean, default=False)
     user = relationship('User', back_populates='tasks')
     team_tasks = relationship('TeamTask', backref='tasks')
+    comments = db.relationship('Comment', backref='task', lazy='dynamic')
 
     def __init__(self, **kwargs):
         super(Task, self).__init__(**kwargs)
@@ -902,6 +904,32 @@ class TeamMember(db.Model):
 
     def __repr__(self):
         return "<TeamMember: id:{}; team_id:{}; team_member_id:{}; team_role_id:{}>".format(self.id, self.team_id, self.team_member_id, self.team_role_id)
+
+class Comment(Base):
+    """ Class for commnets """
+    __tablename__ = "comments"
+    body = db.Column(db.Text)
+    body_html = db.Column(db.Text)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    task_id = db.Column(db.Integer, db.ForeignKey('tasks.id'))
+
+    def __repr__(self):
+        return "<Comment: id:{}; body: {}".format(self.id, self.body)
+
+    @staticmethod
+    def on_changed_body(target, value, oldvalue, initiator):
+        allowed_tags = ['a', 'abbr', 'acronym', 'b', 'code', 'em', 'li',
+        'strong']
+        target.body_html = bleach.linkify(bleach.clean(
+            markdown(value, output_format='html'),
+            tags=allowed_tags, strip=True
+        ))
+
+db.event.listen(Comment.body, 'set', Comment.on_changed_body)
+
+
+
+
 
 @login_manager.user_loader
 def load_user(id):

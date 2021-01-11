@@ -13,6 +13,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from logging.handlers import SMTPHandler, RotatingFileHandler
 from flask_migrate import Migrate
 from flask_restful import Api
+from flask_pagedown import PageDown
 #from application.api import AuthAPI
 # Globally accessible libraries
 # Lahde: https://hackersandslackers.com/flask-application-factory/
@@ -25,6 +26,7 @@ mail = Mail()
 bootstrap = Bootstrap()
 moment = Moment()
 api = Api()
+pagedown = PageDown()
 
 
 def create_app(config_class=Config):
@@ -47,6 +49,7 @@ def create_app(config_class=Config):
     bootstrap.init_app(app)
     moment.init_app(app)
     mail.init_app(app)
+    pagedown.init_app(app)
 
     # if app.config['SSL_REDIRECT']:
     #     from flask_sslify import SSLify

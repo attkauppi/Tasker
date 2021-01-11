@@ -36,5 +36,24 @@
         {% endif %}
        
     </div>
+    
 </form>
+
+
+{% if "main.edit_team_task" in request.endpoint %}
+<hr>
+<h4>Comments</h4>
+{% for comment in comments %}
+{% include "_comments.html" %}
+{% endfor %}
+<hr>
+{% import "bootstrap/wtf.html" as wtf %}
+<div class="comment-form">
+    {{ wtf.quick_form(comment_form) }}
 </div>
+<hr>
+
+
+
+
+{% endif %}

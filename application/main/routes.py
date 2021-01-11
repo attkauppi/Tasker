@@ -12,12 +12,13 @@ from application.main.forms import (
     EmptyForm,
     TeamTaskForm,
     TeamTaskFormEdit,
-    MessageForm
+    MessageForm,
+    CommentForm
 )#, EmptyForm, PostForm
 # from application.main.forms import TestForm
 from application.models import (
     User, Task, Role, Team, TeamMember, TeamRole, TeamPermission,
-    TeamTask, Board, Message, Notification
+    TeamTask, Board, Message, Notification, Comment
 )
 import os
 from application.main import bp
@@ -199,7 +200,7 @@ def delete_profile(username):
         text=text
     )
 
-
+# FIXME: poista tai toteuta
 @bp.route('/user/<username>/task_dashboard', methods=["GET", "POST"])
 @login_required
 def task_dashboard(username):
@@ -242,6 +243,8 @@ def edit_profile_admin(id):
     form.about_me = user.about_me
     print(user)
     return render_template('edit_profile.html', title=('Edit Profile'), form=form, user=user)
+
+
 
 @bp.route('/teams/create_team', methods=["GET", "POST"])
 @login_required
@@ -696,6 +699,7 @@ def edit_team_task(id):
     task = Task.query.get_or_404(task_id)
 
     form = TeamTaskFormEdit(team_id=team.id, task=task, user=current_user)
+    # comment_form = CommentForm()
 
     team_task = TeamTask.query.filter_by(task_id=task_id).first()
 
@@ -730,12 +734,36 @@ def edit_team_task(id):
 
             flash('Saved task changes')
             return redirect(url_for('main.team_tasks_uusi', id=team.id), 307)
+        
+        # if comment_form.validate_on_submit():
+        #     print("Commant form validoi")
+        #     comment = Comment(
+        #         body=form.body.data,
+        #         task=task,
+        #         author = current_user._get_current_object()
+        #     )
+        #     db.session.add(comment)
+        #     db.session.commit()
+        #     flash('Comment added')
+        #     return redirect(url_for('main.edit_team_task', id=team.id, task_id=task.id))
 
     form.title.data = task.title
     form.description.data = task.description
     form.board_choices.default = task.board
     
-    return render_template('_modal.html', id=team.id, form=form, endpoint="main.edit_team_task", title="Edit task", team=team, task=task, assigned_to=assigned_to, board=task.board)
+    return render_template(
+        '_modal.html',
+        id=team.id,
+        form=form,
+        endpoint="main.edit_team_task",
+        title="Edit task",
+        team=team,
+        task=task,
+        assigned_to=assigned_to,
+        board=task.board
+    )
+
+
 
 @bp.route('/teams/<int:id>/team_tasks/edit_task/<int:task_id>/delete', methods=["GET", "POST"])
 @login_required

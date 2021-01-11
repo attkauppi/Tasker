@@ -1,6 +1,5 @@
 {% extends 'bootstrap/base.html' %}
 
-
 {% block title %}
     {% if title %}{{ title }} Tasker{% else %}{{ 'Welcome to tasker' }}{% endif %}
 {% endblock %}
@@ -25,11 +24,6 @@
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    
-                    {#<li><a href="{{ url_for('main.index') }}">Index</a></li>#}
-                    
-                    {#<li><a href="{{ url_for('main.new') }}">Uusi viesti</a></li>#}
-                {#    <li><a href="{{ url_for('main.edit_profile') }}">Edit profile</a></li> #}
                 </ul>
                 <!-- Teams -->
                 <ul class="nav navbar-nav navbar-center">
@@ -53,13 +47,10 @@
                                 <li><a href="{{ url_for('main.admin_users') }}">Users</a></li>
                             </ul>
                     {% endif %}
-
                 </ul>
-                
 
                 <ul class="nav navbar-nav navbar-right",style="text-align: center">
                     {% if not current_user.is_anonymous %}
-                    
                     <!-- Henkilokohtaiselle sivulle vieva linkki -->
                     {# Messages #}
                     <li>
@@ -118,8 +109,6 @@
         {% block app_content %}{% endblock %}
     </div>
     {# Suurempi lomake #}
-    
-
     {# Esimerkki modaalilomake #}
     {% if request.endpoint %}
         {% if "edit_team_task" not in request.endpoint %}
@@ -166,12 +155,10 @@
                             console.log("data: ", data);
                             location.reload();
                         } else {
-                            
                             console.log("Data: " + data);
                             var obj = JSON.parse(data);
                             console.log("obj: " + obj);
                             for (var key in obj) {
-
                                 if (obj.hasOwnProperty(key)) {
                                     var value = obj[key];
                                 }
@@ -181,8 +168,6 @@
                                 .insertAfter('#' + key);
                             $('.form-group').addClass('has-error')
                             }
-                                
-                        
                         })
                     });
                 })
@@ -197,38 +182,15 @@
                     // mouse IN event handler
                     var elem = $(event.currentTarget);
                     var string = elem.attr('id');
-                    console.log('spaninarvo value: ' + string)
-                    // var string = elem.first().text().trim();
-                    console.log("string: " + string);
                     var piste = string.indexOf(".");
                     var pisteplusyksi = piste+1;
                     var pituus = string.length;
                     var loppu = string.slice(pisteplusyksi, pituus);
                     var user = string.slice(0, piste);
-                    console.log("user: " + user);
-                    console.log("loppu " + loppu);
-                    console.log("pituus: ", pituus);
-                    console.log("Piste: " + piste)
-                    //console.log("user " + user)
-                    console.log(elem);
-                    console.log("elem.first()");
-                    console.log(elem.first());
-                    console.log("elem.first().text()");
-                    console.log(elem.first().text());
-                    console.log("elem.first().text().trim()");
-                    console.log(elem.first().text().trim());
-                    console.log("elem.first().text().trim() + /popup");
-                    console.log(elem.first().text().trim() + '/popup');
-                    console.log('ed + user');
-                    console.log('/user/' + elem.first().text().trim() + '/popup');
-                    //console.log("target " + elem.target);
-                    console.log("prev")
-                    //console.log(elem.prevObject(elem));
-
+                   
                     timer = setTimeout(function() {
                         timer = null;
                         xhr = $.ajax(
-                            //'/user/' + elem.first().text().trim() + '/popup/' + loppu).done(
                             '/user/' + user + '/popup/' + loppu).done(
                                 function(data) {
                                     xhr = null;
@@ -243,14 +205,7 @@
                                     flask_moment_render_all();
                                 }
                             );
-                        //console.log('xhr');
-                        //console.log(xhr);
-                        //console.log('xhr innerText');
-                        //console.log(xhr.innerText);
-                        //console.log('xhr outerText');
-                        //console.log(xhr.outerText);
-                        //console.log('xhr text');
-                        //console.log(xhr.text());
+                        
                     }, 1000);
                 },
                 function(event) {
@@ -286,36 +241,12 @@
                         data) {
                         //if (data.status == 'ok') {
                             $('#Modal').modal('hide');
-
-                            console.log("data: ", data);
-                            // location.href = "{{ url_for('main.index') }}";
-                            
-                        // } else {
-                        //     console.log("Skripti 2");
-                        //     console.log("Data status not ok?");
-                        //     console.log("Data: ", data);
-                        //     var obj = JSON.parse(data);
-                        //     for (var key in obj) {
-                        //         if (obj.hasOwnProperty(key)) {
-                        //             var value = obj[key];
-                        //         }
-                        //     }
-                        //     $('.help-block').remove()
-                        //     $('<p class="help-block">' + value + '</p>')
-                        //         .insertAfter('#' + key);
-                        //     $('.form-group').addClass('has-error')
-                            
-                        //     location.reload();
-                        // }
-                                
-                        
                         })
                     });
                 })
             });
         });
     </script>
-
     <script>
         // Message script
         function set_message_count(n) {
@@ -323,7 +254,6 @@
             $('#message_count').css('visibility', n ? 'visible' : 'hidden');
         }
     </script>
-
     <script>
         // If included to avoid polling, when user not logged in
         {% if current_user.is_authenticated %}
@@ -343,7 +273,6 @@
             });
         {% endif %}
     </script>
-
     <script>
         // {# seuraava #}
         $(document).ready(function () {
@@ -363,27 +292,6 @@
 
                             $('#')
                             location.reload();
-
-                        //     console.log("data: ", data);
-                        //     location.reload();
-                        // } else {
-                            
-                        //     console.log("Data: " + data);
-                        //     var obj = JSON.parse(data);
-                        //     console.log("obj: " + obj);
-                        //     for (var key in obj) {
-
-                        //         if (obj.hasOwnProperty(key)) {
-                        //             var value = obj[key];
-                        //         }
-                        //     }
-                        //     $('.help-block').remove()
-                        //     $('<p class="help-block">' + value + '</p>')
-                        //         .insertAfter('#' + key);
-                        //     $('.form-group').addClass('has-error')
-                        //     }
-                                
-                        
                         })
                     });
                 })

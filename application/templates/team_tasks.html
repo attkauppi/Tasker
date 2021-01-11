@@ -13,32 +13,13 @@
 
 <style>
 </style>
-
-
-
-    {#<div class="bootstrap-scope">#}
-    {#<iframe style="height:1000px;width:1150;">#}
-    {#<iframe src="{{ render_template('_team_tasks2.html') }}"></iframe>#}
-        {#{% include '_team_tasks2.html' %} #}
-    {#<div class="container">
-        {% include '_team_tasks.html' %}
-    </div>#}
-    <div class="tasks">{# style="margin: 25px 50px 75px"> #}
+    <div class="tasks">
     <div class="container-fluid">
         <div class="col-md-12">
-        
             <iframe src="{{ url_for('main.team_tasks_static', id=team.id) }}" style="height:1000px;width:2000px;margin:auto;">
-                
             </iframe>
         </div>
-
-        
     </div>
-
-    {#<iframe src="{{ render_template('_team_tasks2.html') }}"></iframe>#}
-    {#</div>#}
-
-
 {% endblock %}
 {#<link rel="stylesheet" href="{{ url_for('static', filename='kanban_style.css') }}">
 
