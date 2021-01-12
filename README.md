@@ -50,6 +50,12 @@ Tämä olisi selvä jatkokehityskohde.
 
 ## [Tietokantakaavio](docs/tietokantakaavio#-tietokantakaavio)
 
+## Heroku
+
+Sovellus löytyy Herokusta seuraavasta osoitteesta: https://tsohatasker.herokuapp.com/
+
+
+
 # TODO: Jos lisäät käyttäjille omat taulut, lisää tähän.
 
 Tasker on sovellus, jonka on tarkoitus auttaa esimerkiksi tiimejä tehtävien hallinassa ja tehtävien jakamisessa.
