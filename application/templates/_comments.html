@@ -1,4 +1,4 @@
-<ul class="comments">
+{# <ul class="comments">
     {% for comment in comments %}
     <li class="comment">
         <div class="comment-thumbnail">
@@ -20,3 +20,24 @@
     </li>
     {% endfor %}
 </ul>
+#}
+<table class="table table-hover">
+    <tr>
+        <td width="40px">
+            <a href="{{ url_for('.user', username=comment.author.username) }}">
+                <img class="img-rounded profile-thumbnail" src="{{ comment.author.gravatar(size=40) }}">
+            </a>
+        </td>
+        <td>
+            <div class="comment-date">{{ moment(comment.modified_on).fromNow() }}</div>
+            <div class="comment-author"><a href="{{ url_for('.user', username=comment.author.username) }}">{{ comment.author.username }}</a></div>
+            <div class="comment-body">
+                {% if comment.body_html %}
+                    {{ comment.body_html | safe }}
+                {% else %}
+                    {{ comment.body }}
+                {% endif %}
+            </div>
+        </td>
+    </tr>
+</table>

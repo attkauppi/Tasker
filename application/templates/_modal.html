@@ -38,30 +38,37 @@
     </div>
     
 </form>
-{# 
+
 {% if "main.edit_team_task" in request.endpoint %}
 
 <hr>
 
-<div>
+
 <div class="comment_form">
     <form id="modalCommentForm" action="{{ url_for('main.team_task_comment', id=team.id, task_id=task.id) }}" method="post" name="comment_task">
         <div class="row">
-                <div class="col-md-4">
-                    {{ comment_form.hidden_tag() }}
-                    {{ form_field(comment_form.body) }}
-                </div>
+            <div class="col-md-4">
+                {{ wtf.quick_form(comment_form) }}
             </div>
         </div>
-        
-        <button id="submit_comment" type="submit" value="comment" class="btn btn-success">comment</button>
+        <div>
+            <button id="submit_comment" type="submit" value="comment" class="btn btn-success">comment</button>
+        </div>
     </form>
 </div>
 
 <hr>
-<div id="comments_added">
-    
+
+{% for comment in comments %}
+<div class="row">            
+    <div class="col-md-4">
+    {% include '_comments.html' %}
+    </div>
 </div>
+{% endfor %}
 {% endif %}
-#}
+
+
+
+
 

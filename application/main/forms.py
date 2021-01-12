@@ -163,20 +163,16 @@ class TeamTaskFormEdit(FlaskForm):
             lista3.append((0, "None"))
 
         if not user.can_team(team_id, TeamPermission.ASSIGN_TASKS):
-
             if team_task.doing is None:
                 lista3 = [(0, "None"), (user.id, user.username)]
             else:
-                if team_task.doing != user.id:
-                    # Ei tee tehtävää, mutta joku muu on määritelty tekemään
-                    team_member = TeamMember.query.filter_by(team_member_id=team_task.doing).first()
+                if team_task.doing is not None and team_task.doing != user.get_team_member_object(team.id).id:
+                    team_member = TeamMember.query.filter_by(id=team_task.doing).first()
                     lista3 = [(team_member.team_member_id, team_member.team_member_user.username)]
                 else:
-                    # tekee tehtävää
                     lista3 = [(user.id, user.username), (0, "None")]
 
         self.assign_to_choices.choices = lista3
-        print("self.assign_to_choices: ", self.assign_to_choices)
 
         # Find the team_task that corresponds to the task object
         team_task = TeamTask.query.filter_by(task_id=task.id).first()
@@ -297,4 +293,4 @@ class MessageForm(FlaskForm):
 
 class CommentForm(FlaskForm):
     body = StringField('', validators=[DataRequired()])
-    #submit = SubmitField('submit-comment')
+    submit = SubmitField('submit-comment')

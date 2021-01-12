@@ -14,9 +14,20 @@
                 </span>
             {% endset %}
             <br>
-            {{ message.author.username }} said {{ moment(message.timestamp).fromNow() }} {#, username=user_link, when=moment(message.timestamp).fromNow()) }} #}
+            <strong>{{ message.author.username }} said {{ moment(message.timestamp).fromNow() }} </strong>{#, username=user_link, when=moment(message.timestamp).fromNow()) }} #}
             <br>
             <span id="message{{ message.id }}">{{ message.body }}</span>
+        </small>
+            <div class="post-footer">
+                <p>
+                    <a href="{{ url_for('main.send_message', recipient=message.author.username, message=message) }}">
+                        <button class="btn btn-primary">
+                            {{ 'Reply' }}
+                        </button>
+                    </a>
+                </p>
+            </div>
+        </small>
         </td>
     </tr>
 </table>

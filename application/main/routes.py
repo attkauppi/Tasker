@@ -557,8 +557,7 @@ def edit_team_task(id):
 
     team_task = TeamTask.query.filter_by(task_id=task_id).first()
     assigned_to = None
-
-    # comment_form = CommentForm(team_id=team.id, task_id=task.id, user=current_user)
+    comment_form = CommentForm(task=task, team=team)
 
     if request.method == "POST":
 
@@ -581,7 +580,6 @@ def edit_team_task(id):
                     task.done = False
             form_data = form.data
             team_task = TeamTask.edit_team_task(task, team.id, form_data)
-            print("team task: ", team_task)
 
             db.session.commit()
 
@@ -609,39 +607,37 @@ def edit_team_task(id):
         comment_form=comment_form
     )
 
-# @bp.route('/teams/<int:id>/team_tasks/edit_task/comment', methods=["GET", "POST"])
-# def team_task_comment(id):
-#     """ Comenting about tasks """
-#     team = Team.query.get_or_404(id)
-#     #task = Task.query.get_or_404(id=task_id)
 
-#     print("request.args: ", request.args)
-#     print("view args: ", request.view_args)
+@bp.route('/teams/<int:id>/team_tasks/<int:task_id>/edit_task/comment', methods=["POST"])
+@login_required
+@team_role_required(id)
+def team_task_comment(id, task_id):
+    """ Comenting about tasks - just quickly added,
+    not very functional """
+    team = Team.query.get_or_404(id)
+    task = Task.query.get_or_404(task_id)
+    form = CommentForm()
 
-#     print("")
-#     form = CommentForm()
-
-#     if request.method == "POST":
-#         print("Form data: ", form.data)
-#         comment = Comment(
-#             body=form.body.data,
-#             task=task,
-#             author=current_user._get_current_object()
-#         )
-#         db.session.add(comment)
-#         db.session.flush()
-#         db.session.commit()
-#         flash("Comment added")
-#         c = {
-#             'id': comment.id,
-#             'body': comment.body,
-#             'body_html': comment.body_html,
-#             'modified': comment.modified_on,
-#             'status': 'ok'
-#         }
-#         #return jsonify(status='ok')
-#         return c
-
+    if request.method == "POST":
+        comment = Comment(
+            body=form.body.data,
+            task=task,
+            author=current_user._get_current_object()
+        )
+        db.session.add(comment)
+        db.session.flush()
+        db.session.commit()
+        flash("Comment added")
+        c = {
+            'id': comment.id,
+            'body': comment.body,
+            'body_html': comment.body_html,
+            'modified': comment.modified_on,
+            'status': 'ok'
+        }
+        return redirect(url_for('main.team_tasks_uusi', id=team.id))
+    
+    return redirect(url_for('main.team_tasks_uusi', id=team.id))
 
 @bp.route('/teams/<int:id>/team_tasks/edit_task/<int:task_id>/delete', methods=["GET", "POST"])
 @login_required
@@ -748,8 +744,6 @@ def team_remove_member_self():
 @login_required
 def team_leave(id, username):
     """ Allows team member to leave team """
-    print("request.args: ", request.args)
-    print("view args: ", request.view_args)
     team_id = request.view_args.get('id')
     username_arg = request.view_args.get('username')
     team = Team.query.get_or_404(team_id)
