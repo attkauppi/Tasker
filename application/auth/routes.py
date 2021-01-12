@@ -39,6 +39,14 @@ def before_request():
             and request.endpoint != 'static':
         return redirect(url_for('auth.unconfirmed'))
 
+@bp.before_request
+def before_request():
+    if 'DYNO' in os.environ:
+        if request.url.startswith('http://'):
+            url = request.url.replace('http://', 'https://', 1)
+            code = 301
+            return redirect(url, code=code)
+
 @bp.route('/unconfirmed')
 def unconfirmed():
     if current_user.is_anonymous or current_user.confirmed:

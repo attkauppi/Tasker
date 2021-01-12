@@ -75,6 +75,10 @@ def before_request():
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
     
+    if not request.url.startswith('https'):
+        return redirect(request.url.replace('http', 'https', 1))
+    
+    
     # TODO: If there's time, you might want to implement locales.
     # g.locale = str(get_locale())
 

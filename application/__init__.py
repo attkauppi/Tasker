@@ -43,9 +43,9 @@ def create_app(config_class=Config):
     #     from flask_sslify import SSLify
     #     sllify = SSLify(app)
     
-    if 'DYNO' in os.environ: # only trigger SSLify if the app is running on Heroku
-        from flask_sslify import SSLify
-        sslify = SSLify(app)
+    # if 'DYNO' in os.environ.get('DYNO'): # only trigger SSLify if the app is running on Heroku
+    #     from flask_sslify import SSLify
+    #     sslify = SSLify(app)
 
     db.init_app(app)
     migrate.init_app(app, db)
