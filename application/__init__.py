@@ -33,15 +33,19 @@ def create_app(config_class=Config):
     """ Initializes the core application """
     app = Flask(__name__, instance_relative_config=False)
     app.config.from_object(config_class)
-    app.config.from_object('config.DevConfig')
-    app.config['DEBUG'] = True
-    app.debug = True
+    # app.config.from_object('config.DevConfig')
+    # app.config['DEBUG'] = True
+    # app.debug = True
 
     #if os.environ.get('DYNO'):
     #    app.config.from_object('config.HerokuConfig')
     # if app.config['SSL_REDIRECT']:
     #     from flask_sslify import SSLify
     #     sllify = SSLify(app)
+    
+    if 'DYNO' in os.environ: # only trigger SSLify if the app is running on Heroku
+        from flask_sslify import SSLify
+        sslify = SSLify(app)
 
     db.init_app(app)
     migrate.init_app(app, db)
