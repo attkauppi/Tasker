@@ -400,9 +400,11 @@ class User(UserMixin, db.Model):
         """ Checks that user can moderate team """
         
         tm = self.get_team_member_object(id)
+        if tm is None:
+            return False
 
         print("tm: ", tm)
-        teamrole = self.get_team_role(id) #TeamRole.query.filter_by(id=tm.team_role_id).first()
+        teamrole = TeamRole.query.filter_by(id=tm.team_role_id).first()
         
         if teamrole is None:
             print("TEAM ROLE OLI MUKAMAS NONE")

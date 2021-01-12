@@ -30,7 +30,7 @@
                     <li><a href="{{ url_for('.team_members', id=team.id) }}">Members</a></li>
                     {#<li><a href="{{ url_for('.team_tasks', id=team.id) }}">Team tasks</a></li>#}
                     <li><a href="{{ url_for('.team_tasks_uusi', id=team.id, team=team) }}">Team tasks</a></li>
-                    {% if current_user.is_team_moderator(team.id) or current_user.is_team_administrator(team.id) %}
+                    {% if current_user.can_moderate_team(team.id) or current_user.is_administrator() %}
                     <li><a id="invite_to_team" href="{{ url_for('.team_invite', id=team.id) }}">Invite to team</a></li>
                     {% endif %}
                 </ul>
