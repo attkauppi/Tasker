@@ -8,6 +8,11 @@ Sähköpostivarmennuksen ollessa käytössä on tässä vaiheessa hyvä kirjautu
 
 Jos sähköpostiin tullut varmennuslinkki ehtii vanhentua, on sisäänkirjautumisen jälkeen mahdollista pyytää uuden varmennusviestin lähettämistä. Jos sähköpostien lähettämisessä on vikaa, kannattaa sähköpostivarmenteet ottaa pois päältä lisäämällä ympäristömuuttujatiedostoon .env Tasker-kansiossa asetus ```EMAIL_CONFIGURED=0``` . Ympäristömuuttujista tarkemmin [asennusohjeessa](docs/asennusohje#-ympäristömuuttujat).
 
+Alla on havainnollistettu rekisteröityminen gif-muodossa:
+
+<a href="https://drive.google.com/uc?export=view&id=1q_AghVLqdSJx_KpioH9Zlmjb-I-qQAM2"><img src="https://drive.google.com/uc?export=view&id=1q_AghVLqdSJx_KpioH9Zlmjb-I-qQAM2" style="width: 650px; max-width: 100%; height: auto" title="Click to enlarge picture"/></a>
+
+
 ## Tiimit
 
 Palvelussa on mahdollista luoda tiimejä. Mikäli tiimin haluaa luoda, on sivun yläreunassa kulkevassa navbarissa "Teams"-niminen dropdown-valikko, joka sisältää tiimit, joihin käyttäjä kuuluu, sekä mahdollisuuden luoda uusia tiimejä.
@@ -24,15 +29,110 @@ Tiimirooleja ja tiimirooleihin liittyviä oikeuksia ovat:
 
 Tiimirooleista jne. tarkemmin [käyttötapaukset](käyttötapaukset.md)-osiossa.
 
-### Tiimitehtävät
+Tiimin luomista havainnollistava .gif alapuolella:
 
-Tiimitehtäviin pääsee tiimisivun navbarin Team tasks -painikkeesta.
+<a href="https://drive.google.com/uc?export=view&id=1udemUR0z2BRM8J3TXjDoEzcP-2xrSk-F"><img src="https://drive.google.com/uc?export=view&id=1udemUR0z2BRM8J3TXjDoEzcP-2xrSk-F" style="width: 650px; max-width: 100%; height: auto" title="Tiimin luominen"/></a>
+
+
+
+
+
+
+
+
+
+
 
 ### Tiimiin kutsuminen
 
-Tiimiin voi kutsua jäseniä tiimisivun navbarin Invite to team -painikkeesta.
+Tiimiin voi kutsua jäseniä tiimisivun navbarin Invite to team -painikkeesta. Tämän jälkeen aukeaa sivu, johon on listattu kaikki palveluun rekisteröityneet käyttäjät. Kunkin käyttäjän kohdalla on sivun oikeassa reunassa nappi, jonka avulla käyttäjän voi kutsua tiimiinsä.
+
+Tiimiläisten kutsuminen .gif-muodossa
+
+<a href="https://drive.google.com/uc?export=view&id=1alTb_wHLEP_6N8AbGMUnXw6un2-E6Yr9"><img src="https://drive.google.com/uc?export=view&id=1alTb_wHLEP_6N8AbGMUnXw6un2-E6Yr9" style="width: 650px; max-width: 100%; height: auto" title="Tiimin luominen"/></a>
 
 ### Tiimin jäsenien tarkastelu ja roolien muuttaminen
 
-Tiimiin voi kutsua jäseniä voi tarkastella tiimisivun navbarin Members -painikkeesta. Mikäli olet kirjautuneena moderaattorina, tiimin omistajana tai Admin-käyttäjänä, voit muokata tiimiläisten rooleja painamalla tiimiläisen kohdalla näkyvää Edit team role -painiketta.
+Tiimin jäseniä voi tarkastella tiimisivun navbarin Members -painikkeesta. Mikäli olet kirjautuneena moderaattorina, tiimin omistajana tai Admin-käyttäjänä, voit muokata tiimiläisten rooleja painamalla tiimiläisen kohdalla näkyvää Edit team role -painiketta.
 
+Tiimirooliksi voit valita roolin, jolla on korkeintaan yhtä paljon oikeuksia kuin omalla tiimiroolillasi.
+
+Tiimiroolit on toteutettu tietokannassa team_roles-luokassa, jonka yhtenä parametrina on team_permissions-niminen kokonaisluku. Kokonaisluvut muodostuvat eri rooleille seuraavasti:
+
+```python
+
+class TeamPermission:
+    CREATE_TASKS = 1
+    CLAIM_TASKS = 2
+    ASSIGN_TASKS = 4
+    MODERATE_TEAM = 8
+    TEAM_OWNER = 16
+    ADMIN = 32
+
+# TeamRole-luokan insert_role-metodista:
+roles = {
+            'Team member': [
+                TeamPermission.CREATE_TASKS,
+                TeamPermission.CLAIM_TASKS
+            ],
+            'Team member with assign': [
+                TeamPermission.CREATE_TASKS,
+                TeamPermission.CLAIM_TASKS,
+                TeamPermission.ASSIGN_TASKS
+            ],
+            'Team moderator': [
+                TeamPermission.CREATE_TASKS,
+                TeamPermission.CLAIM_TASKS,
+                TeamPermission.ASSIGN_TASKS,
+                TeamPermission.MODERATE_TEAM
+            ],
+            'Team owner': [
+                TeamPermission.CREATE_TASKS,
+                TeamPermission.CLAIM_TASKS,
+                TeamPermission.ASSIGN_TASKS,
+                TeamPermission.MODERATE_TEAM,
+                TeamPermission.TEAM_OWNER
+            ],
+            'Administrator': [
+                TeamPermission.CREATE_TASKS,
+                TeamPermission.CLAIM_TASKS,
+                TeamPermission.ASSIGN_TASKS,
+                TeamPermission.MODERATE_TEAM,
+                TeamPermission.TEAM_OWNER,
+                TeamPermission.ADMIN
+            ]
+        }
+```
+Tämä tekee tiimiroolien lisäämisen ja vähentämisen mielestäni melko joustavaksi. 
+
+Roolien muuttaminen sovelluksessa tapahtuu tiimisivuilla näkyvän alemman, taustaväriltään mustan navbarin Members-painikkeen kautta. Kaikki tiimiläiset pääsevät tähän näkymään, mutta vähintään moderaattori-roolin omaavat käyttäjät näkevät sivulla jokaisen tiimiläisen kohdalla napin, jonka kautta rooleja on mahdollista käydä muuttamassa. Saman valikon kautta on myös mahdollista poistaa tiimiläinen.
+
+Tiimiroolien muokkausta havainnollistettu seuraavassa gif:ssä:
+
+
+
+<a href="https://drive.google.com/uc?export=view&id=1ScyyYZjLoNyKSihxVpsh079Zafbumbc_"><img src="https://drive.google.com/uc?export=view&id=1ScyyYZjLoNyKSihxVpsh079Zafbumbc_" style="width: 650px; max-width: 100%; height: auto" title="Tiimin luominen"/></a>
+
+
+## Tiimitehtävien luominen
+
+Tiimitehtäviä on mahdollista luoda ja muokata tiimin Team tasks -sivulla, jonne pääsee tiimisivuilla näkyvän alemman, taustaväriltään mustan navbarin Team tasks -painikkeen kautta. Navbarin alle, keskelle sivua ilmestyvän Create task -painikkeen kautta voi lisätä tehtäviä.
+
+Kaikki tehtävät siirtyvät aluksi Todos-tauluun. Kun tehtävä on luotu, sille on mahdollista määritellä tekijä tai käyttäjä voi itse määrittää ottavansa tehtävän hoitaakseen. Mikäli käyttäjällä ei ole oikeutta määritellä tehtävää jonkun muun tiimiläisen hoidettavaksi (Team member -rooli), hänellä on vaihtoehtoina vain määrittää tiimitehtävä joko omaksi tehtäväkseen tai jättää tekijä määrittämättä.
+
+Tiimitehtävät ovat card-tyyppisiä ja niiden alalaidassa näkyvän kynän kuvan kautta tiimitehtävää pääsee muokkaamaan. Sen oikealla puolella olevan rastin kautta tiimitehtävän voi tuhota. Tiimitehtävän siirtäminen taulujen välillä puolestaan onnistuu vasemmasta ja oikeasta alalaidasta löytyvillä nuolipainikkeilla, joita painamalla tehtävä siirtyy nuolen osoittamaan suuntaan mikäli se on mahdollista, sillä vasemman reunan taulusta tehtävää ei enää voi siirtää vasemmalle eikä oikeasta reunasta oikealle taulujen loppuessa kesken.
+
+Alla havainnollistettu tiimitehtävän luomista:
+
+<a href="https://drive.google.com/uc?export=view&id=1xqoFoAtnzExAXSIlLrcyLzdTY4sT9wcg"><img src="https://drive.google.com/uc?export=view&id=1xqoFoAtnzExAXSIlLrcyLzdTY4sT9wcg" style="width: 650px; max-width: 100%; height: auto" title="Tiimin luominen"/></a>
+
+### Kommentit tiimitehtävissä
+
+Lopuksi vielä toteutin mahdollisuuden lisätä kommentteja tiimitehtäviin, jotta tiimiläiset voisivat halutessaan keskustella keskenään tiimitehtäviin liittyvistä asioista. 
+
+
+## Ylläpitäjänä toimiminen
+
+Ylläpitäjätileillä on mahdollisuus päästä muokkaamaan kaikkien käyttäjien tietoja sekä tiimejä. Ylläpitäjänä kirjautunut käyttäjä näkee navbarissa punaisen dropdown-valikon, jonka kautta hän pääsee käsiksi sekä sivuston käyttäjiin että tiimeihin.
+
+Halutessaan muokata tiimiä ylläpitäjän on ensin otettava tiimissä käyttöön Admin-oikeutensa, mikä tapahtuu tiimisivun etusivulla näkyvän "Claim admin" -painikkeen kautta. Tämä lisää ylläpitäjän tiimin (piilo)jäseneksi, jota muut eivät näe esimerkiksi Members-listassa, mutta jolla on pääsy kaikkiin tiimin asetuksiin ja valikoihin.
