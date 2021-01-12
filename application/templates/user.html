@@ -51,42 +51,5 @@
         </td>
     </tr>
 </table>
-{#    <div>
-        <h1>User: {{ user.username }}</h1>
-        <hr>
-        {% for task in tasks %}
-        <p>
-        {{ task.user.username }} tasks: <b>{{ task.title }}</b>
-        </p>
-        {% endfor %}
-        <br>
-        {% if form %}
-        {{ wtf.quick_form(form) }}
-        <br>
-        {% endif %}
-    </div> #}
 
-    {# Esimerkki modaalilomake #}
-    <!-- Dynamic Modal -->
- {#   <p>
-    
-    <a class="edit-modal-opener" data-toggle="modal"
-        data-whatever="{{ url_for('main.user_edit') }}" href="#">Linkki</a> 
-    <div class="model-content">
-    </div>
-    </p>
-    Väliteksti
-    <p>
-        {{ show_name(user.username) }}
-    </p>
-    <p>
-        väliteksti2
-    </p>
-    
-    <p>
-        <p>
-            {{ modal_form3(user.username) }}
-        </p>
-    
-#}
 {% endblock %}

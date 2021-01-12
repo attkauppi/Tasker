@@ -298,4 +298,35 @@
         });
     </script>
 
+    {# <script>
+        $(document).ready(function () {
+        $('.edit-modal-opener34').click(function () {
+            var url = $(this).data('whatever');
+            $.get(url, function (data) {
+                $('#Modal .modal-content').html(data);
+                $('#Modal').modal();
+                $('#submit_comment').click(function(event) {
+                    event.preventDefault();
+                    $.post("{{ url_for('main.team_task_comment',id=id, task_id=task_id) }}", data = $('#modalCommentForm').serialize(), function (data) {
+                        event.preventDefault();
+                        if (data.status == 'ok') {
+                            $html = '<table class="table table-hover">'+
+                                '<tr>'+
+                                    '<td width="70px">'+
+                                        +data.title+
+                                    '</td>'+
+                                    '<td>'+
+                                        +data.body+
+                                    '</td>'+
+                                '</tr>'+
+                            '</table>';
+                    $('#comments_added').append(html);
+                    }
+                });
+            });
+            });
+        });
+    });
+    </script> #}
+
 {% endblock %}

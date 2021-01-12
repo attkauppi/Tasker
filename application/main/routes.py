@@ -110,9 +110,14 @@ def index():
     # user_agent = request.headers.get('User-Agent')
     return render_template("index.html", count=count, messages=messages)
 
-# @bp.route("/new")
-# def new():
-#     return render_template("new.html")
+@bp.route('/user/<username>/tasks_dashboard')
+@login_required
+def tasks_dashboard(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        abort(404)
+    
+    return render_template('tasks_dashboard.html')
 
 @bp.route("/send", methods=["POST"])
 def send():
@@ -553,6 +558,8 @@ def edit_team_task(id):
     team_task = TeamTask.query.filter_by(task_id=task_id).first()
     assigned_to = None
 
+    # comment_form = CommentForm(team_id=team.id, task_id=task.id, user=current_user)
+
     if request.method == "POST":
 
         # Tällä voisi varmaan tarkistaa, voiko
@@ -584,6 +591,8 @@ def edit_team_task(id):
     form.title.data = task.title
     form.description.data = task.description
     form.board_choices.default = task.board
+
+    comments = task.comments.order_by(Comment.modified_on.asc())
     
     return render_template(
         '_modal.html',
@@ -593,9 +602,46 @@ def edit_team_task(id):
         title="Edit task",
         team=team,
         task=task,
+        task_id=task.id,
         assigned_to=assigned_to,
-        board=task.board
+        board=task.board,
+        comments=comments,
+        comment_form=comment_form
     )
+
+# @bp.route('/teams/<int:id>/team_tasks/edit_task/comment', methods=["GET", "POST"])
+# def team_task_comment(id):
+#     """ Comenting about tasks """
+#     team = Team.query.get_or_404(id)
+#     #task = Task.query.get_or_404(id=task_id)
+
+#     print("request.args: ", request.args)
+#     print("view args: ", request.view_args)
+
+#     print("")
+#     form = CommentForm()
+
+#     if request.method == "POST":
+#         print("Form data: ", form.data)
+#         comment = Comment(
+#             body=form.body.data,
+#             task=task,
+#             author=current_user._get_current_object()
+#         )
+#         db.session.add(comment)
+#         db.session.flush()
+#         db.session.commit()
+#         flash("Comment added")
+#         c = {
+#             'id': comment.id,
+#             'body': comment.body,
+#             'body_html': comment.body_html,
+#             'modified': comment.modified_on,
+#             'status': 'ok'
+#         }
+#         #return jsonify(status='ok')
+#         return c
+
 
 @bp.route('/teams/<int:id>/team_tasks/edit_task/<int:task_id>/delete', methods=["GET", "POST"])
 @login_required

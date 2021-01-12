@@ -297,4 +297,4 @@ class MessageForm(FlaskForm):
 
 class CommentForm(FlaskForm):
     body = StringField('', validators=[DataRequired()])
-    submit = SubmitField('submit-comment')
+    #submit = SubmitField('submit-comment')
