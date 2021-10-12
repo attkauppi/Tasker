@@ -73,7 +73,7 @@ def create_app(config_class=Config):
     app.register_blueprint(api_blueprint, url_prefix='/api_blueprint/v1')
 
     # Esimerkki: https://stackoverflow.com/questions/60549530/pytest-assertionerror-view-function-mapping-is-overwriting-an-existing-endpoin
-    
+
     from application.api import get_blueprint
 
     api_bp_restful = get_blueprint()

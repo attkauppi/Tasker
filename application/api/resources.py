@@ -63,6 +63,26 @@ class AuthAPI(Resource):
         return jsonify({'token': g.current_user.generate_auth_token(
             expiration=3600), 'expiration': 3600})
 
+class TaskAPI(Resource):
+
+    decorators = [auth.login_required]
+
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        
+        self.reqparse.add_argument('title', type=str, required=True,
+                                   help='No task title provided',
+                                   location='json')
+        self.reqparse.add_argument('description', type=str, default="description",
+                                   location='json')
+        super(TaskAPI, self).__init__()
+    
+    def get(self, id):
+        task = Task.query.filter_by(id=id).first()
+        if task is None:
+            abort(404)
+        return task.to_json()
+
 taskss = [
         {
             'description': u'eras tehtava',
@@ -79,6 +99,8 @@ taskss = [
             'title': u'toisen tehtavan otsikko'
         }
     ]
+
+
 
 
 # Template for marshal
@@ -246,11 +268,6 @@ class TaskCheckAPI(Resource):
         
         return {"keep": False}
         
-
-
-
-
-
 class TaskListAPI(Resource):
 
     #decorators = [auth.login_required]
@@ -271,21 +288,12 @@ class TaskListAPI(Resource):
         #print("User: ", user)
         #tasks = Task.query.all().order_by(asc(Task.id))
         tasks = db.session.query(Task).order_by(Task.id)
-        print("Tasks: ", tasks)
-
-        #maxid = db.session.query(func.max(Task.id))
-        #print("Max id: ", maxid)
-        #print("Current_user: ", g.current_user)
-
 
         d = {}
         d['cards'] = []
         maxid = 0
-        for i in tasks:#Task.query.all():
-            #if i.id > maxid:
-            #    maxid = i.id
-            #print(i)
-            print(i.to_json())
+        for i in tasks:
+
             id_luku = i.id
             dt = {
                 'description': i.description,
@@ -296,8 +304,7 @@ class TaskListAPI(Resource):
             }
 
             d['cards'].append(dt)
-            
-            #if i.id > maxid:
+
             if maxid < id_luku:
                 maxid = id_luku
         
@@ -344,11 +351,8 @@ class TaskListAPI(Resource):
     def post(self):
         """ Create a new task """
         r = request.get_json(force=True)
-        print("tasklistapin post pyyntö: ", r)
-        print("request: ", request.get_json(force=True))
         #print("Current_user: ", g.current_user)
         args = self.reqparse.parse_args()
-        print("post pyynnön argit: ", args)
 
         task = Task(
             title=args['title'],
@@ -362,8 +366,6 @@ class TaskListAPI(Resource):
         #task.done = r['done']
         task.done = False
         task.creator_id = g.current_user.id
-
-
 
         db.session.add(task)
         db.session.commit()

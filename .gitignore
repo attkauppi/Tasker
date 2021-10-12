@@ -9,6 +9,7 @@ __pycache__/
 *.pyc
 *.egg-info
 venv
+venv2
 .env
 .pytest_cache/
 api.log
